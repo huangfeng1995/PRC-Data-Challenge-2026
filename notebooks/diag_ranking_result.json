@@ -1,0 +1,242 @@
+{
+  "check1_ranking_missing": {
+    "MVT_ID_mvt": {
+      "rank_nan_pct": 0.0,
+      "rank_dtype": "float64"
+    },
+    "FLIGHT_ID_mvt": {
+      "rank_nan_pct": 1.5320104047952536,
+      "rank_dtype": "float64"
+    },
+    "ADEP_mvt": {
+      "rank_nan_pct": 0.0,
+      "rank_dtype": "object"
+    },
+    "ADES_mvt": {
+      "rank_nan_pct": 0.0037698533527045796,
+      "rank_dtype": "object"
+    },
+    "PHASE_mvt": {
+      "rank_nan_pct": 0.0,
+      "rank_dtype": "object"
+    },
+    "MVT_TIME_UTC_mvt": {
+      "rank_nan_pct": 0.0,
+      "rank_dtype": "datetime64[us, UTC]"
+    },
+    "BLOCK_TIME_UTC_mvt": {
+      "rank_nan_pct": 100.0,
+      "rank_dtype": "datetime64[us, UTC]"
+    },
+    "SCHED_TIME_UTC_mvt": {
+      "rank_nan_pct": 0.0,
+      "rank_dtype": "datetime64[us, UTC]"
+    },
+    "AIRCRAFT_TYPE_mvt": {
+      "rank_nan_pct": 0.11251562314225977,
+      "rank_dtype": "object"
+    },
+    "RUNWAY_mvt": {
+      "rank_nan_pct": 0.0,
+      "rank_dtype": "object"
+    },
+    "STAND_mvt": {
+      "rank_nan_pct": 0.0011599548777552553,
+      "rank_dtype": "object"
+    },
+    "TAXITIME_SEC_mvt": {
+      "rank_nan_pct": 100.0,
+      "rank_dtype": "float64"
+    },
+    "LOBT_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "datetime64[us, UTC]"
+    },
+    "CALLSIGN_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "object"
+    },
+    "ADES_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "object"
+    },
+    "ADES_FILED_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "object"
+    },
+    "MARKET_SEGMENT_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "object"
+    },
+    "IOBT_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "datetime64[us, UTC]"
+    },
+    "EOBT_1_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "datetime64[us, UTC]"
+    },
+    "FLIGHT_RULE_flt": {
+      "rank_nan_pct": 1.5381001679034687,
+      "rank_dtype": "object"
+    },
+    "FLIGHT_TYPE_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "object"
+    },
+    "AIRCRAFT_TYPE_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "object"
+    },
+    "WK_TBL_CAT_flt": {
+      "rank_nan_pct": 1.5381001679034687,
+      "rank_dtype": "object"
+    },
+    "AIRCRAFT_OPERATOR_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "object"
+    },
+    "AOBT_3_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "datetime64[us, UTC]"
+    },
+    "ARVT_3_flt": {
+      "rank_nan_pct": 1.534040325831325,
+      "rank_dtype": "datetime64[us, UTC]"
+    }
+  },
+  "check1_fully_missing_cols": [
+    "BLOCK_TIME_UTC_mvt",
+    "TAXITIME_SEC_mvt"
+  ],
+  "check1_partial_missing_cols": [
+    "FLIGHT_ID_mvt",
+    "ADES_mvt",
+    "AIRCRAFT_TYPE_mvt",
+    "STAND_mvt",
+    "LOBT_flt",
+    "CALLSIGN_flt",
+    "ADES_flt",
+    "ADES_FILED_flt",
+    "MARKET_SEGMENT_flt",
+    "IOBT_flt",
+    "EOBT_1_flt",
+    "FLIGHT_RULE_flt",
+    "FLIGHT_TYPE_flt",
+    "AIRCRAFT_TYPE_flt",
+    "WK_TBL_CAT_flt",
+    "AIRCRAFT_OPERATOR_flt",
+    "AOBT_3_flt",
+    "ARVT_3_flt"
+  ],
+  "check2_pred_vs_train": {
+    "v1_pred_mean": 1024.8717420695987,
+    "v1_pred_median": 990.4935302734375,
+    "v1_pred_std": 307.6902552447266,
+    "v1_pred_p99": 1806.1421142578092,
+    "v1_pred_p999": 2798.4872363281565,
+    "v1_pred_max": 8974.0908203125,
+    "train_mean": 755.4838645314878,
+    "train_median": 696.0,
+    "train_std": 431.82899408547433,
+    "train_p99": 1984.0,
+    "train_p999": 3769.130000000063,
+    "train_max": 10747.0,
+    "mean_diff": 269.38787753811084,
+    "std_diff": -124.13873884074775,
+    "p99_diff": -177.85788574219077
+  },
+  "check3_quantile_breakdown": [
+    {
+      "bin": "p0-50",
+      "n": 172269,
+      "y_mean": 696.8473898379859,
+      "pred_mean": 1355.0550537109375,
+      "rmse": 765.8088987233353,
+      "sse": 101029440950.04068,
+      "pct_sse": 54.25688698967396
+    },
+    {
+      "bin": "p50-90",
+      "n": 137724,
+      "y_mean": 1154.5041314513085,
+      "pred_mean": 1546.947509765625,
+      "rmse": 640.0618741636496,
+      "sse": 56422658520.62676,
+      "pct_sse": 30.301244649314057
+    },
+    {
+      "bin": "p90-95",
+      "n": 17077,
+      "y_mean": 1619.081044679979,
+      "pred_mean": 1787.14111328125,
+      "rmse": 621.2352092359325,
+      "sse": 6590581003.564988,
+      "pct_sse": 3.5394079720142564
+    },
+    {
+      "bin": "p95-99",
+      "n": 13776,
+      "y_mean": 2039.3253484320558,
+      "pred_mean": 1761.7677001953125,
+      "rmse": 701.2770058042173,
+      "sse": 6774891309.869376,
+      "pct_sse": 3.638390044627471
+    },
+    {
+      "bin": "p99-99.5",
+      "n": 1708,
+      "y_mean": 2810.343091334895,
+      "pred_mean": 1699.314697265625,
+      "rmse": 1256.766237577691,
+      "sse": 2697720030.063137,
+      "pct_sse": 1.4487845268122956
+    },
+    {
+      "bin": "p99.5-99.9",
+      "n": 1378,
+      "y_mean": 3624.6944847605223,
+      "pred_mean": 1730.6668701171875,
+      "rmse": 2002.909443788923,
+      "sse": 5528048518.745979,
+      "pct_sse": 2.9687851475230236
+    },
+    {
+      "bin": "p99.9-100",
+      "n": 344,
+      "y_mean": 6403.4941860465115,
+      "pred_mean": 2045.7781982421875,
+      "rmse": 4562.997424795625,
+      "sse": 7162405251.549878,
+      "pct_sse": 3.8465006700349615
+    }
+  ],
+  "check3_total_sse": 186205745584.46075,
+  "holdout_result": {
+    "experiment": "same_month_holdout",
+    "train_period": "2025-02~06 + 2025-08~12",
+    "holdout_period": "2025-01 + 2025-07",
+    "v1": {
+      "rmse": 356.3775995727201,
+      "mae": 210.74070875972467,
+      "p95_error": 612.6170043945312,
+      "n_features": 30
+    },
+    "v7": {
+      "rmse": 352.67569469635663,
+      "mae": 205.77675200029097,
+      "p95_error": 596.792724609375,
+      "n_features": 42
+    },
+    "diff": {
+      "rmse_diff": -3.7019048763634714,
+      "pct": -1.0387591366017057
+    },
+    "vs_dec_holdout": {
+      "v1_dec": 319.4,
+      "v1_jan_jul": 356.3775995727201,
+      "v7_dec": 311.48,
+      "v7_jan_jul": 352.67569469635663
+    }
+  }
+}

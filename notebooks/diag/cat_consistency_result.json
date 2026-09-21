@@ -1,0 +1,19 @@
+{
+  "v1": {
+    "feat_names_match": true,
+    "allclose": true,
+    "max_abs_diff": 0.0,
+    "max_rel_diff": 0.0,
+    "n_test_rows": 10000,
+    "pass": true
+  },
+  "v7": {
+    "feat_names_match": true,
+    "allclose": true,
+    "max_abs_diff": 0.0,
+    "max_rel_diff": 0.0,
+    "n_test_rows": 10000,
+    "pass": true
+  },
+  "overall_pass": true
+}

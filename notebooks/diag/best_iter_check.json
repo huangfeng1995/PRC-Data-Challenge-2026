@@ -1,0 +1,102 @@
+{
+  "note": "5 \u6298\u65f6\u5e8f CV + early_stopping_rounds=100, num_boost_round=2000",
+  "groups": {
+    "G0_basic30": {
+      "desc": "basic30 (\u57fa\u7ebf, \u5bf9\u7167)",
+      "n_features": 31,
+      "fold_best_iters": [
+        683,
+        439,
+        1482,
+        2000,
+        901
+      ],
+      "fold_rmse_at_best": [
+        243.56026298715545,
+        264.47553897576637,
+        250.67408035430412,
+        254.3479599336173,
+        263.99301691581553
+      ],
+      "mean_best_iter": 1101,
+      "median_best_iter": 901,
+      "max_best_iter": 2000,
+      "hit_ceiling_1900": true,
+      "current_n_rounds": 1200,
+      "recommended_n_rounds": 1802
+    },
+    "G2_B": {
+      "desc": "+ B: dep_queue_n_airport",
+      "n_features": 32,
+      "fold_best_iters": [
+        416,
+        575,
+        1739,
+        1912,
+        822
+      ],
+      "fold_rmse_at_best": [
+        243.88922890478204,
+        263.30230567866295,
+        248.99614896718242,
+        253.35696289389386,
+        263.43532007803805
+      ],
+      "mean_best_iter": 1092,
+      "median_best_iter": 822,
+      "max_best_iter": 1912,
+      "hit_ceiling_1900": true,
+      "current_n_rounds": 1200,
+      "recommended_n_rounds": 1644
+    },
+    "G3_AB": {
+      "desc": "+ A + B",
+      "n_features": 35,
+      "fold_best_iters": [
+        619,
+        439,
+        1847,
+        1986,
+        942
+      ],
+      "fold_rmse_at_best": [
+        241.80996846982939,
+        266.3337181711082,
+        249.32087329868568,
+        253.22368735449498,
+        262.2547337547044
+      ],
+      "mean_best_iter": 1166,
+      "median_best_iter": 942,
+      "max_best_iter": 1986,
+      "hit_ceiling_1900": true,
+      "current_n_rounds": 1200,
+      "recommended_n_rounds": 1884
+    },
+    "Gd_ABD_runway": {
+      "desc": "+ A + B + D \u8dd1\u9053\u7ea7(\u5bf9\u7167)",
+      "n_features": 39,
+      "fold_best_iters": [
+        564,
+        521,
+        1850,
+        1998,
+        900
+      ],
+      "fold_rmse_at_best": [
+        239.01624886734442,
+        262.3318471339874,
+        248.0223317163007,
+        251.93909705766296,
+        261.43910526543146
+      ],
+      "mean_best_iter": 1166,
+      "median_best_iter": 900,
+      "max_best_iter": 1998,
+      "hit_ceiling_1900": true,
+      "current_n_rounds": 1200,
+      "recommended_n_rounds": 1800
+    }
+  },
+  "trigger_threshold": "\u82e5 hit_ceiling_1900=True \u8868\u793a\u89e6\u9876,\u9700\u8981 num_boost_round=4000 \u91cd\u8dd1"
+}

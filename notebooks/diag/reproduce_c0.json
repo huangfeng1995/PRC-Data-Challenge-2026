@@ -1,0 +1,19 @@
+{
+  "rmse": 357.0166737849467,
+  "mae": 210.96908272258213,
+  "bias": -18.36119863313187,
+  "bias_pct": -1.8228164524603223,
+  "target": 357.14,
+  "diff_vs_target": -0.12332621505328234,
+  "n_holdout": 344276,
+  "v1_feat_names_first5": [
+    "sched_hour",
+    "sched_dow",
+    "sched_month",
+    "sched_day",
+    "sched_minute"
+  ],
+  "v1_feat_names_n": 30,
+  "BASELINE_FEATURE_COLS_n": 30,
+  "match": true
+}

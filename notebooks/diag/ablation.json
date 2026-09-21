@@ -1,0 +1,58 @@
+{
+  "baseline_v10_global": 963.8796997070312,
+  "baseline_v10_egll": 1197.283935546875,
+  "baseline_v10_ltfm": 1041.4635009765625,
+  "v1_ranking_global": 1006.3,
+  "ablation_a_queue_remap": {
+    "model_name": "(a) dep_queue_n remap",
+    "n_dep": 344841,
+    "global_pred_mean": 964.6630249023438,
+    "global_orig_mean": 963.8796997070312,
+    "global_delta_vs_orig": 0.7833251953125,
+    "egll_pred_mean": 1194.6795654296875,
+    "egll_orig_mean": 1197.283935546875,
+    "egll_delta_vs_orig": -2.6043701171875,
+    "ltfm_pred_mean": 1034.621826171875,
+    "ltfm_orig_mean": 1041.4635009765625,
+    "ltfm_delta_vs_orig": -6.8416748046875
+  },
+  "ablation_b_cnt_remap": {
+    "model_name": "(b) cnt 5/10/15m remap",
+    "n_dep": 344841,
+    "global_pred_mean": 962.6713256835938,
+    "global_orig_mean": 963.8796997070312,
+    "global_delta_vs_orig": -1.2083740234375,
+    "egll_pred_mean": 1199.669677734375,
+    "egll_orig_mean": 1197.283935546875,
+    "egll_delta_vs_orig": 2.3857421875,
+    "ltfm_pred_mean": 1041.6297607421875,
+    "ltfm_orig_mean": 1041.4635009765625,
+    "ltfm_delta_vs_orig": 0.166259765625
+  },
+  "ablation_c_ref_est_zero": {
+    "model_name": "(c) ref_est=0",
+    "n_dep": 344841,
+    "global_pred_mean": 963.8796997070312,
+    "global_orig_mean": 963.8796997070312,
+    "global_delta_vs_orig": 0.0,
+    "egll_pred_mean": 1197.283935546875,
+    "egll_orig_mean": 1197.283935546875,
+    "egll_delta_vs_orig": 0.0,
+    "ltfm_pred_mean": 1041.4635009765625,
+    "ltfm_orig_mean": 1041.4635009765625,
+    "ltfm_delta_vs_orig": 0.0
+  },
+  "ablation_d_a_b_c": {
+    "model_name": "(d) a+b+c all",
+    "n_dep": 344841,
+    "global_pred_mean": 963.1242065429688,
+    "global_orig_mean": 963.8796997070312,
+    "global_delta_vs_orig": -0.7554931640625,
+    "egll_pred_mean": 1197.029541015625,
+    "egll_orig_mean": 1197.283935546875,
+    "egll_delta_vs_orig": -0.25439453125,
+    "ltfm_pred_mean": 1034.55419921875,
+    "ltfm_orig_mean": 1041.4635009765625,
+    "ltfm_delta_vs_orig": -6.9093017578125
+  }
+}

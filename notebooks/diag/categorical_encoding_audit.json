@@ -1,0 +1,475 @@
+{
+  "A1_source": "def _encode_categoricals(X: pd.DataFrame, fit: bool = False) -> pd.DataFrame:\n    \"\"\"\u628a category \u5217\u7528\u6574\u6570\u7f16\u7801\u3002fit=True \u65f6\u5b66\u4e60\u6620\u5c04,fit=False \u65f6\u7528\u5df2\u6709\u6620\u5c04\u3002\n\n    v0.1 \u4fee\u590d:\u540c\u65f6\u628a cat \u6620\u5c04\u5b58\u5230 _CAT_MAPPINGS_PATH \u6587\u4ef6,\u8de8\u8fdb\u7a0b\u4fdd\u6301\u4e00\u81f4\u3002\n    \"\"\"\n    global _CAT_MAPPINGS\n    if not _CAT_MAPPINGS:\n        if _CAT_MAPPINGS_PATH is not None and _CAT_MAPPINGS_PATH.exists():\n            _CAT_MAPPINGS = json.loads(_CAT_MAPPINGS_PATH.read_text())\n\n    X = X.copy()\n    for col in X.select_dtypes(include=\"category\").columns:\n        if fit:\n            # \u5b66\u4e60\u6620\u5c04,NaN \u7528 -1 \u8868\u793a\n            cats = X[col].cat.categories.tolist()\n            _CAT_MAPPINGS[col] = {c: i for i, c in enumerate(cats)}\n            _CAT_MAPPINGS[col][\"__nan__\"] = -1\n            # \u6301\u4e45\u5316(\u5982\u679c\u6709\u8bbe save_path)\n            if _CAT_MAPPINGS_PATH is not None:\n                _CAT_MAPPINGS_PATH.parent.mkdir(parents=True, exist_ok=True)\n                _CAT_MAPPINGS_PATH.write_text(json.dumps(_CAT_MAPPINGS))\n\n        mapping = _CAT_MAPPINGS.get(col, {})\n        X[col] = X[col].astype(str)\n        X[col] = X[col].map(mapping).fillna(-1).astype(\"int32\")\n\n    return X",
+  "A1_encoding_summary": {
+    "method": "label-encode (\u6574\u6570\u7f16\u7801 0..N-1, NaN\u2192-1)",
+    "sort_basis": "pandas CategoricalDtype \u7684 categories \u987a\u5e8f(\u7531 to_categorical \u8c03\u7528\u987a\u5e8f\u51b3\u5b9a,\u9ed8\u8ba4\u5b57\u6bcd\u5e8f)",
+    "XGB_handling": "\u6574\u6570 int32 \u9001\u5165 DMatrix, XGB \u5f53 numeric(\u8fde\u7eed\u503c)\u5904\u7406,\u4e0d\u662f\u7c7b\u522b",
+    "files": [
+      "src/features.py to_categorical() \u628a\u5bf9\u8c61\u5217\u8f6c category dtype"
+    ],
+    "all_columns_passing_through": "select_dtypes(include='category').columns \u2014 \u81ea\u52a8\u8986\u76d6\u6240\u6709 to_categorical \u5217"
+  },
+  "A2_dmatrix": {
+    "cat_cols_input": [
+      "ADEP_mvt",
+      "ADES_mvt",
+      "RUNWAY_mvt",
+      "STAND_mvt",
+      "airport_hour",
+      "AIRCRAFT_TYPE_mvt",
+      "WK_TBL_CAT_flt",
+      "MARKET_SEGMENT_flt",
+      "FLIGHT_RULE_flt",
+      "FLIGHT_TYPE_flt",
+      "AIRCRAFT_OPERATOR_flt"
+    ],
+    "non_cat_cols_input": [
+      "sched_hour",
+      "sched_dow",
+      "sched_month",
+      "sched_day",
+      "sched_minute",
+      "is_weekend",
+      "is_morning_peak",
+      "is_evening_peak",
+      "hour_sin",
+      "hour_cos",
+      "dow_sin",
+      "dow_cos",
+      "month_sin",
+      "month_cos",
+      "is_domestic_estimate",
+      "is_diverted",
+      "iobt_to_sched_sec",
+      "eobt_to_sched_sec",
+      "iobt_eobt_diff_sec"
+    ],
+    "X_enc_dtypes": {
+      "sched_hour": "int8",
+      "sched_dow": "int8",
+      "sched_month": "int8",
+      "sched_day": "int8",
+      "sched_minute": "int8",
+      "is_weekend": "int8",
+      "is_morning_peak": "int8",
+      "is_evening_peak": "int8",
+      "hour_sin": "float32",
+      "hour_cos": "float32",
+      "dow_sin": "float32",
+      "dow_cos": "float32",
+      "month_sin": "float32",
+      "month_cos": "float32",
+      "ADEP_mvt": "int32",
+      "ADES_mvt": "int32",
+      "RUNWAY_mvt": "int32",
+      "STAND_mvt": "int32",
+      "airport_hour": "int32",
+      "is_domestic_estimate": "int8",
+      "AIRCRAFT_TYPE_mvt": "int32",
+      "WK_TBL_CAT_flt": "int32",
+      "MARKET_SEGMENT_flt": "int32",
+      "FLIGHT_RULE_flt": "int32",
+      "FLIGHT_TYPE_flt": "int32",
+      "AIRCRAFT_OPERATOR_flt": "int32",
+      "is_diverted": "int8",
+      "iobt_to_sched_sec": "float32",
+      "eobt_to_sched_sec": "float32",
+      "iobt_eobt_diff_sec": "float32"
+    },
+    "X_enc_ranges": {
+      "sched_hour": [
+        5,
+        11
+      ],
+      "sched_dow": [
+        5,
+        5
+      ],
+      "sched_month": [
+        2,
+        2
+      ],
+      "sched_day": [
+        1,
+        1
+      ],
+      "sched_minute": [
+        0,
+        55
+      ],
+      "is_weekend": [
+        1,
+        1
+      ],
+      "is_morning_peak": [
+        0,
+        1
+      ],
+      "is_evening_peak": [
+        0,
+        0
+      ],
+      "hour_sin": [
+        0,
+        1
+      ],
+      "hour_cos": [
+        0,
+        0
+      ],
+      "dow_sin": [
+        0,
+        0
+      ],
+      "dow_cos": [
+        0,
+        0
+      ],
+      "month_sin": [
+        0,
+        0
+      ],
+      "month_cos": [
+        0,
+        0
+      ],
+      "ADEP_mvt": [
+        -1,
+        9
+      ],
+      "ADES_mvt": [
+        24,
+        1529
+      ],
+      "RUNWAY_mvt": [
+        -1,
+        21
+      ],
+      "STAND_mvt": [
+        722,
+        1840
+      ],
+      "airport_hour": [
+        -1,
+        231
+      ],
+      "is_domestic_estimate": [
+        0,
+        1
+      ],
+      "AIRCRAFT_TYPE_mvt": [
+        7,
+        190
+      ],
+      "WK_TBL_CAT_flt": [
+        -1,
+        3
+      ],
+      "MARKET_SEGMENT_flt": [
+        -1,
+        7
+      ],
+      "FLIGHT_RULE_flt": [
+        -1,
+        0
+      ],
+      "FLIGHT_TYPE_flt": [
+        -1,
+        4
+      ],
+      "AIRCRAFT_OPERATOR_flt": [
+        -1,
+        665
+      ],
+      "is_diverted": [
+        0,
+        1
+      ],
+      "iobt_to_sched_sec": [
+        -2100,
+        25500
+      ],
+      "eobt_to_sched_sec": [
+        -2100,
+        25500
+      ],
+      "iobt_eobt_diff_sec": [
+        -600,
+        1800
+      ]
+    },
+    "enable_categorical_used": false,
+    "feature_types_used": false,
+    "dm_feature_types": "None",
+    "verdict": "Label-encoded \u6574\u6570\u88ab XGB \u5f53 numeric(\u8fde\u7eed)\u5904\u7406 \u2014 \u6574\u6570\u88ab\u5206\u88c2\u4e3a'<= k vs > k',\u5bf9\u65e0\u5e8f\u7c7b\u522b\u662f\u9519\u8bef\u7528\u6cd5"
+  },
+  "A3_table": [
+    {
+      "col": "ADEP_mvt",
+      "train_nunique": 10,
+      "holdout_nunique": 10,
+      "ranking_nunique": 10,
+      "ranking_unseen_count": 0,
+      "ranking_unseen_pct": 0.0,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 56112288.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u673a\u573a\u4ee3\u53f7)",
+      "sample_unseen_values": []
+    },
+    {
+      "col": "ADES_mvt",
+      "train_nunique": 1504,
+      "holdout_nunique": 1113,
+      "ranking_nunique": 1105,
+      "ranking_unseen_count": 214,
+      "ranking_unseen_pct": 0.0621,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 4635489.5,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u673a\u573a\u4ee3\u53f7)",
+      "sample_unseen_values": [
+        "DIMN",
+        "EBFN",
+        "EDLM"
+      ]
+    },
+    {
+      "col": "RUNWAY_mvt",
+      "train_nunique": 53,
+      "holdout_nunique": 46,
+      "ranking_nunique": 50,
+      "ranking_unseen_count": 0,
+      "ranking_unseen_pct": 0.0,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 16093729.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u8dd1\u9053\u4ee3\u53f7)",
+      "sample_unseen_values": []
+    },
+    {
+      "col": "STAND_mvt",
+      "train_nunique": 1860,
+      "holdout_nunique": 1688,
+      "ranking_nunique": 1697,
+      "ranking_unseen_count": 314,
+      "ranking_unseen_pct": 0.0911,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 12105407.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u767b\u673a\u53e3\u4ee3\u53f7)",
+      "sample_unseen_values": [
+        "121B",
+        "435",
+        "47"
+      ]
+    },
+    {
+      "col": "AIRCRAFT_TYPE_mvt",
+      "train_nunique": 265,
+      "holdout_nunique": 206,
+      "ranking_nunique": 199,
+      "ranking_unseen_count": 18,
+      "ranking_unseen_pct": 0.0052,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 15681022.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u673a\u578b\u4ee3\u53f7\u662f\u8eab\u4efd ID)",
+      "sample_unseen_values": [
+        "AS65",
+        "B462",
+        "C10T"
+      ]
+    },
+    {
+      "col": "AIRCRAFT_TYPE_flt",
+      "train_nunique": 231,
+      "holdout_nunique": 188,
+      "ranking_nunique": 180,
+      "ranking_unseen_count": 10,
+      "ranking_unseen_pct": 0.0029,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 0.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u673a\u578b\u4ee3\u53f7\u662f\u8eab\u4efd ID)",
+      "sample_unseen_values": [
+        "A358",
+        "B462",
+        "C10T"
+      ]
+    },
+    {
+      "col": "AIRCRAFT_OPERATOR_flt",
+      "train_nunique": 669,
+      "holdout_nunique": 567,
+      "ranking_nunique": 579,
+      "ranking_unseen_count": 202,
+      "ranking_unseen_pct": 0.0595,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 6599642.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u822a\u53f8\u4ee3\u53f7)",
+      "sample_unseen_values": [
+        "0636ed06fdf5d71b9dfc09b8befe02341d5f72079b9cf3ac7609ede71f225af4",
+        "090b6d745d72efdf7f944595b3eefdcb4f0517582622fb96b393c3b51e1c43af",
+        "0dcef62febe5cece738f0b216d271c74d1a80d7549a69a088e1ed64787993a53"
+      ]
+    },
+    {
+      "col": "WK_TBL_CAT_flt",
+      "train_nunique": 4,
+      "holdout_nunique": 4,
+      "ranking_nunique": 4,
+      "ranking_unseen_count": 0,
+      "ranking_unseen_pct": 0.0,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 77526264.0,
+      "natural_order": true,
+      "comment": "L/M/H/J \u6709\u7269\u7406\u91cd\u91cf\u5e8f\u6570,\u6574\u6570\u7f16\u7801\u5408\u7406",
+      "sample_unseen_values": []
+    },
+    {
+      "col": "MARKET_SEGMENT_flt",
+      "train_nunique": 8,
+      "holdout_nunique": 8,
+      "ranking_nunique": 8,
+      "ranking_unseen_count": 0,
+      "ranking_unseen_pct": 0.0,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 8711153.0,
+      "natural_order": false,
+      "comment": "\u4f4e\u57fa\u6570\u3001\u65e0\u81ea\u7136\u5e8f",
+      "sample_unseen_values": []
+    },
+    {
+      "col": "FLIGHT_RULE_flt",
+      "train_nunique": 4,
+      "holdout_nunique": 3,
+      "ranking_nunique": 3,
+      "ranking_unseen_count": 0,
+      "ranking_unseen_pct": 0.0,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 472022.6,
+      "natural_order": false,
+      "comment": "\u4f4e\u57fa\u6570\u3001\u65e0\u81ea\u7136\u5e8f",
+      "sample_unseen_values": []
+    },
+    {
+      "col": "FLIGHT_TYPE_flt",
+      "train_nunique": 5,
+      "holdout_nunique": 5,
+      "ranking_nunique": 5,
+      "ranking_unseen_count": 0,
+      "ranking_unseen_pct": 0.0,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 5442988.0,
+      "natural_order": false,
+      "comment": "\u4f4e\u57fa\u6570\u3001\u65e0\u81ea\u7136\u5e8f",
+      "sample_unseen_values": []
+    },
+    {
+      "col": "ADES_FILED_flt",
+      "train_nunique": 1387,
+      "holdout_nunique": 1047,
+      "ranking_nunique": 1031,
+      "ranking_unseen_count": 170,
+      "ranking_unseen_pct": 0.0501,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 0.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u673a\u573a\u4ee3\u53f7)",
+      "sample_unseen_values": [
+        "DAAV",
+        "EDLM",
+        "EDMV"
+      ]
+    },
+    {
+      "col": "CALLSIGN_flt",
+      "train_nunique": 41561,
+      "holdout_nunique": 19518,
+      "ranking_nunique": 20375,
+      "ranking_unseen_count": 84683,
+      "ranking_unseen_pct": 24.9397,
+      "unseen_mapped_to": "-1 (int32)",
+      "current_gain": 0.0,
+      "natural_order": false,
+      "comment": "\u9ad8\u57fa\u6570\u3001\u65e0\u5e8f(\u822a\u73ed\u53f7,\u6bcf\u67b6\u98de\u673a\u552f\u4e00)",
+      "sample_unseen_values": [
+        "2GGGT",
+        "3CNOM",
+        "5NCDY"
+      ]
+    }
+  ],
+  "A4_risk_ranking": [
+    {
+      "col": "ADEP_mvt",
+      "gain": 56112288.0,
+      "train_nunique": 10,
+      "risk": "high"
+    },
+    {
+      "col": "RUNWAY_mvt",
+      "gain": 16093729.0,
+      "train_nunique": 53,
+      "risk": "high"
+    },
+    {
+      "col": "AIRCRAFT_TYPE_mvt",
+      "gain": 15681022.0,
+      "train_nunique": 265,
+      "risk": "high"
+    },
+    {
+      "col": "STAND_mvt",
+      "gain": 12105407.0,
+      "train_nunique": 1860,
+      "risk": "high"
+    },
+    {
+      "col": "MARKET_SEGMENT_flt",
+      "gain": 8711153.0,
+      "train_nunique": 8,
+      "risk": "high"
+    },
+    {
+      "col": "AIRCRAFT_OPERATOR_flt",
+      "gain": 6599642.0,
+      "train_nunique": 669,
+      "risk": "high"
+    },
+    {
+      "col": "ADES_mvt",
+      "gain": 4635489.5,
+      "train_nunique": 1504,
+      "risk": "high"
+    }
+  ],
+  "A4_low_card_with_ordinal": [
+    "WK_TBL_CAT_flt (L<M<H<J \u7269\u7406\u5e8f\u6570,\u6574\u6570\u5408\u7406)"
+  ],
+  "A5_aircraft_duplicate": {
+    "equal_ratio_pct": 99.6648,
+    "v1_feat_has_both": false,
+    "verdict": "\u82e5 mvt==flt \u4e14\u540c\u65f6\u5165\u6a21,\u7b49\u4e8e\u7279\u5f81\u91cd\u590d,\u4f1a\u88ab\u6811\u5206\u4e24\u6b21\u52a0\u540c\u6837\u7684 gain"
+  },
+  "A6_feasibility": {
+    "route1_xgb_categorical": {
+      "effort": "low (1-2 \u5929\u6539\u4ee3\u7801 + \u8dd1 7 \u7ec4 A/B)",
+      "risk": "\u4e2d\u7b49(\u9700\u8981 cat \u7c7b\u578b\u4e00\u81f4,\u53ef\u80fd ranking \u4e0a\u7684\u65b0\u503c\u4f1a\u89e6\u53d1 split warning)"
+    },
+    "route2_target_encoding": {
+      "effort": "low-medium (1-3 \u5929,\u5df2\u6709\u57fa\u7840\u4ee3\u7801)",
+      "risk": "\u4f4e(mapping \u4fdd\u5b58 + apply)"
+    },
+    "route3_catboost": {
+      "effort": "high (5-10 \u5929,\u9700\u65b0 train_catboost + \u8c03\u53c2 + ensemble \u96c6\u6210)",
+      "risk": "\u4e2d(\u4e0e XGB ensemble \u662f\u5927\u6539\u52a8;\u9700\u8981\u5148\u8bc4\u4f30 catboost \u5355\u6a21\u578b\u662f\u5426\u503c\u5f97)",
+      "catboost_installed": "1.2.10",
+      "lightgbm_installed": "4.7.0",
+      "libomp_available": true
+    }
+  },
+  "A6_recommendation": "\u672c\u673a CatBoost \u4e0e libomp \u90fd\u53ef\u5bfc\u5165\u3002\u5efa\u8bae\u4f18\u5148\u8def\u7ebf 1(XGB enable_categorical)\u505a\u5355\u70b9\u9a8c\u8bc1,\u82e5 RMSE \u6539\u5584 < 1% \u518d\u8003\u8651\u8def\u7ebf 3(CatBoost ensemble)\u3002"
+}

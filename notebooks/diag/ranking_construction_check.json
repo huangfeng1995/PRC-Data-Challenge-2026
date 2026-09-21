@@ -1,0 +1,205 @@
+{
+  "a_ranking_phase": {
+    "n_total": 689534,
+    "n_dep": 344841,
+    "n_arr": 344693,
+    "arr_pct": 49.9892681144077,
+    "can_build_E_online": true,
+    "all_columns": [
+      "ADEP_flt",
+      "ADEP_mvt",
+      "ADES_FILED_flt",
+      "ADES_flt",
+      "ADES_mvt",
+      "AIRCRAFT_OPERATOR_flt",
+      "AIRCRAFT_TYPE_flt",
+      "AIRCRAFT_TYPE_mvt",
+      "AOBT_3_flt",
+      "ARVT_1_flt",
+      "ARVT_3_flt",
+      "BLOCK_TIME_UTC_mvt",
+      "CALLSIGN_flt",
+      "EOBT_1_flt",
+      "FLIGHT_ID_mvt",
+      "FLIGHT_RULE_flt",
+      "FLIGHT_RULE_mvt",
+      "FLIGHT_TYPE_flt",
+      "FLIGHT_mvt",
+      "IOBT_flt",
+      "LOBT_flt",
+      "MARKET_SEGMENT_flt",
+      "MVT_ID_mvt",
+      "MVT_TIME_UTC_mvt",
+      "PHASE_mvt",
+      "RUNWAY_mvt",
+      "SCHED_TIME_UTC_mvt",
+      "STAND_mvt",
+      "TAXITIME_SEC_mvt",
+      "WK_TBL_CAT_flt"
+    ],
+    "comment": "\u5982\u679c ARR \u5360\u6bd4 0,\u5219 E(arr_mvt_cnt_*) \u5728 ranking \u4e0a ARR \u884c\u6ca1\u6709\u6570\u636e,\u53ea\u5269 DEP \u81ea\u8eab(ref);E \u4e0d\u53ef\u7528"
+  },
+  "b_runway_semantics_inferred": {
+    "train_jan_runway_nonempty_pct": 1.0,
+    "train_jan_block_nonempty_pct": 1.0,
+    "train_jan_mvt_nonempty_pct": 1.0,
+    "train_jan_aobt_nonempty_pct": 0.9906639948993533,
+    "ranking_runway_nonempty_pct": 1.0,
+    "train_jan_runway_when_block_na_nonempty_pct": 0.0,
+    "train_jan_runway_when_block_ok_nonempty_pct": 1.0,
+    "inference": "\u5982\u679c ranking \u4e0a RUNWAY_mvt ~100% \u975e\u7a7a,\u4e14 training BLOCK NaT \u65f6 RUNWAY_mvt \u4e5f\u6709\u503c,\u8bf4\u660e RUNWAY_mvt \u662f\u9884\u5206\u914d(\u975e\u4e8b\u540e);\u5426\u5219\u53ef\u80fd\u662f\u4e8b\u540e\u6216\u6df7\u5408",
+    "decision": "\u82e5 ranking_runway_nonempty_pct > 0.9 \u4e14 train_jan_runway_when_block_na_nonempty_pct > 0.9 \u2192 RUNWAY_mvt \u662f\u9884\u5206\u914d\u5b57\u6bb5,D \u8dd1\u9053\u7ea7\u53ef\u5b89\u5168\u4f7f\u7528",
+    "official_schema_note": "\u672c\u6838\u67e5\u672a\u6293\u53d6\u5b98\u65b9\u7f51\u9875;\u82e5\u9700\u786e\u8ba4 schema \u8bf7\u8bbf\u95ee https://prc-data-challenge-2026.netlify.app/data.html"
+  },
+  "c_ranking_feature_construction": {
+    "feat_stats_ranking": {
+      "dep_queue_n_airport": {
+        "n_total": 689534,
+        "n_nan": 7842,
+        "nan_rate": 0.01137289821821694,
+        "p50": 12.0,
+        "p90": 27.0,
+        "p99": 36.0,
+        "mean": 12.5857515335083
+      },
+      "dep_mvt_cnt_airport_5m": {
+        "n_total": 689534,
+        "n_nan": 7842,
+        "nan_rate": 0.01137289821821694,
+        "p50": 1.0,
+        "p90": 5.0,
+        "p99": 7.0,
+        "mean": 1.9061760902404785
+      },
+      "dep_mvt_cnt_airport_10m": {
+        "n_total": 689534,
+        "n_nan": 7842,
+        "nan_rate": 0.01137289821821694,
+        "p50": 3.0,
+        "p90": 9.0,
+        "p99": 13.0,
+        "mean": 3.7932116985321045
+      },
+      "dep_mvt_cnt_airport_15m": {
+        "n_total": 689534,
+        "n_nan": 7842,
+        "nan_rate": 0.01137289821821694,
+        "p50": 5.0,
+        "p90": 14.0,
+        "p99": 19.0,
+        "mean": 5.662752151489258
+      },
+      "ref_was_estimated": {
+        "n_total": 689534,
+        "n_nan": 0,
+        "nan_rate": 0.0,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 1.0,
+        "mean": 0.01137289821821694
+      }
+    },
+    "ranking_n_dep": 344841,
+    "ranking_jan_n": 152709,
+    "ranking_jul_n": 192111,
+    "cold_start_2026_07_d1": {
+      "n_rows": 6065,
+      "n_nan_cells": 804
+    },
+    "cold_start_2026_01_d1": {
+      "n_rows": 4972,
+      "n_nan_cells": 212
+    },
+    "ref_was_estimated_2026_07": {
+      "n_aobt_missing_fallback": 2833,
+      "rate": 0.014746682907277563
+    },
+    "ref_was_estimated_2026_01": {
+      "n_aobt_missing_fallback": 2449,
+      "rate": 0.016037037764637316
+    },
+    "feat_stats_holdout": {
+      "dep_queue_n_airport": {
+        "n_total": 344419,
+        "n_nan": 5373,
+        "nan_rate": 0.015600184658802215,
+        "p50": 18.0,
+        "p90": 29.0,
+        "p99": 36.0
+      },
+      "dep_mvt_cnt_airport_5m": {
+        "n_total": 344419,
+        "n_nan": 5373,
+        "nan_rate": 0.015600184658802215,
+        "p50": 3.0,
+        "p90": 6.0,
+        "p99": 8.0
+      },
+      "dep_mvt_cnt_airport_10m": {
+        "n_total": 344419,
+        "n_nan": 5373,
+        "nan_rate": 0.015600184658802215,
+        "p50": 6.0,
+        "p90": 10.0,
+        "p99": 14.0
+      },
+      "dep_mvt_cnt_airport_15m": {
+        "n_total": 344419,
+        "n_nan": 5373,
+        "nan_rate": 0.015600184658802215,
+        "p50": 10.0,
+        "p90": 15.0,
+        "p99": 19.0
+      },
+      "ref_was_estimated": {
+        "n_total": 344419,
+        "n_nan": 0,
+        "nan_rate": 0.0,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 1.0
+      }
+    }
+  },
+  "d_submission_template": {
+    "n_rows": 344841,
+    "columns": [
+      "MVT_ID_mvt",
+      "TAXITIME_SEC_mvt"
+    ],
+    "dtype": {
+      "MVT_ID_mvt": "float64",
+      "TAXITIME_SEC_mvt": "float64"
+    },
+    "head": [
+      {
+        "MVT_ID_mvt": 202501153.0,
+        "TAXITIME_SEC_mvt": NaN
+      },
+      {
+        "MVT_ID_mvt": 202501107.0,
+        "TAXITIME_SEC_mvt": NaN
+      },
+      {
+        "MVT_ID_mvt": 202501179.0,
+        "TAXITIME_SEC_mvt": NaN
+      },
+      {
+        "MVT_ID_mvt": 202501178.0,
+        "TAXITIME_SEC_mvt": NaN
+      },
+      {
+        "MVT_ID_mvt": 202501174.0,
+        "TAXITIME_SEC_mvt": NaN
+      }
+    ]
+  },
+  "d_mvt_id_intersection": {
+    "rank_n_mvt_id": 689534,
+    "sub_n_mvt_id": 344841,
+    "common": 344841,
+    "only_in_rank": 344693,
+    "only_in_sub": 0,
+    "match": false
+  }
+}

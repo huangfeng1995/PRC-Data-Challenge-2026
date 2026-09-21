@@ -1,0 +1,455 @@
+{
+  "total_diff_mean": -42.4187126159668,
+  "total_diff_median": -31.9185791015625,
+  "quantile_compare": {
+    "p10": {
+      "v1": 684.05322265625,
+      "v10": 664.5687255859375,
+      "delta": -19.4844970703125
+    },
+    "p25": {
+      "v1": 803.160400390625,
+      "v10": 784.8717041015625,
+      "delta": -18.2886962890625
+    },
+    "p50": {
+      "v1": 970.3125,
+      "v10": 940.1038818359375,
+      "delta": -30.2086181640625
+    },
+    "p75": {
+      "v1": 1174.3204345703125,
+      "v10": 1115.0601806640625,
+      "delta": -59.26025390625
+    },
+    "p90": {
+      "v1": 1374.61572265625,
+      "v10": 1287.802001953125,
+      "delta": -86.813720703125
+    },
+    "p95": {
+      "v1": 1503.55126953125,
+      "v10": 1397.1737060546875,
+      "delta": -106.3775634765625
+    },
+    "p99": {
+      "v1": 1761.933349609375,
+      "v10": 1695.1029052734375,
+      "delta": -66.8304443359375
+    }
+  },
+  "per_airport_month": [
+    {
+      "ADEP_mvt": "EDDF",
+      "sched_month": 1,
+      "n": 15666,
+      "pred_v1_mean": 882.6755981445312,
+      "pred_v10_mean": 883.1073608398438,
+      "pred_diff_mean": 0.43177247047424316,
+      "pred_diff_med": -1.687530517578125
+    },
+    {
+      "ADEP_mvt": "EDDF",
+      "sched_month": 6,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "EDDF",
+      "sched_month": 7,
+      "n": 20650,
+      "pred_v1_mean": 894.5245361328125,
+      "pred_v10_mean": 868.8682861328125,
+      "pred_diff_mean": -25.65627670288086,
+      "pred_diff_med": -26.40863037109375
+    },
+    {
+      "ADEP_mvt": "EDDF",
+      "sched_month": 12,
+      "n": 1,
+      "pred_v1_mean": 725.6061401367188,
+      "pred_v10_mean": 739.4190673828125,
+      "pred_diff_mean": 13.81292724609375,
+      "pred_diff_med": 13.81292724609375
+    },
+    {
+      "ADEP_mvt": "EDDM",
+      "sched_month": 1,
+      "n": 10953,
+      "pred_v1_mean": 832.8438720703125,
+      "pred_v10_mean": 864.6785278320312,
+      "pred_diff_mean": 31.83464813232422,
+      "pred_diff_med": 24.357666015625
+    },
+    {
+      "ADEP_mvt": "EDDM",
+      "sched_month": 6,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "EDDM",
+      "sched_month": 7,
+      "n": 15013,
+      "pred_v1_mean": 798.10498046875,
+      "pred_v10_mean": 809.6734008789062,
+      "pred_diff_mean": 11.568440437316895,
+      "pred_diff_med": 13.1602783203125
+    },
+    {
+      "ADEP_mvt": "EDDM",
+      "sched_month": 12,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "sched_month": 1,
+      "n": 19283,
+      "pred_v1_mean": 1322.2376708984375,
+      "pred_v10_mean": 1156.585205078125,
+      "pred_diff_mean": -165.65261840820312,
+      "pred_diff_med": -178.20428466796875
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "sched_month": 6,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "sched_month": 7,
+      "n": 20557,
+      "pred_v1_mean": 1368.6732177734375,
+      "pred_v10_mean": 1235.4605712890625,
+      "pred_diff_mean": -133.2126922607422,
+      "pred_diff_med": -136.3240966796875
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "sched_month": 12,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "EHAM",
+      "sched_month": 1,
+      "n": 16232,
+      "pred_v1_mean": 786.5578002929688,
+      "pred_v10_mean": 788.3553466796875,
+      "pred_diff_mean": 1.797516107559204,
+      "pred_diff_med": -6.71490478515625
+    },
+    {
+      "ADEP_mvt": "EHAM",
+      "sched_month": 6,
+      "n": 1,
+      "pred_v1_mean": 1013.525634765625,
+      "pred_v10_mean": 1004.694580078125,
+      "pred_diff_mean": -8.8310546875,
+      "pred_diff_med": -8.8310546875
+    },
+    {
+      "ADEP_mvt": "EHAM",
+      "sched_month": 7,
+      "n": 21949,
+      "pred_v1_mean": 839.41455078125,
+      "pred_v10_mean": 812.4325561523438,
+      "pred_diff_mean": -26.98198890686035,
+      "pred_diff_med": -25.250732421875
+    },
+    {
+      "ADEP_mvt": "EHAM",
+      "sched_month": 12,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "LEBL",
+      "sched_month": 1,
+      "n": 12201,
+      "pred_v1_mean": 909.5065307617188,
+      "pred_v10_mean": 874.1442260742188,
+      "pred_diff_mean": -35.362266540527344,
+      "pred_diff_med": -32.234375
+    },
+    {
+      "ADEP_mvt": "LEBL",
+      "sched_month": 6,
+      "n": 2,
+      "pred_v1_mean": 788.8651733398438,
+      "pred_v10_mean": 815.5458984375,
+      "pred_diff_mean": 26.68072509765625,
+      "pred_diff_med": 26.68072509765625
+    },
+    {
+      "ADEP_mvt": "LEBL",
+      "sched_month": 7,
+      "n": 17877,
+      "pred_v1_mean": 981.193359375,
+      "pred_v10_mean": 1005.8646240234375,
+      "pred_diff_mean": 24.671274185180664,
+      "pred_diff_med": 18.55780029296875
+    },
+    {
+      "ADEP_mvt": "LEBL",
+      "sched_month": 12,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "LEMD",
+      "sched_month": 1,
+      "n": 16801,
+      "pred_v1_mean": 989.4633178710938,
+      "pred_v10_mean": 952.0123901367188,
+      "pred_diff_mean": -37.45088577270508,
+      "pred_diff_med": -34.3289794921875
+    },
+    {
+      "ADEP_mvt": "LEMD",
+      "sched_month": 6,
+      "n": 1,
+      "pred_v1_mean": 1027.023193359375,
+      "pred_v10_mean": 1290.7701416015625,
+      "pred_diff_mean": 263.7469482421875,
+      "pred_diff_med": 263.7469482421875
+    },
+    {
+      "ADEP_mvt": "LEMD",
+      "sched_month": 7,
+      "n": 20151,
+      "pred_v1_mean": 1022.381591796875,
+      "pred_v10_mean": 1005.3912963867188,
+      "pred_diff_mean": -16.990331649780273,
+      "pred_diff_med": -16.129638671875
+    },
+    {
+      "ADEP_mvt": "LEMD",
+      "sched_month": 12,
+      "n": 1,
+      "pred_v1_mean": 1310.0892333984375,
+      "pred_v10_mean": 1169.0350341796875,
+      "pred_diff_mean": -141.05419921875,
+      "pred_diff_med": -141.05419921875
+    },
+    {
+      "ADEP_mvt": "LFPG",
+      "sched_month": 1,
+      "n": 18128,
+      "pred_v1_mean": 996.6260986328125,
+      "pred_v10_mean": 979.8837280273438,
+      "pred_diff_mean": -16.74236297607422,
+      "pred_diff_med": -29.7340087890625
+    },
+    {
+      "ADEP_mvt": "LFPG",
+      "sched_month": 6,
+      "n": 2,
+      "pred_v1_mean": 1141.02783203125,
+      "pred_v10_mean": 1269.5291748046875,
+      "pred_diff_mean": 128.50125122070312,
+      "pred_diff_med": 128.50125122070312
+    },
+    {
+      "ADEP_mvt": "LFPG",
+      "sched_month": 7,
+      "n": 21741,
+      "pred_v1_mean": 1023.2333374023438,
+      "pred_v10_mean": 981.3327026367188,
+      "pred_diff_mean": -41.900657653808594,
+      "pred_diff_med": -45.31591796875
+    },
+    {
+      "ADEP_mvt": "LFPG",
+      "sched_month": 12,
+      "n": 1,
+      "pred_v1_mean": 1615.9119873046875,
+      "pred_v10_mean": 1600.02587890625,
+      "pred_diff_mean": -15.8861083984375,
+      "pred_diff_med": -15.8861083984375
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "sched_month": 1,
+      "n": 11061,
+      "pred_v1_mean": 1082.5338134765625,
+      "pred_v10_mean": 989.6221923828125,
+      "pred_diff_mean": -92.91156768798828,
+      "pred_diff_med": -83.734619140625
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "sched_month": 6,
+      "n": 2,
+      "pred_v1_mean": 4665.6943359375,
+      "pred_v10_mean": 4743.8818359375,
+      "pred_diff_mean": 78.1876220703125,
+      "pred_diff_med": 78.1876220703125
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "sched_month": 7,
+      "n": 15836,
+      "pred_v1_mean": 1239.7691650390625,
+      "pred_v10_mean": 1228.79833984375,
+      "pred_diff_mean": -10.970756530761719,
+      "pred_diff_med": -13.6444091796875
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "sched_month": 12,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "LSZH",
+      "sched_month": 1,
+      "n": 9995,
+      "pred_v1_mean": 773.6483764648438,
+      "pred_v10_mean": 718.7530517578125,
+      "pred_diff_mean": -54.895355224609375,
+      "pred_diff_med": -57.49578857421875
+    },
+    {
+      "ADEP_mvt": "LSZH",
+      "sched_month": 6,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "LSZH",
+      "sched_month": 7,
+      "n": 13155,
+      "pred_v1_mean": 762.2081298828125,
+      "pred_v10_mean": 721.44287109375,
+      "pred_diff_mean": -40.765228271484375,
+      "pred_diff_med": -41.612548828125
+    },
+    {
+      "ADEP_mvt": "LSZH",
+      "sched_month": 12,
+      "n": 0,
+      "pred_v1_mean": NaN,
+      "pred_v10_mean": NaN,
+      "pred_diff_mean": NaN,
+      "pred_diff_med": NaN
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "sched_month": 1,
+      "n": 22389,
+      "pred_v1_mean": 1235.205078125,
+      "pred_v10_mean": 1076.391845703125,
+      "pred_diff_mean": -158.81320190429688,
+      "pred_diff_med": -125.8114013671875
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "sched_month": 6,
+      "n": 3,
+      "pred_v1_mean": 780.9274291992188,
+      "pred_v10_mean": 757.140625,
+      "pred_diff_mean": -23.78678321838379,
+      "pred_diff_med": -32.9896240234375
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "sched_month": 7,
+      "n": 25182,
+      "pred_v1_mean": 1014.9080810546875,
+      "pred_v10_mean": 1010.4119873046875,
+      "pred_diff_mean": -4.496133804321289,
+      "pred_diff_med": -4.084686279296875
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "sched_month": 12,
+      "n": 7,
+      "pred_v1_mean": 1157.4595947265625,
+      "pred_v10_mean": 1152.5299072265625,
+      "pred_diff_mean": -4.929722309112549,
+      "pred_diff_med": -115.60107421875
+    }
+  ],
+  "per_queue_bin": [
+    {
+      "queue_bin": "0",
+      "n": 3292,
+      "pred_v1_mean": 921.3486328125,
+      "pred_v10_mean": 893.0078735351562,
+      "pred_diff_mean": -28.34079360961914
+    },
+    {
+      "queue_bin": "1-5",
+      "n": 71770,
+      "pred_v1_mean": 886.4973754882812,
+      "pred_v10_mean": 852.8828125,
+      "pred_diff_mean": -33.614524841308594
+    },
+    {
+      "queue_bin": "6-10",
+      "n": 114178,
+      "pred_v1_mean": 955.6542358398438,
+      "pred_v10_mean": 933.0485229492188,
+      "pred_diff_mean": -22.605688095092773
+    },
+    {
+      "queue_bin": "11-15",
+      "n": 85656,
+      "pred_v1_mean": 1046.36279296875,
+      "pred_v10_mean": 990.5492553710938,
+      "pred_diff_mean": -55.81355667114258
+    },
+    {
+      "queue_bin": "16-20",
+      "n": 48062,
+      "pred_v1_mean": 1144.895751953125,
+      "pred_v10_mean": 1069.919921875,
+      "pred_diff_mean": -74.97579193115234
+    },
+    {
+      "queue_bin": "21-30",
+      "n": 15671,
+      "pred_v1_mean": 1206.200439453125,
+      "pred_v10_mean": 1144.3304443359375,
+      "pred_diff_mean": -61.87007522583008
+    },
+    {
+      "queue_bin": "31-50",
+      "n": 916,
+      "pred_v1_mean": 1428.21923828125,
+      "pred_v10_mean": 1374.78955078125,
+      "pred_diff_mean": -53.42975997924805
+    }
+  ],
+  "queue_diff_pearson": -0.138671311738528
+}

@@ -1,0 +1,89 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# MLflow
+mlruns/
+mlflow.db
+mlflow.db-journal
+
+# 数据(大文件不进 git)
+data/raw/
+data/processed/
+data/*.parquet
+data/*.csv
+
+# 敏感凭据(必须忽略,否则泄露 OSN key)
+.env
+*.pem
+*.key
+
+# 提交文件
+submissions/*.parquet
+!submissions/.gitkeep
+
+# 实验产物
+experiments/artifacts/
+*.pkl
+*.joblib
+
+# 日志
+*.log
+logs/
+
+# Trae IDE
+.trae/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# CatBoost 训练日志(临时)
+catboost_info/
+
+# Homebrew libomp 头文件(非项目文件)
+libomp/
+
+# 手动备份目录
+models_backup_*/
+submissions_backup_*/
+
+# 模型权重(可复现产物,803MB+ 不进 git)
+models/*.json
+models/*.txt
+models/*.cbm
+models/ensemble_val/
+# 例外:特征清单和参数文件保留(体积小、对复现关键)
+!models/feature_lists/
+!models/ensemble_weights.json

@@ -1,0 +1,193 @@
+{
+  "block_vs_aobt": {
+    "n_both": 339011,
+    "corr": 0.9999999990531357,
+    "diff_mean_s": 17.031651181992235,
+    "diff_median_s": 51.0,
+    "diff_p1_s": -1194.0,
+    "diff_p99_s": 803.0,
+    "equal_ratio_lt_1s": 0.00652872595786727,
+    "block_nan_rate": 0.0,
+    "aobt_nan_rate": 0.010776735488456615,
+    "verdict": "AOBT differs from BLOCK_TIME \u2014 possible mismatch"
+  },
+  "ranking_mvt_minus_aobt_vs_holdout": {
+    "all_ranking_ma_mean": 1037.5138122360943,
+    "all_holdout_taxi_mean": 1007.2982723163973,
+    "all_holdout_ma_mean": 1016.456425288476,
+    "per_airport_month": [
+      {
+        "AP": "EGLL",
+        "M": 1,
+        "rank_ma_mean": 1379.0923791142873,
+        "rank_ma_median": 1317.0,
+        "ho_taxi_mean": 1330.1297116374872,
+        "ho_ma_mean": 1394.3047085666874
+      },
+      {
+        "AP": "EGLL",
+        "M": 7,
+        "rank_ma_mean": 1366.3895200783545,
+        "rank_ma_median": 1321.0,
+        "ho_taxi_mean": 1430.1206407234595,
+        "ho_ma_mean": 1397.1125416095556
+      },
+      {
+        "AP": "LTFM",
+        "M": 1,
+        "rank_ma_mean": 1417.9817612631007,
+        "rank_ma_median": 1444.0,
+        "ho_taxi_mean": 1041.041709577755,
+        "ho_ma_mean": 1330.352504023478
+      },
+      {
+        "AP": "LTFM",
+        "M": 7,
+        "rank_ma_mean": 1236.2285091613528,
+        "rank_ma_median": 1197.0,
+        "ho_taxi_mean": 1094.2796519251401,
+        "ho_ma_mean": 1252.8570039698614
+      },
+      {
+        "AP": "LFPG",
+        "M": 1,
+        "rank_ma_mean": 1025.0098353285,
+        "rank_ma_median": 897.0,
+        "ho_taxi_mean": 1072.8287759324498,
+        "ho_ma_mean": 1039.4793519515097
+      },
+      {
+        "AP": "LFPG",
+        "M": 7,
+        "rank_ma_mean": 1022.3067429965745,
+        "rank_ma_median": 959.0,
+        "ho_taxi_mean": 1027.309617068338,
+        "ho_ma_mean": 960.2387661843107
+      },
+      {
+        "AP": "LIRF",
+        "M": 1,
+        "rank_ma_mean": 925.6777757487217,
+        "rank_ma_median": 900.0,
+        "ho_taxi_mean": 1072.1090185676392,
+        "ho_ma_mean": 943.6737141334281
+      },
+      {
+        "AP": "LIRF",
+        "M": 7,
+        "rank_ma_mean": 959.2825331445489,
+        "rank_ma_median": 903.0,
+        "ho_taxi_mean": 1321.7142574518596,
+        "ho_ma_mean": 948.2672854452516
+      },
+      {
+        "AP": "EDDF",
+        "M": 1,
+        "rank_ma_mean": 1039.516703353619,
+        "rank_ma_median": 954.0,
+        "ho_taxi_mean": 884.8493804852865,
+        "ho_ma_mean": 952.2034595300261
+      },
+      {
+        "AP": "EDDF",
+        "M": 7,
+        "rank_ma_mean": 929.1588839941263,
+        "rank_ma_median": 929.0,
+        "ho_taxi_mean": 868.3574743355365,
+        "ho_ma_mean": 911.4262994011976
+      },
+      {
+        "AP": "EDDM",
+        "M": 1,
+        "rank_ma_mean": 786.2548693805963,
+        "rank_ma_median": 722.0,
+        "ho_taxi_mean": 870.2126753062312,
+        "ho_ma_mean": 754.9498124665118
+      },
+      {
+        "AP": "EDDM",
+        "M": 7,
+        "rank_ma_mean": 698.6681885322948,
+        "rank_ma_median": 718.0,
+        "ho_taxi_mean": 804.8566824644549,
+        "ho_ma_mean": 721.807974950476
+      },
+      {
+        "AP": "EHAM",
+        "M": 1,
+        "rank_ma_mean": 1073.8277965221905,
+        "rank_ma_median": 863.0,
+        "ho_taxi_mean": 810.6901782328404,
+        "ho_ma_mean": 944.8218355998458
+      },
+      {
+        "AP": "EHAM",
+        "M": 7,
+        "rank_ma_mean": 1014.8681058495822,
+        "rank_ma_median": 964.0,
+        "ho_taxi_mean": 786.7345695482035,
+        "ho_ma_mean": 970.2301525848326
+      },
+      {
+        "AP": "LEBL",
+        "M": 1,
+        "rank_ma_mean": 880.3708958917671,
+        "rank_ma_median": 760.0,
+        "ho_taxi_mean": 887.4639090983405,
+        "ho_ma_mean": 881.7038316066437
+      },
+      {
+        "AP": "LEBL",
+        "M": 7,
+        "rank_ma_mean": 888.4919175187068,
+        "rank_ma_median": 765.0,
+        "ho_taxi_mean": 1008.302883754254,
+        "ho_ma_mean": 889.7803457577244
+      },
+      {
+        "AP": "LEMD",
+        "M": 1,
+        "rank_ma_mean": 990.9453937149002,
+        "rank_ma_median": 987.0,
+        "ho_taxi_mean": 985.7964264082374,
+        "ho_ma_mean": 987.4525977178927
+      },
+      {
+        "AP": "LEMD",
+        "M": 7,
+        "rank_ma_mean": 973.306960440661,
+        "rank_ma_median": 981.0,
+        "ho_taxi_mean": 1032.327593537415,
+        "ho_ma_mean": 974.3079538096266
+      },
+      {
+        "AP": "LSZH",
+        "M": 1,
+        "rank_ma_mean": 784.7094043563538,
+        "rank_ma_median": 679.0,
+        "ho_taxi_mean": 777.6927754302793,
+        "ho_ma_mean": 719.5043478260869
+      },
+      {
+        "AP": "LSZH",
+        "M": 7,
+        "rank_ma_mean": 671.0748219456837,
+        "rank_ma_median": 670.0,
+        "ho_taxi_mean": 743.9318181818181,
+        "ho_ma_mean": 682.6753161974705
+      }
+    ]
+  },
+  "aobt_quality": {
+    "ranking_aobt_nan_rate": 0.015340403258313252,
+    "holdout_aobt_nan_rate": 0.01529296262301177,
+    "ranking_ref_was_estimated_rate": 0.015340403258313252,
+    "ranking_ref_both_nan_rate": 0.015340403258313252,
+    "ranking_mv_aobt_le0_pct": 0.052127662707516696,
+    "ranking_mv_aobt_lt60_pct": 0.18406660560563803,
+    "ranking_mv_aobt_gt3h_pct": 0.0005890131379380417,
+    "holdout_mv_aobt_le0_pct": 0.07315396845530085,
+    "holdout_mv_aobt_lt60_pct": 0.17256077236431855,
+    "holdout_mv_aobt_gt3h_pct": 0.0
+  }
+}

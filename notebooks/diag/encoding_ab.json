@@ -1,0 +1,118 @@
+{
+  "H0_baseline_numeric_labelencode": {
+    "n_train": 1740181,
+    "n_holdout_eval": 344419,
+    "rmse": 595.4683,
+    "bias": -20.4019,
+    "ap_rmse": {
+      "EDDF": 274.1896,
+      "EDDM": 305.3265,
+      "EGLL": 447.7619,
+      "EHAM": 293.5659,
+      "LEBL": 260.5454,
+      "LEMD": 227.4,
+      "LFPG": 653.2376,
+      "LIRF": 1697.9333,
+      "LSZH": 292.199,
+      "LTFM": 363.6542
+    },
+    "high_card_gain": {
+      "ADEP_mvt": 0.0,
+      "ADES_mvt": 0.0,
+      "RUNWAY_mvt": 0.0,
+      "STAND_mvt": 0.0,
+      "AIRCRAFT_TYPE_mvt": 0.0,
+      "AIRCRAFT_OPERATOR_flt": 0.0
+    }
+  },
+  "H1_xgb_enable_categorical": {
+    "cat_cols": [
+      "ADEP_mvt",
+      "ADES_mvt",
+      "RUNWAY_mvt",
+      "STAND_mvt",
+      "AIRCRAFT_TYPE_mvt",
+      "WK_TBL_CAT_flt",
+      "MARKET_SEGMENT_flt",
+      "FLIGHT_RULE_flt",
+      "FLIGHT_TYPE_flt",
+      "AIRCRAFT_OPERATOR_flt",
+      "airport_hour"
+    ],
+    "rmse": 595.5366,
+    "bias": -22.9169,
+    "ap_rmse": {
+      "EDDF": 270.8473,
+      "EDDM": 306.1083,
+      "EGLL": 449.682,
+      "EHAM": 293.8424,
+      "LEBL": 260.8302,
+      "LEMD": 224.6216,
+      "LFPG": 654.3452,
+      "LIRF": 1704.408,
+      "LSZH": 289.6146,
+      "LTFM": 346.6567
+    },
+    "high_card_gain": {
+      "ADEP_mvt": 25410834.0,
+      "ADES_mvt": 4883304.0,
+      "RUNWAY_mvt": 20597456.0,
+      "STAND_mvt": 13060366.0,
+      "AIRCRAFT_TYPE_mvt": 4512123.5,
+      "AIRCRAFT_OPERATOR_flt": 13058893.0
+    },
+    "bootstrap_vs_H0": {
+      "mean_diff": 0.10860391493096574,
+      "ci_low": -3.5858091141496544,
+      "ci_high": 4.119410816815782,
+      "improvement_significant": false
+    }
+  },
+  "H3_target_encoding_oof": {
+    "te_cols": [
+      "AIRCRAFT_OPERATOR_flt",
+      "RUNWAY_mvt",
+      "ADEP_mvt"
+    ],
+    "smoothing": 20,
+    "n_features": 33,
+    "rmse": 597.8937,
+    "bias": -16.5349,
+    "ap_rmse": {
+      "EDDF": 275.1641,
+      "EDDM": 308.254,
+      "EGLL": 455.7819,
+      "EHAM": 300.8297,
+      "LEBL": 262.1082,
+      "LEMD": 228.3045,
+      "LFPG": 654.8196,
+      "LIRF": 1705.9009,
+      "LSZH": 295.4185,
+      "LTFM": 350.9765
+    },
+    "high_card_gain": {
+      "ADEP_mvt": 0.0,
+      "ADES_mvt": 0.0,
+      "RUNWAY_mvt": 0.0,
+      "STAND_mvt": 0.0,
+      "AIRCRAFT_TYPE_mvt": 0.0,
+      "AIRCRAFT_OPERATOR_flt": 0.0,
+      "AIRCRAFT_OPERATOR_flt_te": 0.0,
+      "RUNWAY_mvt_te": 0.0,
+      "ADEP_mvt_te": 0.0
+    },
+    "bootstrap_vs_H0": {
+      "mean_diff": 2.5187414247847326,
+      "ci_low": -0.013014000315246185,
+      "ci_high": 5.608156825540542,
+      "improvement_significant": false
+    }
+  },
+  "summary": {
+    "H0": 595.4683,
+    "H1": 595.5366,
+    "H3": 597.8937,
+    "best": "H0",
+    "H2_skipped": "CatBoost \u5355\u6a21\u578b\u8bad ~2h,\u672c\u8f6e\u65f6\u95f4\u7a97\u53e3\u5185\u672a\u5b8c\u6210,\u5efa\u8bae\u5355\u72ec\u8bc4\u4f30"
+  }
+}

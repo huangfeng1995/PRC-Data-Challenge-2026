@@ -1,0 +1,32 @@
+{
+  "all": {
+    "mean_diff": -2.640040505482736,
+    "ci_low": -3.846094248654315,
+    "ci_high": -1.4608035792091913,
+    "improvement_significant": true
+  },
+  "july": {
+    "mean_diff": -0.7338903233189646,
+    "ci_low": -1.693121532221967,
+    "ci_high": 0.2419471014383745,
+    "improvement_significant": false
+  },
+  "january": {
+    "mean_diff": -4.934928532434684,
+    "ci_low": -7.085324366119987,
+    "ci_high": -2.794030106984923,
+    "improvement_significant": true
+  },
+  "july_G2": {
+    "mean_diff": 0.08640360987199285,
+    "ci_low": -1.171201034175759,
+    "ci_high": 1.2901203335739848,
+    "improvement_significant": false
+  },
+  "july_Gd": {
+    "mean_diff": -2.0232109439244232,
+    "ci_low": -3.47567573243047,
+    "ci_high": -0.7037323683209493,
+    "improvement_significant": true
+  }
+}

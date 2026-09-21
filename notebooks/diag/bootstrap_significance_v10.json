@@ -1,0 +1,182 @@
+{
+  "bootstrap_1000": {
+    "G2": {
+      "mean_diff": -1.6605983341034793,
+      "ci_low": -2.1868526667143513,
+      "ci_high": -1.116395705968188,
+      "n_boot": 1000,
+      "seed": 0,
+      "improvement_significant": true,
+      "no_change_significant": false,
+      "worse_significant": false
+    },
+    "G3": {
+      "mean_diff": -2.6509196493701754,
+      "ci_low": -3.1293432178109155,
+      "ci_high": -2.1874075064361964,
+      "n_boot": 1000,
+      "seed": 0,
+      "improvement_significant": true,
+      "no_change_significant": false,
+      "worse_significant": false
+    },
+    "Gd": {
+      "mean_diff": -4.873344606442411,
+      "ci_low": -5.4895037302407514,
+      "ci_high": -4.216448576424766,
+      "n_boot": 1000,
+      "seed": 0,
+      "improvement_significant": true,
+      "no_change_significant": false,
+      "worse_significant": false
+    }
+  },
+  "robustness_by_month": {
+    "month_1": {
+      "n": 153642,
+      "rmse_per_model": {
+        "pred_G0": 361.6296013366707,
+        "pred_G2": 357.911665382978,
+        "pred_G3": 356.6775565693734,
+        "pred_Gd": 353.3373147288075
+      },
+      "diff": {
+        "G2-G0": -3.717935953692688,
+        "G3-G0": -4.952044767297309,
+        "Gd-G0": -8.292286607863218
+      }
+    },
+    "month_7": {
+      "n": 190616,
+      "rmse_per_model": {
+        "pred_G0": 353.6115074841463,
+        "pred_G2": 353.6679098083227,
+        "pred_G3": 352.8650434962862,
+        "pred_Gd": 351.55991766526984
+      },
+      "diff": {
+        "G2-G0": 0.05640232417641755,
+        "G3-G0": -0.7464639878600678,
+        "Gd-G0": -2.0515898188764368
+      }
+    }
+  },
+  "direction_consistency_by_month": {
+    "G2": {
+      "jan_diff": -3.717935953692688,
+      "jul_diff": 0.05640232417641755,
+      "same_direction": false
+    },
+    "G3": {
+      "jan_diff": -4.952044767297309,
+      "jul_diff": -0.7464639878600678,
+      "same_direction": true
+    },
+    "Gd": {
+      "jan_diff": -8.292286607863218,
+      "jul_diff": -2.0515898188764368,
+      "same_direction": true
+    }
+  },
+  "robustness_airport_month": {
+    "LFPG": {
+      "month_1": {
+        "n": 17883,
+        "rmse_per_model": {
+          "pred_G0": 496.50968804077485,
+          "pred_G2": 485.9631645533384,
+          "pred_G3": 480.25255984912866,
+          "pred_Gd": 481.28521365573243
+        },
+        "diff": {
+          "G2-G0": -10.546523487436446,
+          "G3-G0": -16.25712819164619,
+          "Gd-G0": -15.224474385042413
+        }
+      },
+      "month_7": {
+        "n": 21701,
+        "rmse_per_model": {
+          "pred_G0": 313.1796583315184,
+          "pred_G2": 312.4395844613278,
+          "pred_G3": 311.086188590478,
+          "pred_Gd": 309.5255329549827
+        },
+        "diff": {
+          "G2-G0": -0.7400738701905993,
+          "G3-G0": -2.093469741040394,
+          "Gd-G0": -3.654125376535717
+        }
+      },
+      "G2_direction_consistent": true,
+      "G3_direction_consistent": true,
+      "Gd_direction_consistent": true
+    },
+    "EGLL": {
+      "month_1": {
+        "n": 19420,
+        "rmse_per_model": {
+          "pred_G0": 422.5109051720199,
+          "pred_G2": 407.92672517248275,
+          "pred_G3": 407.5071263970096,
+          "pred_Gd": 400.4488499369699
+        },
+        "diff": {
+          "G2-G0": -14.584179999537128,
+          "G3-G0": -15.00377877501029,
+          "Gd-G0": -22.062055235049968
+        }
+      },
+      "month_7": {
+        "n": 20789,
+        "rmse_per_model": {
+          "pred_G0": 467.0364093446845,
+          "pred_G2": 468.0763737042404,
+          "pred_G3": 466.0072940430177,
+          "pred_Gd": 462.46037157211026
+        },
+        "diff": {
+          "G2-G0": 1.0399643595558814,
+          "G3-G0": -1.0291153016668204,
+          "Gd-G0": -4.576037772574239
+        }
+      },
+      "G2_direction_consistent": false,
+      "G3_direction_consistent": true,
+      "Gd_direction_consistent": true
+    },
+    "LTFM": {
+      "month_1": {
+        "n": 21362,
+        "rmse_per_model": {
+          "pred_G0": 321.98913160419374,
+          "pred_G2": 323.2374981625244,
+          "pred_G3": 330.19997005271074,
+          "pred_Gd": 313.89698378054436
+        },
+        "diff": {
+          "G2-G0": 1.2483665583306447,
+          "G3-G0": 8.210838448516995,
+          "Gd-G0": -8.092147823649384
+        }
+      },
+      "month_7": {
+        "n": 25167,
+        "rmse_per_model": {
+          "pred_G0": 378.64769983532784,
+          "pred_G2": 376.2352629841099,
+          "pred_G3": 375.6735016615005,
+          "pred_Gd": 372.4072457221325
+        },
+        "diff": {
+          "G2-G0": -2.412436851217933,
+          "G3-G0": -2.9741981738273466,
+          "Gd-G0": -6.240454113195369
+        }
+      },
+      "G2_direction_consistent": false,
+      "G3_direction_consistent": false,
+      "Gd_direction_consistent": true
+    }
+  }
+}

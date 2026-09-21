@@ -1,0 +1,20 @@
+{
+  "experiment": "holdout_v8_tail_weight",
+  "train_period": "2025-01 ~ 2025-11",
+  "holdout_period": "2025-12",
+  "results": {
+    "v7_baseline": {
+      "config": {
+        "tail_quantile": 0.99,
+        "tail_weight": 1.0
+      },
+      "rmse": 311.4780933893368,
+      "mae": 194.23136427267167,
+      "p95_error": 546.9523681640625,
+      "best_iter": 1033,
+      "by_quantile": [
+        {
+          "bin": "p0-50",
+          "n": 83008,
+          "y_mean": 700.5391167116422,
+          "pred_mean": 

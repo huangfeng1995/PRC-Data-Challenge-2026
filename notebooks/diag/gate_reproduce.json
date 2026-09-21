@@ -1,0 +1,27 @@
+{
+  "current_train_rmse": 357.1419328532984,
+  "current_bias": -18.83847672085158,
+  "current_bias_pct": -1.8701984544786676,
+  "ap_rmse": {
+    "EDDF": 276.14989928366487,
+    "EDDM": 307.81162085447477,
+    "EGLL": 445.97379314680853,
+    "EHAM": 286.0473345241767,
+    "LEBL": 261.54823470326545,
+    "LEMD": 227.09253308529,
+    "LFPG": 406.2610838362338,
+    "LIRF": 587.0968393003706,
+    "LSZH": 292.06771176536824,
+    "LTFM": 353.7802209414139
+  },
+  "target_rmse": 357.14,
+  "target_lirf": 587,
+  "target_lfpg": 406,
+  "target_egll": 447,
+  "gate_pass": true,
+  "n_holdout_eval": 344276,
+  "n_train_used": 3478711,
+  "feat_cols_n": 31,
+  "mae": 210.69109663053803,
+  "self_consistent_sse": true
+}

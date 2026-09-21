@@ -1,0 +1,106 @@
+{
+  "G0": {
+    "desc": "basic30",
+    "n_features": 31,
+    "fold_best_iters": [
+      683,
+      439,
+      1482,
+      2046,
+      901
+    ],
+    "fold_rmse_at_best": [
+      243.56026298715545,
+      264.47553897576637,
+      250.67408035430412,
+      254.32492078287115,
+      263.99301691581553
+    ],
+    "mean_best_iter": 1110,
+    "median_best_iter": 901,
+    "max_best_iter": 2046,
+    "hit_ceiling_3900": false,
+    "n_rounds_final": 1171,
+    "holdout_rmse": 357.2178520687774,
+    "holdout_bias": -18.76003358744086,
+    "model_path": "models/xgb_v10_G0_seed0_es_val.json"
+  },
+  "G2": {
+    "desc": "+ B",
+    "n_features": 32,
+    "fold_best_iters": [
+      416,
+      575,
+      1739,
+      1912,
+      822
+    ],
+    "fold_rmse_at_best": [
+      243.88922890478204,
+      263.30230567866295,
+      248.99614896718242,
+      253.35696289389386,
+      263.43532007803805
+    ],
+    "mean_best_iter": 1092,
+    "median_best_iter": 822,
+    "max_best_iter": 1912,
+    "hit_ceiling_3900": false,
+    "n_rounds_final": 1068,
+    "holdout_rmse": 355.5685785423233,
+    "holdout_bias": -22.878378948958737,
+    "model_path": "models/xgb_v10_G2_seed0_es_val.json"
+  },
+  "G3": {
+    "desc": "+ A + B",
+    "n_features": 35,
+    "fold_best_iters": [
+      619,
+      439,
+      1847,
+      2087,
+      942
+    ],
+    "fold_rmse_at_best": [
+      241.80996846982939,
+      266.3337181711082,
+      249.32087329868568,
+      253.20147086347345,
+      262.2547337547044
+    ],
+    "mean_best_iter": 1186,
+    "median_best_iter": 942,
+    "max_best_iter": 2087,
+    "hit_ceiling_3900": false,
+    "n_rounds_final": 1224,
+    "holdout_rmse": 354.57169213856986,
+    "holdout_bias": -16.79168188861681,
+    "model_path": "models/xgb_v10_G3_seed0_es_val.json"
+  },
+  "Gd": {
+    "desc": "+ A + B + D \u8dd1\u9053\u7ea7",
+    "n_features": 39,
+    "fold_best_iters": [
+      564,
+      521,
+      1850,
+      2442,
+      900
+    ],
+    "fold_rmse_at_best": [
+      239.01624886734442,
+      262.3318471339874,
+      248.0223317163007,
+      251.683809089399,
+      261.43910526543146
+    ],
+    "mean_best_iter": 1255,
+    "median_best_iter": 900,
+    "max_best_iter": 2442,
+    "hit_ceiling_3900": false,
+    "n_rounds_final": 1170,
+    "holdout_rmse": 352.3562784079644,
+    "holdout_bias": -21.10762031045458,
+    "model_path": "models/xgb_v10_Gd_seed0_es_val.json"
+  }
+}
