@@ -156,11 +156,14 @@ ab = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ab)
 import src.train_xgb as tx
 
+# 数据目录(默认 data/raw, 云端用 data/sample 时通过 DATA_DIR 注入)
+DATA_DIR = "{globals().get("DATA_DIR", "data/raw")}"
+
 # 加载 holdout (1+7) DEP
 dfs_ho = []
 for m in [1, 7]:
     fname = f"training_2025-{{m:02d}}-01_2025-{{m + 1:02d}}-01.parquet"
-    dfs_ho.append(ab.load_month(f"data/raw/{{fname}}", columns=ab.TRAIN_COLS))
+    dfs_ho.append(ab.load_month(f"{{DATA_DIR}}/{{fname}}", columns=ab.TRAIN_COLS))
 df_ho = pd.concat(dfs_ho, ignore_index=True)
 df_ho = ab.parse_time_columns(df_ho, cols=ab.TIME_COLS)
 df_ho = ab.build_full_features(df_ho.copy())
@@ -247,7 +250,7 @@ def check5_submission_format():
     print("CHECK 5: 提交 MVT_ID 集合+顺序 == submitting.parquet")
     print("=" * 70)
 
-    sub_path = ROOT / "data/raw" / "submitting.parquet"
+    sub_path = ROOT / globals().get("DATA_DIR", "data/raw") / "submitting.parquet"
     sub = pd.read_parquet(sub_path)
     expected_ids = sub["MVT_ID_mvt"].astype(float).values
     expected_n = len(expected_ids)
