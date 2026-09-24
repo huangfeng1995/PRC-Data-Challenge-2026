@@ -467,7 +467,7 @@ def main():
     )
     parser.add_argument(
         "--tail-quantile", type=float, default=0.99,
-        help="v3.7:长尾加权阈值(默认 0.99=top 1%)",
+        help="v3.7:长尾加权阈值(默认 0.99=top 1%%)",
     )
     parser.add_argument(
         "--tail-weight", type=float, default=2.0,

@@ -231,7 +231,7 @@ def main():
     parser.add_argument("--n-trials", type=int, default=50, help="默认 50 trials(v2 推荐)")
     parser.add_argument("--tracking-uri", default="mlruns")
     parser.add_argument("--subsample", type=float, default=0.25,
-                        help="v2:只用训练数据的 N 做调参(默认 0.25 = 25%),避免 200 万行跑 17 小时")
+                        help="v2:只用训练数据的 N 做调参(默认 0.25 = 25%%),避免 200 万行跑 17 小时")
     parser.add_argument("--cache", default=None, help="features 缓存 parquet 路径(跳过 lag/lead 重算)")
     args = parser.parse_args()
 
