@@ -1,14 +1,21 @@
 """
 下载 PRC Data Challenge 2026 数据(用 Python + minio 包)
 
-用法:
-    python -m scripts.download_data \
-        --access-key "ABC..." \
-        --secret-key "xyz..." \
-        --bucket "prc-2026-jubilant-puzzle"
+凭据来源(优先级, 后者优先覆盖):
+    1. 命令行参数 --access-key / --secret-key / --bucket
+    2. 环境变量 OSN_ACCESS_KEY / OSN_SECRET_KEY / OSN_BUCKET
+    3. 项目根目录 .env 文件 (key=value 格式, 不会 commit)
 
-或者交互式输入:
-    python -m scripts.download_data --interactive
+用法:
+    # 推荐: 把 .env 文件放到项目根目录, 然后直接跑
+    python3 scripts/download_data.py --bucket prc-2026-datasets --dest data/raw
+
+    # 或交互式输入
+    python3 scripts/download_data.py --interactive
+
+    # 或命令行/env
+    OSN_ACCESS_KEY=xxx OSN_SECRET_KEY=yyy python3 scripts/download_data.py \\
+        --bucket prc-2026-datasets
 """
 from __future__ import annotations
 
@@ -22,7 +29,29 @@ from minio.error import S3Error
 
 
 # OSN 比赛数据 endpoint(https 强制)
-ENDPOINT = "s3.opensky-network.org"  # v2:实测 s3. 这个 endpoint 通了,datacomp 404
+ENDPOINT = os.environ.get("OSN_ENDPOINT", "s3.opensky-network.org").replace("https://", "").replace("http://", "")
+
+
+def _load_env_file(env_path: Path) -> dict:
+    """简单解析 .env 文件, 不依赖 python-dotenv.
+    只读 key=value / key="value" 行, 忽略 # 注释和空行."""
+    out = {}
+    if not env_path.exists():
+        return out
+    for line in env_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k = k.strip()
+        v = v.strip()
+        # 去引号
+        if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
+            v = v[1:-1]
+        out[k] = v
+    return out
 
 
 def download_all(
@@ -125,6 +154,17 @@ def main():
         args.secret_key = os.environ.get("OSN_SECRET_KEY")
     if not args.bucket:
         args.bucket = os.environ.get("OSN_BUCKET")
+
+    # 再从项目根目录 .env 文件读(最低优先级, 仅补缺失字段)
+    if not all([args.access_key, args.secret_key, args.bucket]):
+        env_file = Path(__file__).resolve().parents[1] / ".env"
+        env = _load_env_file(env_file)
+        if not args.access_key:
+            args.access_key = env.get("OSN_ACCESS_KEY")
+        if not args.secret_key:
+            args.secret_key = env.get("OSN_SECRET_KEY")
+        if not args.bucket:
+            args.bucket = env.get("OSN_BUCKET", args.bucket)
 
     if not all([args.access_key, args.secret_key, args.bucket]):
         print("❌ 缺少必要参数,使用 --interactive 或 --access-key/--secret-key/--bucket")

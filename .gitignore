@@ -44,11 +44,28 @@ data/raw/
 data/processed/
 data/*.parquet
 data/*.csv
+# 例外:小样本数据(供云端快速跑通管线)
+!data/sample/
+!data/sample/*.parquet
+!data/sample/*.csv
+# data/external 下小文件保留,大文件排除
+data/external/xplane/*.dat
+data/external/xplane/stand_rwy_distance.csv
+data/external/xplane/taxi_network_full.json
+# 工作区临时产物(本机用,不入库)
+data/external/**/*.tmp
 
 # 敏感凭据(必须忽略,否则泄露 OSN key)
 .env
+.env.local
 *.pem
 *.key
+*.pfx
+credentials.json
+secrets.yaml
+
+# 配置模板(保留,不含真实密钥)
+!.env.example
 
 # 提交文件
 submissions/*.parquet
@@ -83,7 +100,26 @@ submissions_backup_*/
 models/*.json
 models/*.txt
 models/*.cbm
+models/*.bin
 models/ensemble_val/
 # 例外:特征清单和参数文件保留(体积小、对复现关键)
 !models/feature_lists/
 !models/ensemble_weights.json
+!models/tuned_xgb_params.json
+!models/baseline_xgb_feature_importance.csv
+!models/baseline_xgb_v7_feature_importance.csv
+!models/tuned_xgb_trials.csv
+!models/gate_check_v1_model.json
+
+# 临时/恢复文件
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.tmp
+
+# 系统文件
+nohup.out
+core.*

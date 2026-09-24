@@ -1,0 +1,78 @@
+{
+  "version": "v1",
+  "n_dep_per_ap_per_month": 40,
+  "n_arr_per_ap_per_month": 30,
+  "airports": [
+    "EDDF",
+    "EDDM",
+    "EGLL",
+    "EHAM",
+    "LEBL",
+    "LEMD",
+    "LFPG",
+    "LIRF",
+    "LTFM",
+    "LSZH"
+  ],
+  "files": {
+    "training_2025-01-01_2025-02-01.parquet": {
+      "rows": 700,
+      "bytes": 110337
+    },
+    "training_2025-02-01_2025-03-01.parquet": {
+      "rows": 700,
+      "bytes": 109814
+    },
+    "training_2025-03-01_2025-04-01.parquet": {
+      "rows": 700,
+      "bytes": 110967
+    },
+    "training_2025-04-01_2025-05-01.parquet": {
+      "rows": 700,
+      "bytes": 110256
+    },
+    "training_2025-05-01_2025-06-01.parquet": {
+      "rows": 700,
+      "bytes": 109823
+    },
+    "training_2025-06-01_2025-07-01.parquet": {
+      "rows": 700,
+      "bytes": 110341
+    },
+    "training_2025-07-01_2025-08-01.parquet": {
+      "rows": 700,
+      "bytes": 110952
+    },
+    "training_2025-08-01_2025-09-01.parquet": {
+      "rows": 700,
+      "bytes": 110897
+    },
+    "training_2025-09-01_2025-10-01.parquet": {
+      "rows": 700,
+      "bytes": 111296
+    },
+    "training_2025-10-01_2025-11-01.parquet": {
+      "rows": 700,
+      "bytes": 110842
+    },
+    "training_2025-11-01_2025-12-01.parquet": {
+      "rows": 700,
+      "bytes": 110877
+    },
+    "training_2025-12-01_2026-01-01.parquet": {
+      "rows": 700,
+      "bytes": 110667
+    },
+    "ranking.parquet": {
+      "rows": 5000,
+      "bytes": 603617,
+      "sampled": true
+    },
+    "submitting.parquet": {
+      "rows": 5000,
+      "bytes": 34548,
+      "sampled": true
+    }
+  },
+  "total_bytes": 1965234
+}

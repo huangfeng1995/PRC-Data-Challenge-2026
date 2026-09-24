@@ -1,168 +1,210 @@
 # PRC Data Challenge 2026 — Taxi-Out Time Prediction
 
-> 团队:**jubilant-puzzle**
-> 比赛:[PRC Data Challenge 2026](https://ansperformance.eu/study/data-challenge/dc2026/)
-> 截止:**2026-10-11 23:59:59 CET**(还剩 23 天)
-> 评分:RMSE(以秒计)
+> **目的**:团队 `jubilant-puzzle` 的参赛工程仓库。**代码 + 小样本数据 + 复现脚本**,全量数据留在本地/从官方 MinIO 拉取。
+> **比赛**:[PRC Data Challenge 2026](https://ansperformance.eu/study/data-challenge/dc2026/) — Taxi-Out Time Prediction
+> **截止**:2026-10-11 23:59:59 CET
+> **评分**:RMSE(以秒计)
 
-## 项目结构
+---
+
+## 1. 仓库结构
 
 ```
 prc_data_challenge/
-├── README.md                 # 本文件
-├── requirements.txt          # Python 依赖
-├── .gitignore                # 忽略 data/、models/、mlruns/ 等大文件
+├── README.md                 本文件 (云端入口)
+├── requirements.txt          Python 依赖 (锁定关键版本)
+├── .env.example              凭据模板 (不含真实密钥)
+├── .gitignore                排除大文件/凭据/日志
+├──
+├── src/                      ★ 统一特征模块 (云端 clone 后可直接 import)
+│   ├── data_loader.py            读月度 parquet + DEP 过滤 + 时间解析
+│   ├── features.py               30 个基础特征 + 目标重缩放
+│   ├── features_aggregate.py     18 个 lag 拥堵聚合
+│   ├── features_laglead.py       18 个 lead 未来拥堵聚合
+│   ├── features_domain.py        3 结构 + 8 个目标编码
+│   ├── features_queue.py         拥堵队列特征
+│   ├── validation.py             时序切分 + RMSE/MAE/P95
+│   ├── train_xgb.py / train_lgb.py / train_ensemble.py
+│   ├── predict_xgb.py / predict_ensemble.py
+│   └── tune.py                   Optuna 调参
+│
+├── scripts/                  ★ 一键脚本 (云端可调用)
+│   ├── eda.py                    EDA + 8 张图
+│   ├── build_sample.py           ★ 从全量生成 data/sample/ 小样本
+│   ├── download_data.py          ★ 从 OSN MinIO 拉全量 (凭 .env)
+│   ├── upload_submission.py      上传 submission (本地用)
+│   ├── run_robust.py             长跑自动重启 (本地用)
+│   ├── setup_mac.sh              macOS 环境 (本地用)
+│   └── gate_check.py             D0 一键门禁 (云端可用)
 │
 ├── data/
-│   ├── raw/                  # 从 OSN bucket 下载的 parquet(不进 git)
-│   └── .gitkeep
+│   ├── raw/                    ⚠️ 全量 parquet (不入库, 需下载)
+│   ├── sample/                 ★ 小样本 (已入库, ~2 MB, 云端开箱即用)
+│   │   ├── training_2025-{01..12}.parquet   12 个月, 每机场每月 ~70 行 (40 DEP + 30 ARR)
+│   │   ├── ranking.parquet                   5,000 行
+│   │   ├── submitting.parquet                5,000 行
+│   │   └── sample_meta.json                  采样参数
+│   └── external/               第三方数据 (apt.dat 衍生 CSV/JSON 已入, .dat 排除)
 │
-├── src/                      # 所有源代码
-│   ├── data_loader.py        # 读取月度 parquet,合并,过滤 DEP
-│   ├── features.py           # 基础特征工程(baseline 用)
-│   ├── validation.py         # 时序切分 + 评估指标
-│   ├── train_lgb.py          # LightGBM baseline 训练
-│   └── predict.py            # 推理 + 生成提交 parquet
+├── models/                    模型产物 (权重不入库, 特征清单入)
+│   ├── feature_lists/          ★ 各类特征的列名 + cat 映射 (小, 必入)
+│   ├── ensemble_weights.json
+│   ├── *.json / *.txt / *.cbm  ⚠️ 模型权重 (~1.4 GB, 不入库, 需重训)
 │
-├── models/                   # 训练好的模型(不进 git)
+├── docs/                      设计文档 / 报告
 │
-├── submissions/              # 提交文件(不进 git,.gitkeep 占位)
-│   └── .gitkeep
+├── notebooks/                 一次性诊断脚本 (本地用, 不在云端跑)
+│   ├── diag/                  历史诊断, 多数含本机绝对路径 (仅本地执行)
+│   ├── eda/                   EDA 图表 (PNG/CSV)
+│   └── holdout/               holdout 验证
 │
-├── mlruns/                   # MLflow 实验记录(本地后端)
-│
-├── notebooks/                # EDA、临时分析
-│
-└── docs/
-    └── superpowers/specs/    # 设计文档、计划
+└── submissions/               提交文件 (.gitkeep 占位)
 ```
 
-## 快速开始
+★ = 云端 clone 后立即可用
 
-### 1. 环境准备
+---
 
-需要 Python 3.10+。建议用虚拟环境:
+## 2. 快速开始 (云端 Agent)
+
+### 2.1 克隆与安装
 
 ```bash
-# 创建虚拟环境
-python3 -m venv venv
-source venv/bin/activate  # macOS/Linux
-
-# macOS 上 LightGBM 需要 libomp(如果还没装)
-brew install libomp
-
-# 安装依赖
+git clone https://github.com/huangfeng1995/PRC-Data-Challenge-2026.git
+cd PRC-Data-Challenge-2026
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+
+# macOS: LightGBM 需要 libomp
+brew install libomp
 ```
 
-> **Smoke test**:在临时工作目录的 `smoke_test.py` 已用 sklearn 验证整个数据流能跑通。等装好 libomp 后,直接 `python -m src.train_lgb --data-dir data/raw` 即可。
+### 2.2 用小样本跑通 (默认,推荐)
 
-### 2. 获取数据
-
-报名组队后,OSN 团队会审核并发 access key。拿到后:
-
-1. 登录 OSN 账号,在 Dashboard 生成 MinIO access key
-2. 用 MinIO 客户端(或直接网页)下载:
-   - `training_2025-*.parquet`(12 个,约 280 MB)
-   - `ranking.parquet`(约 27 MB)
-   - `submitting.parquet`(约 1.1 MB)
-3. 放到 `data/raw/` 目录
-
-**完整下载教程**(命令行 + GUI + Python 三种):[docs/MINIO_DOWNLOAD_GUIDE.md](docs/MINIO_DOWNLOAD_GUIDE.md)
-
-详见数据页:https://prc-data-challenge-2026.netlify.app/data.html
-
-### 3. 跑 Baseline
+仓库**已含 `data/sample/` 小样本 (~2 MB)**,直接可跑:
 
 ```bash
-# 一键 EDA(探索数据,拿到数据后第一件事)
-python -m scripts.eda --data-dir data/raw --output-dir notebooks/eda
+# 验证小样本 + 冻结入口 + 特征管线
+python3 -c "
+import sys; sys.path.insert(0, '.')
+from src.data_loader import load_month, load_ranking, filter_departures, parse_time_columns
+from src.features import build_features
+df = load_month('data/sample/training_2025-01-01_2025-02-01.parquet')
+df = filter_departures(parse_time_columns(df, cols=['MVT_TIME_UTC_mvt','BLOCK_TIME_UTC_mvt','SCHED_TIME_UTC_mvt','IOBT_flt','EOBT_1_flt','AOBT_3_flt','ARVT_3_flt','LOBT_flt']))
+print('DEP rows:', len(df))
+print('features shape:', build_features(df).shape)
+"
 
-# 训练 baseline(基础特征,XGBoost)
-python -m src.train_xgb --data-dir data/raw --feature-set basic
+# EDA on sample
+python3 scripts/eda.py --data-dir data/sample --output-dir notebooks/eda
 
-# 训练 baseline(全特征:基础+拥堵+lead+domain+TE,XGBoost)
-python -m src.train_xgb --data-dir data/raw --feature-set all
-
-# 三模型融合(XGB + LGB + CatBoost,自动权重优化) - 推荐第一轮提交用
-python -m src.train_ensemble --data-dir data/raw --feature-set all --models xgb,lgb,cat --n-seeds 5
-
-# Optuna 自动调参(XGBoost)
-python -m src.tune --data-dir data/raw --feature-set all --model-type xgb --n-trials 50
-
-# 长跑用鲁棒脚本(自动重启,崩了接着跑)
-python -m scripts.run_robust --train --feature-set all --models xgb,lgb,cat --n-seeds 5
-
-# 推理 + 生成提交
-python -m src.predict_xgb --model models/baseline_xgb.json --output submissions/v1.parquet
-python -m src.predict_ensemble --output submissions/ensemble_v1.parquet
+# 跑小规模 baseline (几分钟内出结果)
+python3 -m src.train_xgb --data-dir data/sample --feature-set basic
 ```
 
-### 4. 查看实验记录(MLflow UI)
+### 2.3 拉全量数据 (云端需要时, 本机不需要)
 
 ```bash
-# 启动 MLflow UI
-mlflow ui --backend-store-uri mlruns
+# 1. 把 .env 复制到项目根目录, 填入真实密钥
+cp .env.example .env
+# 编辑 .env, 填入 OSN_ACCESS_KEY / OSN_SECRET_KEY
 
-# 然后浏览器打开 http://localhost:5000
+# 2. 拉全量 (约 330 MB)
+python3 scripts/download_data.py --bucket prc-2026-datasets --dest data/raw
+
+# 3. 全量 EDA / 训练 (需要更多内存, 推荐本机或租 GPU)
+python3 -m src.train_ensemble --data-dir data/raw --feature-set all --models xgb,lgb,cat --n-seeds 5
 ```
 
-可以看到:
-- 每次实验的参数(learning_rate, num_leaves 等)
-- 多切分验证的 RMSE / MAE / P95
-- K 折时序 CV 的均值和方差
-- 特征重要性 CSV
-- 不同实验之间的对比
+---
 
-## 当前进度
+## 3. 安全红线
+
+⚠️ **以下内容绝不能 push 到 git**:
+
+- `.env`(OSN 凭据) — 已在 `.gitignore` 中
+- `data/raw/`(全量比赛数据, 330 MB) — 已在 `.gitignore` 中
+- `models/*.json` / `*.txt` / `*.cbm` / `*.bin`(模型权重, ~1.4 GB) — 已在 `.gitignore` 中
+- `submissions/*.parquet`(比赛提交文件) — 已在 `.gitignore` 中
+- 任何 API token / 私钥 / 密码
+
+**提交前检查清单**:
+
+```bash
+# 1. 确认 .env 没被加进去
+git status | grep -E '\.env$|OSN_'
+# 应为空
+
+# 2. 确认 .gitignore 覆盖了所有大文件
+git check-ignore data/raw/*.parquet models/*.json submissions/*.parquet
+# 应全部输出 "<filename>" (被忽略)
+```
+
+---
+
+## 4. 数据说明
+
+| 字段 | 来源 | 入库? | 大小 |
+|---|---|---|---|
+| `data/raw/*.parquet` | OSN MinIO 比赛数据 | ❌ 需下载 | ~330 MB |
+| `data/sample/*.parquet` | 本机全量采样 (random_state=42) | ✅ 已入库 | ~2 MB |
+| `data/external/xplane/*.csv` | X-Plane apt.dat 几何 | ✅ 已入库 | ~370 KB |
+| `data/external/xplane/*.dat` | X-Plane 原始 apt.dat | ❌ 排除 | ~10 MB, 云端可重新下载 |
+| `data/external/xplane/stand_rwy_distance.csv` | 全量 DEP 距离 | ❌ 排除 | 246 MB, 跑全量时重生 |
+| `models/*.json` | XGBoost/LGB/Cat 模型 | ❌ 排除 | ~1.4 GB |
+
+**全量数据如何获得**:必须凭 OSN MinIO Access Key/Secret Key 从官方桶拉取。详见 `docs/MINIO_DOWNLOAD_GUIDE.md`。
+
+---
+
+## 5. 复现脚本
+
+| 脚本 | 作用 |
+|---|---|
+| `python3 scripts/build_sample.py` | 从 `data/raw/` 生成 `data/sample/` 小样本(需全量数据) |
+| `python3 scripts/download_data.py` | 从 OSN MinIO 拉全量数据(需 `.env`) |
+| `python3 scripts/eda.py` | EDA (单 XGB 可视化) |
+| `python3 -m src.train_xgb` | 单 XGBoost 训练 |
+| `python3 -m src.train_ensemble` | XGB+LGB+Cat 三模型融合 + 多 seed |
+| `python3 -m src.tune` | Optuna 调参 (50 trials) |
+| `python3 -m src.predict_ensemble` | 推理 + 生成提交 |
+| `python3 scripts/gate_check.py` | D0 一键门禁 (5 项 PASS/FAIL) |
+
+---
+
+## 6. 当前进度
 
 | 阶段 | 状态 | 备注 |
 |---|---|---|
-| 数据接入 | ⏳ 等 OSN 审核 | 提交组队表单中 |
-| Baseline (基础特征,XGBoost) | ✅ 代码就绪 | 拿到数据即可跑 |
-| 拥堵聚合特征 (lag) | ✅ 代码就绪 | `src/features_aggregate.py`,18 个聚合特征 |
-| Lead 特征 (未来 30 分钟) | ✅ 代码就绪 | `src/features_laglead.py`,18 个 lead 特征 |
-| Domain 特征(登机口区/跑道/航司×机场) | ✅ 代码就绪 | `src/features_domain.py`,8 个 TE + 3 个结构特征 |
-| EDA 脚本 | ✅ 代码就绪 | `scripts/eda.py` 一键生成所有图表 |
-| 三模型融合 (XGB+LGB+CatBoost) | ✅ 代码就绪 | `src/train_ensemble.py`,多 seed + median/mean 自动选最优 |
-| Optuna 自动调参 | ✅ 代码就绪 | `src/tune.py`,**50 trials 默认**(v2) |
-| Median voting 融合 | ✅ 代码就绪 | `train_ensemble.py` 内置(从 2024 第 4 名学到) |
-| 目标重缩放(按机场) | ✅ 代码就绪 | `src/features.py`,可选(从 2024 第 1 名学到) |
-| 鲁棒性自动重启 | ✅ 代码就绪 | `scripts/run_robust.py`(从 2025 第 2 名学到) |
-| 分段模型(长尾处理) | 📝 待开发 | 拿到 baseline 数字后再做 |
-| 论文 draft | 📝 可选 | |
+| 数据接入 | ✅ 已下载全量 | OSN 凭据见 .env(不入库) |
+| 77 特征 baseline | ✅ | XGB+LGB+Cat 融合 |
+| v1 提交 leaderboard | ✅ | RMSE 589.91(单 XGBoost 29 特征, 中位数) |
+| v15 holdout RMSE 281.87 | ✅ | 71 特征 + 9 模型集成 |
+| 距离特征 add-one | ✅ | X-Plane apt.dat 88.26% 覆盖, −0.31s 边际增益 |
+| 数据挑战赛提交 | ⏳ 进行中 | 截止 2026-10-11 |
 
-详细设计见 [设计文档](docs/superpowers/specs/2026-09-18-prc-data-challenge-2026-design.md)。
+详见 `docs/PROJECT_OVERVIEW.md`。
 
-## 关键决策(为什么这样设计)
+---
 
-| 决策 | 选择 | 原因 |
-|---|---|---|
-| 硬件 | 笔记本为主,可租 GPU | 个人参赛,无固定服务器 |
-| 建模方案 | 全局回归 + 分段处理长尾 | RMSE 指标对长尾放大,必须处理 |
-| 特征层级 | 基础特征 + 拥堵聚合 | 拥堵聚合是最大提分点,聚合 lag 模拟排队 |
-| 验证策略 | 多切分(winter + summer + kfold) | 时序预测不能随机切,贴近比赛真实场景 |
-| 实验管理 | MLflow | 自动记录、可视化、便于发论文时复现 |
+## 7. 本机 vs 云端的边界
 
-## 提交到 OSN
+**本机(全量训练)**:
+- `data/raw/` 全量数据 (~330 MB)
+- `models/` 大模型权重 (~1.4 GB)
+- `submissions/` 提交文件
+- 跑全量 `train_ensemble` (1+ 小时)
 
-比赛每天 5 次提交机会,每 bucket 限 1 GB。
+**云端(原型/小样本)**:
+- `data/sample/` 小样本 (~2 MB, 已入库)
+- `data/external/xplane/*.csv` 衍生几何 (已入库)
+- 跑 `build_features` + 验证管线 + 小规模 `train_xgb`
+- **不跑全量训练**(耗时且本机有完整数据)
 
-1. 用 MinIO 客户端把生成的 `submissions/baseline_v1.parquet` 上传到团队 bucket
-2. 文件命名必须符合 `<team-name>_v<integer>.parquet`(如 `jubilant-puzzle_v1.parquet`)
-3. 排名脚本会自动比对 `MVT_ID_mvt`,计算 RMSE
+**两个端共享**: `src/` + `scripts/eda.py` + `scripts/gate_check.py` + `docs/` + `requirements.txt`
 
-详细提交规则:https://prc-data-challenge-2026.netlify.app/ranking.html
+---
 
-## 参考资料
+## 8. License
 
-- 比赛主页:https://ansperformance.eu/study/data-challenge/dc2026/
-- 数据字典:https://prc-data-challenge-2026.netlify.app/data.html
-- 评分规则:https://prc-data-challenge-2026.netlify.app/ranking.html
-- 往年方案(GitHub):https://github.com/prc-data-challenge-2025
-- LightGBM 文档:https://lightgbm.readthedocs.io/
-- MLflow 文档:https://mlflow.org/docs/latest/index.html
-
-## License
-
-本仓库代码以 MIT 协议开源(配合比赛要求)。
+MIT (配合比赛要求)。
