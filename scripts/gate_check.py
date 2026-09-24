@@ -46,13 +46,14 @@ def check1_baseline(tolerance=2.0):
     print("=" * 70)
 
     months_train = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12]
+    data_dir = globals().get("DATA_DIR", "data/raw")
     dfs_train = []
     for m in months_train:
         if m < 12:
             fname = f"training_2025-{m:02d}-01_2025-{m + 1:02d}-01.parquet"
         else:
             fname = "training_2025-12-01_2026-01-01.parquet"
-        dfs_train.append(ab.load_month(f"data/raw/{fname}", columns=ab.TRAIN_COLS))
+        dfs_train.append(ab.load_month(f"{data_dir}/{fname}", columns=ab.TRAIN_COLS))
     df_train = pd.concat(dfs_train, ignore_index=True)
     df_train = ab.parse_time_columns(df_train, cols=ab.TIME_COLS)
     df_train = ab.build_full_features(df_train.copy())
@@ -63,7 +64,7 @@ def check1_baseline(tolerance=2.0):
     dfs_ho = []
     for m in [1, 7]:
         fname = f"training_2025-{m:02d}-01_2025-{m + 1:02d}-01.parquet"
-        dfs_ho.append(ab.load_month(f"data/raw/{fname}", columns=ab.TRAIN_COLS))
+        dfs_ho.append(ab.load_month(f"{data_dir}/{fname}", columns=ab.TRAIN_COLS))
     df_ho = pd.concat(dfs_ho, ignore_index=True)
     df_ho = ab.parse_time_columns(df_ho, cols=ab.TIME_COLS)
     df_ho = ab.build_full_features(df_ho.copy())
@@ -285,9 +286,18 @@ def check5_submission_format():
 
 
 def main():
+    import argparse
     print("=" * 70)
     print("D0-4: 一键门禁 scripts/gate_check.py")
     print("=" * 70)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", default="data/raw",
+                        help="数据目录 (默认 data/raw 全量, 云端可指定 data/sample)")
+    args, _ = parser.parse_known_args()
+    # 注入到 check1_baseline (通过 globals)
+    globals()["DATA_DIR"] = args.data_dir
+    print(f"  数据目录: {args.data_dir}/", flush=True)
 
     results = {}
 
