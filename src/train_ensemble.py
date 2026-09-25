@@ -49,6 +49,19 @@ def _encode_categoricals_lazy(X, fit=False):
     from src.train_xgb import _encode_categoricals
     return _encode_categoricals(X, fit=fit)
 
+# 天气特征可选开关 —— 默认关闭,避免没有 data/external/weather/ 时炸
+_WEATHER_COLS = [
+    "weather_temperature", "weather_dewpoint", "weather_dewpoint_deficit",
+    "weather_snowfall", "weather_snow_depth", "weather_precipitation",
+    "weather_wind_speed", "weather_wind_gust",
+    "weather_cloud_cover", "weather_pressure", "weather_code",
+]
+
+def _add_weather_features_lazy(df: pd.DataFrame) -> pd.DataFrame:
+    """延迟 import build_weather_features,避免没跑 fetch_weather.py 时炸。"""
+    from scripts.build_weather_features import add_weather_features
+    return add_weather_features(df)
+
 def _clear_cat_cache_lazy():
     from src.train_xgb import _clear_cat_cache as _orig
     _orig()
@@ -235,6 +248,7 @@ def build_full_features(
     df: pd.DataFrame,
     feature_set: str = "all",
     te_mappings: dict | None = None,
+    add_weather: bool = False,
 ) -> tuple[pd.DataFrame, list[str]]:
     """构造完整特征矩阵,返回 (df, feat_cols)。
 
@@ -284,6 +298,10 @@ def build_full_features(
         )
     else:
         raise ValueError(f"未知 feature_set: {feature_set}")
+
+    if add_weather:
+        df = _add_weather_features_lazy(df)
+        feat_cols = feat_cols + [c for c in _WEATHER_COLS if c in df.columns]
 
     return df, feat_cols
 
@@ -354,6 +372,7 @@ def run_ensemble_experiment(
     tracking_uri: str = "mlruns",
     experiment_name: str = "prc-2026-ensemble",
     cache_path: str | None = None,
+    add_weather: bool = False,
 ) -> dict:
     """跑一次多模型 + 多 seed 融合实验。
 
@@ -372,6 +391,7 @@ def run_ensemble_experiment(
         mlflow.log_param("feature_set", feature_set)
         mlflow.log_param("models", ",".join(models))
         mlflow.log_param("n_seeds", n_seeds)
+        mlflow.log_param("add_weather", add_weather)
 
         print("=" * 70)
         print("1. 加载数据 + 构造特征...")
@@ -385,7 +405,7 @@ def run_ensemble_experiment(
                          c.endswith("_te")]
         else:
             df = load_training(data_dir)
-            df, feat_cols = build_full_features(df, feature_set=feature_set)
+            df, feat_cols = build_full_features(df, feature_set=feature_set, add_weather=add_weather)
             if cache_path:
                 print(f"  保存缓存: {cache_path}")
                 df.to_parquet(cache_path, index=False)
@@ -658,6 +678,8 @@ def main():
     parser.add_argument("--tracking-uri", default="mlruns")
     parser.add_argument("--cache", default=None,
                         help="features 缓存 parquet 路径(跳过 lag/lead 重算)")
+    parser.add_argument("--add-weather", action="store_true", default=False,
+                        help="追加 Open-Meteo 天气特征 (默认关闭; 需先跑 scripts/fetch_weather.py 并安装依赖)")
     args = parser.parse_args()
 
     models = tuple(m.strip() for m in args.models.split(","))
@@ -668,6 +690,7 @@ def main():
         n_seeds=args.n_seeds,
         tracking_uri=args.tracking_uri,
         cache_path=args.cache,
+        add_weather=args.add_weather,
     )
     print(f"\n📊 最终结果:\n{json.dumps(result, indent=2, default=str)}")
 
