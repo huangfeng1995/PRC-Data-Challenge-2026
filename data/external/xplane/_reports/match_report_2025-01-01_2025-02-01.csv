@@ -1,0 +1,25 @@
+icao,STAND_mvt,fuzzy_candidates,status
+EDDM,113,113X | 113B | 113A,fuzzy_or_miss
+EDDM,212,212B | 212A | G22,fuzzy_or_miss
+EDDM,220,220B | 220A | G22,fuzzy_or_miss
+EDDM,115,115B | 115A | G11,fuzzy_or_miss
+EDDM,113,,fuzzy_or_miss
+EGLL,237R,357R | 253R | 247R,fuzzy_or_miss
+EHAM,C07,C7 | C10,fuzzy_or_miss
+EHAM,H05,H5,fuzzy_or_miss
+EHAM,F06,F6,fuzzy_or_miss
+EHAM,G03,G3 | G73,fuzzy_or_miss
+EHAM,A81,R81 | J81 | A71,fuzzy_or_miss
+LFPG,E27,S27 | L27 | I27,fuzzy_or_miss
+LFPG,U05,Z05 | Y05 | X05,fuzzy_or_miss
+LFPG,U13,U11 | U10 | S13,fuzzy_or_miss
+LSZH,E43,43 | B43,fuzzy_or_miss
+LSZH,GA6,G06 | A46,fuzzy_or_miss
+LSZH,E19,19 | 319,fuzzy_or_miss
+LSZH,E58,58 | C58 | 508,fuzzy_or_miss
+LSZH,E58,,fuzzy_or_miss
+LTFM,G10R,G10R-(C),fuzzy_or_miss
+LTFM,F7L,F7L-(C),fuzzy_or_miss
+LTFM,A11,A11-(E),fuzzy_or_miss
+LTFM,G10R,,fuzzy_or_miss
+LTFM,E2,,fuzzy_or_miss

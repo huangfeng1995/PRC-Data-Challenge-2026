@@ -1,0 +1,446 @@
+{
+  "month": "2025-01-01_2025-02-01",
+  "total_dep": 400,
+  "per_icao": {
+    "EDDF": {
+      "dep_total": 40,
+      "exact_match": 40,
+      "fuzzy_candidate_only": 0,
+      "exact_rate": 1.0,
+      "miss_examples": [],
+      "runway_in_data": [
+        "07C",
+        "18",
+        "25C"
+      ],
+      "runway_in_apt": [
+        "07C",
+        "07L",
+        "07R",
+        "18",
+        "25C",
+        "25L",
+        "25R",
+        "36"
+      ],
+      "runway_extra_in_apt": [
+        "07L",
+        "07R",
+        "25L",
+        "25R",
+        "36"
+      ]
+    },
+    "EDDM": {
+      "dep_total": 40,
+      "exact_match": 26,
+      "fuzzy_candidate_only": 12,
+      "exact_rate": 0.65,
+      "miss_examples": [
+        [
+          "113",
+          [
+            "113X",
+            "113B",
+            "113A"
+          ]
+        ],
+        [
+          "212",
+          [
+            "212B",
+            "212A",
+            "G22"
+          ]
+        ],
+        [
+          "220",
+          [
+            "220B",
+            "220A",
+            "G22"
+          ]
+        ],
+        [
+          "115",
+          [
+            "115B",
+            "115A",
+            "G11"
+          ]
+        ],
+        [
+          "113",
+          []
+        ]
+      ],
+      "runway_in_data": [
+        "08L",
+        "08R",
+        "26L",
+        "26R"
+      ],
+      "runway_in_apt": [
+        "08L",
+        "08R",
+        "26L",
+        "26R"
+      ],
+      "runway_extra_in_apt": []
+    },
+    "EGLL": {
+      "dep_total": 40,
+      "exact_match": 39,
+      "fuzzy_candidate_only": 1,
+      "exact_rate": 0.975,
+      "miss_examples": [
+        [
+          "237R",
+          [
+            "357R",
+            "253R",
+            "247R"
+          ]
+        ]
+      ],
+      "runway_in_data": [
+        "09R",
+        "27L",
+        "27R"
+      ],
+      "runway_in_apt": [
+        "09L",
+        "09R",
+        "27L",
+        "27R"
+      ],
+      "runway_extra_in_apt": [
+        "09L"
+      ]
+    },
+    "EHAM": {
+      "dep_total": 40,
+      "exact_match": 25,
+      "fuzzy_candidate_only": 13,
+      "exact_rate": 0.625,
+      "miss_examples": [
+        [
+          "C07",
+          [
+            "C7",
+            "C10"
+          ]
+        ],
+        [
+          "H05",
+          [
+            "H5"
+          ]
+        ],
+        [
+          "F06",
+          [
+            "F6"
+          ]
+        ],
+        [
+          "G03",
+          [
+            "G3",
+            "G73"
+          ]
+        ],
+        [
+          "A81",
+          [
+            "R81",
+            "J81",
+            "A71"
+          ]
+        ]
+      ],
+      "runway_in_data": [
+        "18L",
+        "22",
+        "24",
+        "36L"
+      ],
+      "runway_in_apt": [
+        "04",
+        "06",
+        "09",
+        "18C",
+        "18L",
+        "18R",
+        "22",
+        "24",
+        "27",
+        "36C",
+        "36L",
+        "36R"
+      ],
+      "runway_extra_in_apt": [
+        "04",
+        "06",
+        "09",
+        "18C",
+        "18R",
+        "27",
+        "36C",
+        "36R"
+      ]
+    },
+    "LEBL": {
+      "dep_total": 40,
+      "exact_match": 40,
+      "fuzzy_candidate_only": 0,
+      "exact_rate": 1.0,
+      "miss_examples": [],
+      "runway_in_data": [
+        "06L",
+        "06R",
+        "24L"
+      ],
+      "runway_in_apt": [
+        "02",
+        "06L",
+        "06R",
+        "20",
+        "24L",
+        "24R"
+      ],
+      "runway_extra_in_apt": [
+        "02",
+        "20",
+        "24R"
+      ]
+    },
+    "LEMD": {
+      "dep_total": 40,
+      "exact_match": 40,
+      "fuzzy_candidate_only": 0,
+      "exact_rate": 1.0,
+      "miss_examples": [],
+      "runway_in_data": [
+        "14L",
+        "14R",
+        "36L",
+        "36R"
+      ],
+      "runway_in_apt": [
+        "14L",
+        "14R",
+        "18L",
+        "18R",
+        "32L",
+        "32R",
+        "36L",
+        "36R"
+      ],
+      "runway_extra_in_apt": [
+        "18L",
+        "18R",
+        "32L",
+        "32R"
+      ]
+    },
+    "LFPG": {
+      "dep_total": 40,
+      "exact_match": 37,
+      "fuzzy_candidate_only": 3,
+      "exact_rate": 0.925,
+      "miss_examples": [
+        [
+          "E27",
+          [
+            "S27",
+            "L27",
+            "I27"
+          ]
+        ],
+        [
+          "U05",
+          [
+            "Z05",
+            "Y05",
+            "X05"
+          ]
+        ],
+        [
+          "U13",
+          [
+            "U11",
+            "U10",
+            "S13"
+          ]
+        ]
+      ],
+      "runway_in_data": [
+        "08L",
+        "09R",
+        "26R",
+        "27L"
+      ],
+      "runway_in_apt": [
+        "08L",
+        "08R",
+        "09L",
+        "09R",
+        "26L",
+        "26R",
+        "27L",
+        "27R"
+      ],
+      "runway_extra_in_apt": [
+        "08R",
+        "09L",
+        "26L",
+        "27R"
+      ]
+    },
+    "LIRF": {
+      "dep_total": 40,
+      "exact_match": 40,
+      "fuzzy_candidate_only": 0,
+      "exact_rate": 1.0,
+      "miss_examples": [],
+      "runway_in_data": [
+        "16L",
+        "16R",
+        "25",
+        "34L"
+      ],
+      "runway_in_apt": [
+        "07",
+        "16L",
+        "16R",
+        "25",
+        "34L",
+        "34R"
+      ],
+      "runway_extra_in_apt": [
+        "07",
+        "34R"
+      ]
+    },
+    "LSZH": {
+      "dep_total": 40,
+      "exact_match": 26,
+      "fuzzy_candidate_only": 13,
+      "exact_rate": 0.65,
+      "miss_examples": [
+        [
+          "E43",
+          [
+            "43",
+            "B43"
+          ]
+        ],
+        [
+          "GA6",
+          [
+            "G06",
+            "A46"
+          ]
+        ],
+        [
+          "E19",
+          [
+            "19",
+            "319"
+          ]
+        ],
+        [
+          "E58",
+          [
+            "58",
+            "C58",
+            "508"
+          ]
+        ],
+        [
+          "E58",
+          []
+        ]
+      ],
+      "runway_in_data": [
+        "10",
+        "16",
+        "28",
+        "32",
+        "34"
+      ],
+      "runway_in_apt": [
+        "10",
+        "14",
+        "16",
+        "28",
+        "32",
+        "34"
+      ],
+      "runway_extra_in_apt": [
+        "14"
+      ]
+    },
+    "LTFM": {
+      "dep_total": 40,
+      "exact_match": 0,
+      "fuzzy_candidate_only": 31,
+      "exact_rate": 0.0,
+      "miss_examples": [
+        [
+          "G10R",
+          [
+            "G10R-(C)"
+          ]
+        ],
+        [
+          "F7L",
+          [
+            "F7L-(C)"
+          ]
+        ],
+        [
+          "A11",
+          [
+            "A11-(E)"
+          ]
+        ],
+        [
+          "G10R",
+          []
+        ],
+        [
+          "E2",
+          []
+        ]
+      ],
+      "runway_in_data": [
+        "17R",
+        "18",
+        "35L",
+        "36"
+      ],
+      "runway_in_apt": [
+        "16L",
+        "16R",
+        "17L",
+        "17R",
+        "18",
+        "34L",
+        "34R",
+        "35L",
+        "35R",
+        "36"
+      ],
+      "runway_extra_in_apt": [
+        "16L",
+        "16R",
+        "17L",
+        "34L",
+        "34R",
+        "35R"
+      ]
+    }
+  }
+}
