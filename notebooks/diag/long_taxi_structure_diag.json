@@ -1,0 +1,1029 @@
+{
+  "meta": {
+    "random_state": 42,
+    "note": "独立复算。任务1 用全量 holdout 预测 parquet + 均值基准(环境无 LGB 模型);任务2-5 用 sample 中 SCHED 月份∈{1,7} 的 DEP(小样本,~800 行)。stand_rwy_dist 仅 2025-01 单月的 dist 文件可用,跨月匹配率约 39%。天气数据未接入。",
+    "data_limits": {
+      "lgb_model_unavailable": "models/ 下无 .json/.cbm LGB 模型文件",
+      "holdout_preds_only": "holdout_v2_preds.parquet 仅含 true_y+pred,无 BLOCK/AOBT",
+      "sample_only": "data/sample/ 为 40 DEP/机场/月 小样本"
+    },
+    "n_allyear_sample_dep": 4800,
+    "n_holdout_sample_dep": 800
+  },
+  "task1_sse_sensitivity": {
+    "global_mean": 1007.2982723163973,
+    "note": "环境无 LGB 模型文件,按用户规则用均值基准粗算。baseline_global=全 holdout DEP 均值(轻微乐观);baseline_ap=分机场均值(更接近常用生产基准)。",
+    "baseline_global": {
+      "overall_rmse": 467.5126967665241,
+      "overall_mae": 317.66161644855765,
+      "sse_total": 75247758645.01237,
+      "bins": [
+        {
+          "bin": "<=1800",
+          "n": 328707,
+          "pct_rows": 95.47775621884766,
+          "y_mean": 941.9191985567694,
+          "y_median": 904.0,
+          "rmse_bin": 325.5769624527657,
+          "sse": 34843059834.87537,
+          "pct_sse": 46.30444874677321
+        },
+        {
+          "bin": "(1800,3600]",
+          "n": 14648,
+          "pct_rows": 4.254725859484832,
+          "y_mean": 2226.8270070999456,
+          "y_median": 2096.0,
+          "rmse_bin": 1285.270628341857,
+          "sse": 24197332774.170525,
+          "pct_sse": 32.15688175952652
+        },
+        {
+          "bin": "(3600,7200]",
+          "n": 832,
+          "pct_rows": 0.24166656984512427,
+          "y_mean": 4571.217548076923,
+          "y_median": 4311.5,
+          "rmse_bin": 3669.605570574188,
+          "sse": 11203716196.26614,
+          "pct_sse": 14.889102875635954
+        },
+        {
+          "bin": "(7200,10800]",
+          "n": 89,
+          "pct_rows": 0.025851351822375072,
+          "y_mean": 8442.370786516854,
+          "y_median": 8208.0,
+          "rmse_bin": 7498.052061417967,
+          "sse": 5003649839.700346,
+          "pct_sse": 6.649566618064314
+        },
+        {
+          "bin": ">10800",
+          "n": 0,
+          "pct_rows": 0.0,
+          "y_mean": null,
+          "y_median": null,
+          "rmse_bin": null,
+          "sse": 0.0,
+          "pct_sse": 0.0
+        }
+      ],
+      "sensitivity": [
+        {
+          "long_bin_target_rmse": 500.0,
+          "overall_rmse": 335.4286411645416,
+          "delta_vs_current": -132.08405560198247
+        },
+        {
+          "long_bin_target_rmse": 300.0,
+          "overall_rmse": 324.46383968579164,
+          "delta_vs_current": -143.04885708073243
+        },
+        {
+          "long_bin_target_rmse": 0.0,
+          "overall_rmse": 318.13010524093755,
+          "delta_vs_current": -149.38259152558652
+        }
+      ],
+      "n_long(>1800)": 15569,
+      "pct_long(>1800)": 4.522243781152331
+    },
+    "baseline_ap": {
+      "overall_rmse": 429.43997609863055,
+      "overall_mae": 282.0635076121828,
+      "sse_total": 63490929975.91554,
+      "bins": [
+        {
+          "bin": "<=1800",
+          "n": 328707,
+          "pct_rows": 95.47775621884766,
+          "y_mean": 941.9191985567694,
+          "y_median": 904.0,
+          "rmse_bin": 292.88065945427917,
+          "sse": 28196184273.86093,
+          "pct_sse": 44.40978307382926
+        },
+        {
+          "bin": "(1800,3600]",
+          "n": 14648,
+          "pct_rows": 4.254725859484832,
+          "y_mean": 2226.8270070999456,
+          "y_median": 2096.0,
+          "rmse_bin": 1179.0906258000077,
+          "sse": 20364450901.9868,
+          "pct_sse": 32.074582794285405
+        },
+        {
+          "bin": "(3600,7200]",
+          "n": 832,
+          "pct_rows": 0.24166656984512427,
+          "y_mean": 4571.217548076923,
+          "y_median": 4311.5,
+          "rmse_bin": 3500.8644745397314,
+          "sse": 10197035321.4865,
+          "pct_sse": 16.060617359604926
+        },
+        {
+          "bin": "(7200,10800]",
+          "n": 89,
+          "pct_rows": 0.025851351822375072,
+          "y_mean": 8442.370786516854,
+          "y_median": 8208.0,
+          "rmse_bin": 7292.646348930988,
+          "sse": 4733259478.5813055,
+          "pct_sse": 7.455016772280397
+        },
+        {
+          "bin": ">10800",
+          "n": 0,
+          "pct_rows": 0.0,
+          "y_mean": null,
+          "y_median": null,
+          "rmse_bin": null,
+          "sse": 0.0,
+          "pct_sse": 0.0
+        }
+      ],
+      "sensitivity": [
+        {
+          "long_bin_target_rmse": 500.0,
+          "overall_rmse": 305.2958417561006,
+          "delta_vs_current": -124.14413434252998
+        },
+        {
+          "long_bin_target_rmse": 300.0,
+          "overall_rmse": 293.2063453333203,
+          "delta_vs_current": -136.23363076531024
+        },
+        {
+          "long_bin_target_rmse": 0.0,
+          "overall_rmse": 286.18165828837664,
+          "delta_vs_current": -143.2583178102539
+        }
+      ],
+      "n_long(>1800)": 15569,
+      "pct_long(>1800)": 4.522243781152331
+    }
+  },
+  "task2_labels": {
+    "n_long": 38,
+    "counts": {
+      "uncertain": 27,
+      "dirty": 6,
+      "real": 5
+    },
+    "pct": {
+      "uncertain": 71.05263157894737,
+      "dirty": 15.789473684210526,
+      "real": 13.157894736842104
+    },
+    "uncertain_reasons": {
+      "aobt_blk_diff_300_1800": 26,
+      "aobt_ok_but_mvt_aobt_le_1800": 1
+    },
+    "cross_day_86400_hits": 0,
+    "date_diff_gt_30d_hits": 0,
+    "rules": {
+      "real": "AOBT有效 & |AOBT-BLOCK|<=300s & MVT-AOBT>1800",
+      "dirty": "AOBT缺失 | |AOBT-BLOCK|>1800s | (|BLOCK-SCHED|<=60s & MVT-SCHED>2700s)",
+      "uncertain": "其余(细分: aobt_blk_diff_300_1800 / aobt_ok_but_mvt_aobt_le_1800)"
+    }
+  },
+  "task3_airport_bucket": {
+    "EDDF": {
+      "1800-3600": {
+        "n": 2,
+        "real": 0,
+        "dirty": 0,
+        "uncertain": 2,
+        "pct_real": 0.0,
+        "pct_dirty": 0.0,
+        "pct_uncertain": 100.0,
+        "taxitime_median": 2632.5,
+        "taxitime_p99": 3065.17,
+        "taxitime_max": 3074.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "EDDM": {
+      "1800-3600": {
+        "n": 4,
+        "real": 0,
+        "dirty": 2,
+        "uncertain": 2,
+        "pct_real": 0.0,
+        "pct_dirty": 50.0,
+        "pct_uncertain": 50.0,
+        "taxitime_median": 2368.0,
+        "taxitime_p99": 3102.7,
+        "taxitime_max": 3121.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "EGLL": {
+      "1800-3600": {
+        "n": 8,
+        "real": 2,
+        "dirty": 1,
+        "uncertain": 5,
+        "pct_real": 25.0,
+        "pct_dirty": 12.5,
+        "pct_uncertain": 62.5,
+        "taxitime_median": 1943.5,
+        "taxitime_p99": 2832.49,
+        "taxitime_max": 2874.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "EHAM": {
+      "1800-3600": {
+        "n": 1,
+        "real": 1,
+        "dirty": 0,
+        "uncertain": 0,
+        "pct_real": 100.0,
+        "pct_dirty": 0.0,
+        "pct_uncertain": 0.0,
+        "taxitime_median": 3538.0,
+        "taxitime_p99": 3538.0,
+        "taxitime_max": 3538.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "LEBL": {
+      "1800-3600": {
+        "n": 3,
+        "real": 0,
+        "dirty": 1,
+        "uncertain": 2,
+        "pct_real": 0.0,
+        "pct_dirty": 33.33333333333333,
+        "pct_uncertain": 66.66666666666666,
+        "taxitime_median": 1931.0,
+        "taxitime_p99": 3273.6,
+        "taxitime_max": 3301.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "LEMD": {
+      "1800-3600": {
+        "n": 1,
+        "real": 0,
+        "dirty": 0,
+        "uncertain": 1,
+        "pct_real": 0.0,
+        "pct_dirty": 0.0,
+        "pct_uncertain": 100.0,
+        "taxitime_median": 1915.0,
+        "taxitime_p99": 1915.0,
+        "taxitime_max": 1915.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "LFPG": {
+      "1800-3600": {
+        "n": 5,
+        "real": 2,
+        "dirty": 0,
+        "uncertain": 3,
+        "pct_real": 40.0,
+        "pct_dirty": 0.0,
+        "pct_uncertain": 60.0,
+        "taxitime_median": 2049.0,
+        "taxitime_p99": 2693.24,
+        "taxitime_max": 2710.0
+      },
+      "3600-10800": {
+        "n": 1,
+        "real": 0,
+        "dirty": 1,
+        "uncertain": 0,
+        "pct_real": 0.0,
+        "pct_dirty": 100.0,
+        "pct_uncertain": 0.0,
+        "taxitime_median": 5332.0,
+        "taxitime_p99": 5332.0,
+        "taxitime_max": 5332.0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "LIRF": {
+      "1800-3600": {
+        "n": 8,
+        "real": 0,
+        "dirty": 1,
+        "uncertain": 7,
+        "pct_real": 0.0,
+        "pct_dirty": 12.5,
+        "pct_uncertain": 87.5,
+        "taxitime_median": 2257.0,
+        "taxitime_p99": 3080.31,
+        "taxitime_max": 3113.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "LSZH": {
+      "1800-3600": {
+        "n": 2,
+        "real": 0,
+        "dirty": 0,
+        "uncertain": 2,
+        "pct_real": 0.0,
+        "pct_dirty": 0.0,
+        "pct_uncertain": 100.0,
+        "taxitime_median": 2212.0,
+        "taxitime_p99": 2267.86,
+        "taxitime_max": 2269.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    },
+    "LTFM": {
+      "1800-3600": {
+        "n": 3,
+        "real": 0,
+        "dirty": 0,
+        "uncertain": 3,
+        "pct_real": 0.0,
+        "pct_dirty": 0.0,
+        "pct_uncertain": 100.0,
+        "taxitime_median": 2170.0,
+        "taxitime_p99": 3038.28,
+        "taxitime_max": 3056.0
+      },
+      "3600-10800": {
+        "n": 0
+      },
+      ">10800": {
+        "n": 0
+      }
+    }
+  },
+  "task4_signals": [
+    {
+      "signal": "eobt_minus_iobt_sec",
+      "desc": "EOBT相对IOBT后移(流量调控代理)",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 180.00000000000003,
+        "mean": 60.0
+      },
+      "norm_quantiles": {
+        "p10": -300.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 300.0,
+        "mean": 8.695478723404255
+      },
+      "cohens_d": 0.1791640712549082,
+      "cohens_d_strat": 0.45782466779141906,
+      "mwu_p": 0.3467097786677351,
+      "spearman_rho_holdout": 0.04626829087586144,
+      "spearman_p_holdout": 0.19391078207389825,
+      "spearman_rho_allyear": 0.006364662180374888,
+      "spearman_p_allyear": 0.6610596166468918,
+      "verdict": "weak"
+    },
+    {
+      "signal": "dep_queue_heavy_n_airport",
+      "desc": "同机场重型机队列",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 5.0,
+        "p75": 20.0,
+        "p90": 24.2,
+        "mean": 10.4
+      },
+      "norm_quantiles": {
+        "p10": 1.0,
+        "p25": 3.0,
+        "p50": 6.0,
+        "p75": 11.0,
+        "p90": 16.0,
+        "mean": 7.659574468085107
+      },
+      "cohens_d": 0.30774732175776504,
+      "cohens_d_strat": -0.3884164882149425,
+      "mwu_p": 0.905057480266981,
+      "spearman_rho_holdout": 0.2196538967965877,
+      "spearman_p_holdout": 4.364820496206781e-10,
+      "spearman_rho_allyear": 0.16398926630717553,
+      "spearman_p_allyear": 5.640738701738216e-30,
+      "verdict": "weak"
+    },
+    {
+      "signal": "dep_mvt_cnt_airport_60m",
+      "desc": "同机场过去60min实际起飞架次",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0
+      },
+      "norm_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.06914893617021277
+      },
+      "cohens_d": -0.38544964466377263,
+      "cohens_d_strat": -0.38825851241975723,
+      "mwu_p": 0.5441459731973772,
+      "spearman_rho_holdout": 0.045341123300765826,
+      "spearman_p_holdout": 0.2030049161758524,
+      "spearman_rho_allyear": 0.022963763771220412,
+      "spearman_p_allyear": 0.11362059199047722,
+      "verdict": "weak"
+    },
+    {
+      "signal": "sched_minus_iobt_sec",
+      "desc": "SCHED相对IOBT后移",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": -648.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": -216.0
+      },
+      "norm_quantiles": {
+        "p10": -1800.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": -670.531914893617
+      },
+      "cohens_d": 0.20278708673047868,
+      "cohens_d_strat": 0.36332926406099186,
+      "mwu_p": 0.8672751581047935,
+      "spearman_rho_holdout": -0.07471884023343717,
+      "spearman_p_holdout": 0.03575275674568526,
+      "spearman_rho_allyear": -0.02187840562781664,
+      "spearman_p_allyear": 0.13172582590398157,
+      "verdict": "weak"
+    },
+    {
+      "signal": "dep_mvt_cnt_runway_60m",
+      "desc": "同跑道过去60min实际起飞架次",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0
+      },
+      "norm_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.043882978723404256
+      },
+      "cohens_d": -0.30297550817441765,
+      "cohens_d_strat": -0.3417407715670622,
+      "mwu_p": 0.6342479887296426,
+      "spearman_rho_holdout": 0.052000148138148454,
+      "spearman_p_holdout": 0.14422448375532515,
+      "spearman_rho_allyear": 0.02552424652821204,
+      "spearman_p_allyear": 0.07864712025906061,
+      "verdict": "weak"
+    },
+    {
+      "signal": "ap_hour_dep_cnt",
+      "desc": "机场×小时计划拥堵(计划DEP数)",
+      "n_real": 5,
+      "n_norm": 762,
+      "real_quantiles": {
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 1.0,
+        "mean": 1.0
+      },
+      "norm_quantiles": {
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 1.0,
+        "mean": 1.0656167979002624
+      },
+      "cohens_d": -0.3527956935028783,
+      "cohens_d_strat": -0.24083156415667029,
+      "mwu_p": 0.5684766382348774,
+      "spearman_rho_holdout": -0.024857552140565824,
+      "spearman_p_holdout": 0.48262498194443476,
+      "spearman_rho_allyear": 0.012645887587161427,
+      "spearman_p_allyear": 0.38106285525232353,
+      "verdict": "none"
+    },
+    {
+      "signal": "sched_minus_eobt_sec",
+      "desc": "SCHED相对EOBT后移",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": -828.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": -276.0
+      },
+      "norm_quantiles": {
+        "p10": -2093.9999999999995,
+        "p25": -600.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 300.0,
+        "mean": -679.2273936170212
+      },
+      "cohens_d": 0.17780134519352608,
+      "cohens_d_strat": 0.22753935326566227,
+      "mwu_p": 0.9654701900326682,
+      "spearman_rho_holdout": -0.07700100271627758,
+      "spearman_p_holdout": 0.030460577668139668,
+      "spearman_rho_allyear": -0.016198172314441005,
+      "spearman_p_allyear": 0.2644537019173502,
+      "verdict": "none"
+    },
+    {
+      "signal": "dep_mvt_cnt_runway_15m",
+      "desc": "同跑道过去15min实际起飞架次",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0
+      },
+      "norm_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.014627659574468085
+      },
+      "cohens_d": -0.1723067283566636,
+      "cohens_d_strat": -0.1696737577134389,
+      "mwu_p": 0.7892400726572254,
+      "spearman_rho_holdout": 0.024597098390554146,
+      "spearman_p_holdout": 0.48996852854358497,
+      "spearman_rho_allyear": 0.009756515779147901,
+      "spearman_p_allyear": 0.5015080357760736,
+      "verdict": "none"
+    },
+    {
+      "signal": "dep_mvt_cnt_airport_15m",
+      "desc": "同机场过去15min实际起飞架次",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0
+      },
+      "norm_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0199468085106383
+      },
+      "cohens_d": -0.20175619716286983,
+      "cohens_d_strat": -0.1696737577134389,
+      "mwu_p": 0.7531245637278994,
+      "spearman_rho_holdout": -0.0006304556255994632,
+      "spearman_p_holdout": 0.9858844664715317,
+      "spearman_rho_allyear": -0.0007195117597656973,
+      "spearman_p_allyear": 0.9604686897473518,
+      "verdict": "none"
+    },
+    {
+      "signal": "dep_queue_n_airport",
+      "desc": "同机场瞬时队列长度",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0
+      },
+      "norm_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.02127659574468085
+      },
+      "cohens_d": -0.20851441405707474,
+      "cohens_d_strat": -0.1636871097252574,
+      "mwu_p": 0.7449308415696088,
+      "spearman_rho_holdout": -0.047244768443359765,
+      "spearman_p_holdout": 0.1846595858608847,
+      "spearman_rho_allyear": 0.014637172060825543,
+      "spearman_p_allyear": 0.31327518069409493,
+      "verdict": "none"
+    },
+    {
+      "signal": "dep_queue_n_runway",
+      "desc": "同跑道瞬时队列长度",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0
+      },
+      "norm_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.013297872340425532
+      },
+      "cohens_d": -0.16417727582577962,
+      "cohens_d_strat": -0.15431739623029173,
+      "mwu_p": 0.7993287475731765,
+      "spearman_rho_holdout": -0.07941489324130811,
+      "spearman_p_holdout": 0.02560826721886253,
+      "spearman_rho_allyear": 0.019525769539776684,
+      "spearman_p_allyear": 0.17855696411203456,
+      "verdict": "none"
+    },
+    {
+      "signal": "sched_hour",
+      "desc": "计划小时(0-23)",
+      "n_real": 5,
+      "n_norm": 762,
+      "real_quantiles": {
+        "p10": 7.2,
+        "p25": 9.0,
+        "p50": 14.0,
+        "p75": 14.0,
+        "p90": 16.4,
+        "mean": 12.2
+      },
+      "norm_quantiles": {
+        "p10": 5.0,
+        "p25": 8.0,
+        "p50": 11.0,
+        "p75": 16.0,
+        "p90": 19.0,
+        "mean": 11.776902887139107
+      },
+      "cohens_d": 0.09116515987388676,
+      "cohens_d_strat": -0.08450988681573364,
+      "mwu_p": 0.8234333211020968,
+      "spearman_rho_holdout": 0.05283972888359644,
+      "spearman_p_holdout": 0.13537448240509256,
+      "spearman_rho_allyear": 0.047465173210969755,
+      "spearman_p_allyear": 0.0010037226541030726,
+      "verdict": "none"
+    },
+    {
+      "signal": "ap_hour_rwy_nunique",
+      "desc": "机场×小时活跃跑道数(计划)",
+      "n_real": 5,
+      "n_norm": 762,
+      "real_quantiles": {
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 1.0,
+        "mean": 1.0
+      },
+      "norm_quantiles": {
+        "p10": 1.0,
+        "p25": 1.0,
+        "p50": 1.0,
+        "p75": 1.0,
+        "p90": 1.0,
+        "mean": 1.020997375328084
+      },
+      "cohens_d": -0.20711214923140014,
+      "cohens_d_strat": -0.04611364448310101,
+      "mwu_p": 0.7465845369778713,
+      "spearman_rho_holdout": -0.010110107789828966,
+      "spearman_p_holdout": 0.775247929946271,
+      "spearman_rho_allyear": -0.02762601892186652,
+      "spearman_p_allyear": 0.05563887846910452,
+      "verdict": "none"
+    },
+    {
+      "signal": "lobt_minus_iobt_sec",
+      "desc": "LOBT相对IOBT后移",
+      "n_real": 5,
+      "n_norm": 752,
+      "real_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.0
+      },
+      "norm_quantiles": {
+        "p10": 0.0,
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "mean": 0.8763297872340425
+      },
+      "cohens_d": -0.06001932524558872,
+      "cohens_d_strat": 0.0,
+      "mwu_p": 0.9699173021892533,
+      "spearman_rho_holdout": 0.016077170947387875,
+      "spearman_p_holdout": 0.651849951914546,
+      "spearman_rho_allyear": -0.001162848283840123,
+      "spearman_p_allyear": 0.9361530759293277,
+      "verdict": "none"
+    },
+    {
+      "signal": "stand_rwy_dist_m",
+      "desc": "stand到跑道haversine距离",
+      "verdict": "insufficient_data",
+      "n_real": 2,
+      "n_norm": 298
+    }
+  ],
+  "task4_meta": {
+    "stand_rwy_dist_match_rate": 0.39125
+  },
+  "task5_samples": [
+    {
+      "MVT_ID_mvt": 182517022.0,
+      "ADEP_mvt": "EDDM",
+      "label": "dirty",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-01-15 10:04:00+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-01-15 09:11:59+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-01-15 08:05:00+00:00",
+      "AOBT_3_flt": "2025-01-15 09:59:00+00:00",
+      "TAXITIME_SEC_mvt": 3121.0,
+      "mvt_minus_aobt_sec": 300.0,
+      "abs_aobt_minus_blk_sec": 2821.0,
+      "abs_blk_minus_sched_sec": 4019.0,
+      "mvt_minus_sched_sec": 7140.0
+    },
+    {
+      "MVT_ID_mvt": 182512403.0,
+      "ADEP_mvt": "EDDM",
+      "label": "dirty",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-01-03 06:02:55+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-01-03 05:21:04+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-01-03 05:00:00+00:00",
+      "AOBT_3_flt": "2025-01-03 05:58:00+00:00",
+      "TAXITIME_SEC_mvt": 2511.0,
+      "mvt_minus_aobt_sec": 295.0,
+      "abs_aobt_minus_blk_sec": 2216.0,
+      "abs_blk_minus_sched_sec": 1264.0,
+      "mvt_minus_sched_sec": 3775.0
+    },
+    {
+      "MVT_ID_mvt": 191483891.0,
+      "ADEP_mvt": "EGLL",
+      "label": "real",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-07-31 15:31:58+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-07-31 15:01:01+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-07-31 14:35:00+00:00",
+      "AOBT_3_flt": "2025-07-31 14:57:00+00:00",
+      "TAXITIME_SEC_mvt": 1857.0,
+      "mvt_minus_aobt_sec": 2098.0,
+      "abs_aobt_minus_blk_sec": 241.0,
+      "abs_blk_minus_sched_sec": 1561.0,
+      "mvt_minus_sched_sec": 3418.0
+    },
+    {
+      "MVT_ID_mvt": 191472664.0,
+      "ADEP_mvt": "EGLL",
+      "label": "real",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-07-18 14:57:59+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-07-18 14:25:01+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-07-18 14:20:00+00:00",
+      "AOBT_3_flt": "2025-07-18 14:25:00+00:00",
+      "TAXITIME_SEC_mvt": 1978.0,
+      "mvt_minus_aobt_sec": 1979.0,
+      "abs_aobt_minus_blk_sec": 1.0,
+      "abs_blk_minus_sched_sec": 301.0,
+      "mvt_minus_sched_sec": 2279.0
+    },
+    {
+      "MVT_ID_mvt": 181996221.0,
+      "ADEP_mvt": "EGLL",
+      "label": "dirty",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-01-30 08:08:57+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-01-30 07:21:03+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-01-30 07:25:00+00:00",
+      "AOBT_3_flt": "2025-01-30 07:59:00+00:00",
+      "TAXITIME_SEC_mvt": 2874.0,
+      "mvt_minus_aobt_sec": 597.0,
+      "abs_aobt_minus_blk_sec": 2277.0,
+      "abs_blk_minus_sched_sec": 237.0,
+      "mvt_minus_sched_sec": 2637.0
+    },
+    {
+      "MVT_ID_mvt": 182033481.0,
+      "ADEP_mvt": "EHAM",
+      "label": "real",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-01-18 11:03:31+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-01-18 10:04:33+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-01-18 09:35:00+00:00",
+      "AOBT_3_flt": "2025-01-18 10:02:17+00:00",
+      "TAXITIME_SEC_mvt": 3538.0,
+      "mvt_minus_aobt_sec": 3674.0,
+      "abs_aobt_minus_blk_sec": 136.0,
+      "abs_blk_minus_sched_sec": 1773.0,
+      "mvt_minus_sched_sec": 5311.0
+    },
+    {
+      "MVT_ID_mvt": 193076998.0,
+      "ADEP_mvt": "LEBL",
+      "label": "dirty",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-07-12 14:38:56+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-07-12 13:43:55+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-07-12 12:30:00+00:00",
+      "AOBT_3_flt": "2025-07-12 14:18:00+00:00",
+      "TAXITIME_SEC_mvt": 3301.0,
+      "mvt_minus_aobt_sec": 1256.0,
+      "abs_aobt_minus_blk_sec": 2045.0,
+      "abs_blk_minus_sched_sec": 4435.0,
+      "mvt_minus_sched_sec": 7736.0
+    },
+    {
+      "MVT_ID_mvt": 182377677.0,
+      "ADEP_mvt": "LFPG",
+      "label": "real",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-01-03 06:41:04+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-01-03 06:06:55+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-01-03 06:10:00+00:00",
+      "AOBT_3_flt": "2025-01-03 06:06:00+00:00",
+      "TAXITIME_SEC_mvt": 2049.0,
+      "mvt_minus_aobt_sec": 2104.0,
+      "abs_aobt_minus_blk_sec": 55.0,
+      "abs_blk_minus_sched_sec": 185.0,
+      "mvt_minus_sched_sec": 1864.0
+    },
+    {
+      "MVT_ID_mvt": 182364060.0,
+      "ADEP_mvt": "LFPG",
+      "label": "real",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-01-03 18:58:05+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-01-03 18:19:54+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-01-03 18:05:00+00:00",
+      "AOBT_3_flt": "2025-01-03 18:24:00+00:00",
+      "TAXITIME_SEC_mvt": 2291.0,
+      "mvt_minus_aobt_sec": 2045.0,
+      "abs_aobt_minus_blk_sec": 246.0,
+      "abs_blk_minus_sched_sec": 894.0,
+      "mvt_minus_sched_sec": 3185.0
+    },
+    {
+      "MVT_ID_mvt": 191751345.0,
+      "ADEP_mvt": "LFPG",
+      "label": "dirty",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-07-14 15:04:56+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-07-14 13:36:04+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-07-14 13:35:00+00:00",
+      "AOBT_3_flt": "2025-07-14 14:50:00+00:00",
+      "TAXITIME_SEC_mvt": 5332.0,
+      "mvt_minus_aobt_sec": 896.0,
+      "abs_aobt_minus_blk_sec": 4436.0,
+      "abs_blk_minus_sched_sec": 64.0,
+      "mvt_minus_sched_sec": 5396.0
+    },
+    {
+      "MVT_ID_mvt": 192624452.0,
+      "ADEP_mvt": "LIRF",
+      "label": "dirty",
+      "uncertain_reason": "",
+      "MVT_TIME_UTC_mvt": "2025-07-19 09:46:56+00:00",
+      "BLOCK_TIME_UTC_mvt": "2025-07-19 08:55:03+00:00",
+      "SCHED_TIME_UTC_mvt": "2025-07-19 08:55:00+00:00",
+      "AOBT_3_flt": "2025-07-19 09:27:00+00:00",
+      "TAXITIME_SEC_mvt": 3113.0,
+      "mvt_minus_aobt_sec": 1196.0,
+      "abs_aobt_minus_blk_sec": 1917.0,
+      "abs_blk_minus_sched_sec": 3.0,
+      "mvt_minus_sched_sec": 3116.0
+    }
+  ],
+  "modelable_real_count": 5,
+  "modelable_real_count_allyear": 22,
+  "task2_labels_allyear": {
+    "n_long": 150,
+    "counts": {
+      "uncertain": 107,
+      "real": 22,
+      "dirty": 21
+    },
+    "pct": {
+      "uncertain": 71.33333333333334,
+      "real": 14.666666666666666,
+      "dirty": 14.000000000000002
+    },
+    "uncertain_reasons": {
+      "aobt_blk_diff_300_1800": 94,
+      "aobt_ok_but_mvt_aobt_le_1800": 13
+    },
+    "cross_day_86400_hits": 0,
+    "date_diff_gt_30d_hits": 0,
+    "rules": {
+      "real": "AOBT有效 & |AOBT-BLOCK|<=300s & MVT-AOBT>1800",
+      "dirty": "AOBT缺失 | |AOBT-BLOCK|>1800s | (|BLOCK-SCHED|<=60s & MVT-SCHED>2700s)",
+      "uncertain": "其余(细分: aobt_blk_diff_300_1800 / aobt_ok_but_mvt_aobt_le_1800)"
+    }
+  }
+}
