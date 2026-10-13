@@ -1,16 +1,16 @@
 """
-D0-4: 一键门禁 scripts/gate_check.py
+D0-4: one-click gate check scripts/gate_check.py
 =====================================
-import 冻结入口, 自动检查并输出 PASS/FAIL (失败返回非零退出码), 写 d0_gate_report.json:
-1. baseline RMSE ≈ 357.14 (±2)
-2. 分机场 SSE 加总反算全局 RMSE 与直接全局 RMSE allclose (容差 1e-6)
-3. cat 映射持久化后, 独立进程推理逐行 allclose, max|Δ|=0
-4. 预测无 NaN, 无负值
-5. 提交 MVT_ID_mvt 集合与顺序 == submitting.parquet (344,841 行), 无缺行/多行
+Imports the frozen entry point, automatically checks and prints PASS/FAIL (non-zero exit code on failure), writes d0_gate_report.json:
+1. baseline RMSE ~= 357.14 (+/-2)
+2. Per-airport SSE summed and back-computed into a global RMSE is allclose to the direct global RMSE (tolerance 1e-6)
+3. After cat mappings are persisted, row-wise inference in a separate process is allclose, max|d|=0
+4. Predictions contain no NaN and no negative values
+5. Submission MVT_ID_mvt set and order == submitting.parquet (344,841 rows), no missing/extra rows
 
-用法:
+Usage:
     python3 scripts/gate_check.py
-退出码: 0=PASS, 1=FAIL
+Exit code: 0=PASS, 1=FAIL
 """
 import sys
 import json
@@ -26,7 +26,7 @@ import xgboost as xgb
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-# 加载冻结入口
+# Load the frozen entry point
 spec = importlib.util.spec_from_file_location(
     "ab_module",
     ROOT / "notebooks/diag/holdout_v1_queue_ab.py",
@@ -40,7 +40,7 @@ REPORT_PATH = ROOT / "notebooks/diag/d0/d0_gate_report.json"
 
 
 def check1_baseline(tolerance=2.0):
-    """check 1: baseline RMSE ≈ 357.14 (±2)"""
+    """check 1: baseline RMSE ~= 357.14 (+/-2)"""
     print("\n" + "=" * 70)
     print("CHECK 1: baseline RMSE = 357.14 (±2)")
     print("=" * 70)
@@ -93,16 +93,16 @@ def check1_baseline(tolerance=2.0):
     y_true = df_ho_dep["TAXITIME_SEC_mvt"].values
 
     rmse = float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
-    print(f"  RMSE = {rmse:.4f} (期望 357.14 ± {tolerance})")
+    print(f"  RMSE = {rmse:.4f} (expected 357.14 ± {tolerance})")
     pass_ = abs(rmse - 357.14) < tolerance
     print(f"  {'✅ PASS' if pass_ else '❌ FAIL'}")
     return pass_, rmse, df_ho_dep, y_pred, y_true, booster, feat_cols, cat_path
 
 
 def check2_sse_global(rmse_global, df_ho_dep, y_pred, y_true):
-    """check 2: 分机场 SSE 加总反算全局 RMSE vs 直接 RMSE allclose"""
+    """check 2: per-airport SSE summed and back-computed global RMSE vs direct RMSE allclose"""
     print("\n" + "=" * 70)
-    print("CHECK 2: 分机场 SSE 加总反算全局 RMSE allclose (1e-6)")
+    print("CHECK 2: per-airport SSE back-computed global RMSE allclose (1e-6)")
     print("=" * 70)
     ap = df_ho_dep["ADEP_mvt"].astype(str).values
     sse_total = 0.0
@@ -112,8 +112,8 @@ def check2_sse_global(rmse_global, df_ho_dep, y_pred, y_true):
         sse_total += sse_a
     rmse_recomputed = float(np.sqrt(sse_total / len(y_true)))
     diff = abs(rmse_recomputed - rmse_global)
-    print(f"  直接 RMSE = {rmse_global:.6f}")
-    print(f"  反算 RMSE = {rmse_recomputed:.6f}")
+    print(f"  direct RMSE = {rmse_global:.6f}")
+    print(f"  back-computed RMSE = {rmse_recomputed:.6f}")
     print(f"  |Δ| = {diff:.2e}")
     pass_ = diff < 1e-6
     print(f"  {'✅ PASS' if pass_ else '❌ FAIL'}")
@@ -121,26 +121,26 @@ def check2_sse_global(rmse_global, df_ho_dep, y_pred, y_true):
 
 
 def check3_cross_process_inference(booster, df_ho_dep, feat_cols, cat_path):
-    """check 3: cat 持久化后, 独立进程推理逐行 allclose (max|Δ|=0)"""
+    """check 3: after cat persistence, separate-process inference is row-wise allclose (max|d|=0)"""
     print("\n" + "=" * 70)
-    print("CHECK 3: 独立进程推理 allclose (max|Δ|=0)")
+    print("CHECK 3: separate-process inference allclose (max|Δ|=0)")
     print("=" * 70)
 
-    # 先保存模型给独立进程加载
+    # Save the model first so the separate process can load it
     model_path = ROOT / "models" / "gate_check_v1_model.json"
     booster.save_model(str(model_path))
 
-    # 主进程推理
+    # Main-process inference
     tx._CAT_MAPPINGS.clear()
     tx._CAT_MAPPINGS_PATH = cat_path
     X_ho_enc = tx._encode_categoricals(df_ho_dep[feat_cols].copy(), fit=False)
     y_pred_main = booster.predict(xgb.DMatrix(X_ho_enc))
 
-    # 保存 main 预测
+    # Save the main predictions
     tmp_main = Path(tempfile.gettempdir()) / "gate_main_pred.npy"
     np.save(tmp_main, y_pred_main)
 
-    # 生成独立推理脚本
+    # Generate the standalone inference script
     indep_script = f'''
 import sys, json
 import importlib.util
@@ -156,10 +156,10 @@ ab = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ab)
 import src.train_xgb as tx
 
-# 数据目录(默认 data/raw, 云端用 data/sample 时通过 DATA_DIR 注入)
+# Data directory (defaults to data/raw; on cloud use data/sample, injected via DATA_DIR)
 DATA_DIR = "{globals().get("DATA_DIR", "data/raw")}"
 
-# 加载 holdout (1+7) DEP
+# Load holdout (1+7) DEP
 dfs_ho = []
 for m in [1, 7]:
     fname = f"training_2025-{{m:02d}}-01_2025-{{m + 1:02d}}-01.parquet"
@@ -172,7 +172,7 @@ df_ho_dep = df_ho_dep[(df_ho_dep["TAXITIME_SEC_mvt"] > 0) & (df_ho_dep["TAXITIME
 
 feat_cols = {feat_cols!r}
 
-# 用持久化的 cat mappings
+# Use the persisted cat mappings
 tx._CAT_MAPPINGS.clear()
 tx._CAT_MAPPINGS_PATH = Path("{cat_path}")
 
@@ -181,31 +181,31 @@ booster = xgb.Booster()
 booster.load_model("{model_path}")
 y_pred = booster.predict(xgb.DMatrix(X_ho_enc))
 np.save("{tmp_main.with_suffix('.indep.npy')}", y_pred)
-print(f"独立推理完成, n={{len(y_pred)}}")
+print(f"standalone inference done, n={{len(y_pred)}}")
 '''
 
-    # 保存模型 + cat mappings 让独立进程可访问
+    # Save the model + cat mappings so the separate process can access them
     model_path_local = ROOT / "models" / "gate_check_v1_model.json"
     if not model_path_local.exists():
         booster.save_model(str(model_path_local))
 
-    # 写独立脚本
+    # Write the standalone script
     script_path = Path(tempfile.gettempdir()) / "gate_indep_infer.py"
     script_path.write_text(indep_script)
 
-    # 跑独立进程
+    # Run the separate process
     result = subprocess.run(
         [sys.executable, str(script_path)],
         capture_output=True, text=True, cwd=str(ROOT),
     )
-    print(f"  独立进程 stdout: {result.stdout.strip()}")
+    print(f"  separate process stdout: {result.stdout.strip()}")
     if result.returncode != 0:
         print(f"  STDERR: {result.stderr}")
 
-    # 加载独立进程结果
+    # Load the separate-process result
     indep_path = tmp_main.with_suffix(".indep.npy")
     if not indep_path.exists():
-        print(f"  ❌ FAIL: 独立进程未生成结果文件")
+        print(f"  ❌ FAIL: separate process did not produce a result file")
         return False, None, None
     y_pred_indep = np.load(indep_path)
 
@@ -217,18 +217,18 @@ print(f"独立推理完成, n={{len(y_pred)}}")
 
 
 def check4_no_nan_no_negative(y_pred_clipped=None):
-    """check 4: 预测无 NaN, 无负值
-    检查最新提交文件 (应是最终可提交版本, 已 clip)
+    """check 4: predictions contain no NaN and no negative values
+    Checks the latest submission file (should be the final submittable version, already clipped)
     """
     print("\n" + "=" * 70)
-    print("CHECK 4: 提交预测无 NaN, 无负值")
+    print("CHECK 4: submission predictions contain no NaN and no negative values")
     print("=" * 70)
 
     sub_dir = ROOT / "submissions"
     sub_files = sorted([p for p in sub_dir.glob("*.parquet") if p.is_file()],
                        key=lambda p: p.stat().st_mtime, reverse=True)
     if not sub_files:
-        print(f"  ⚠️ 无 submissions/*.parquet 可检查")
+        print(f"  ⚠️ no submissions/*.parquet available to check")
         return True, 0, 0
     sub_latest = sub_files[0]
     df_sub = pd.read_parquet(sub_latest)
@@ -236,18 +236,18 @@ def check4_no_nan_no_negative(y_pred_clipped=None):
     preds = df_sub[pred_col].astype(float).values
     n_nan = int(np.isnan(preds).sum())
     n_neg = int((preds < 0).sum())
-    print(f"  文件: {sub_latest.name}")
-    print(f"  NaN 数 = {n_nan}")
-    print(f"  负值数 = {n_neg}")
+    print(f"  file: {sub_latest.name}")
+    print(f"  NaN count = {n_nan}")
+    print(f"  negative count = {n_neg}")
     pass_ = (n_nan == 0) and (n_neg == 0)
     print(f"  {'✅ PASS' if pass_ else '❌ FAIL'}")
     return pass_, n_nan, n_neg
 
 
 def check5_submission_format():
-    """check 5: 提交 MVT_ID_mvt 集合与顺序 == submitting.parquet (344,841 行)"""
+    """check 5: submission MVT_ID_mvt set and order == submitting.parquet (344,841 rows)"""
     print("\n" + "=" * 70)
-    print("CHECK 5: 提交 MVT_ID 集合+顺序 == submitting.parquet")
+    print("CHECK 5: submission MVT_ID set+order == submitting.parquet")
     print("=" * 70)
 
     sub_path = ROOT / globals().get("DATA_DIR", "data/raw") / "submitting.parquet"
@@ -256,32 +256,32 @@ def check5_submission_format():
     expected_n = len(expected_ids)
     print(f"  submitting.parquet: n={expected_n}, cols={list(sub.columns)}")
 
-    # 找最新的提交 (v1 / v10 / e3probe) 用于检查
+    # Find the latest submission (v1 / v10 / e3probe) to check
     sub_dir = ROOT / "submissions"
     sub_files = sorted([p for p in sub_dir.glob("*.parquet") if p.is_file()],
                        key=lambda p: p.stat().st_mtime, reverse=True)
     if not sub_files:
-        print(f"  ⚠️ 无 submissions/*.parquet 可检查")
-        return True, "无提交文件可检查 (仅 schema 检查)"
+        print(f"  ⚠️ no submissions/*.parquet available to check")
+        return True, "no submission file to check (schema check only)"
 
     sub_latest = sub_files[0]
-    print(f"  检查最新提交: {sub_latest.name}")
+    print(f"  checking latest submission: {sub_latest.name}")
     df_sub = pd.read_parquet(sub_latest)
     if "MVT_ID_mvt" not in df_sub.columns:
         if "MVT_ID" in df_sub.columns:
             df_sub = df_sub.rename(columns={"MVT_ID": "MVT_ID_mvt"})
         else:
-            print(f"  ❌ FAIL: 提交缺 MVT_ID 列")
-            return False, "缺 MVT_ID 列"
+            print(f"  ❌ FAIL: submission is missing the MVT_ID column")
+            return False, "missing MVT_ID column"
     sub_ids = df_sub["MVT_ID_mvt"].astype(float).values
 
     n_match_set = (set(sub_ids) == set(expected_ids))
     n_match_order = (len(sub_ids) == len(expected_ids)) and np.all(sub_ids == expected_ids)
     n_diff = abs(len(sub_ids) - expected_n)
 
-    print(f"  提交行数: {len(sub_ids)}, 期望 {expected_n}")
-    print(f"  集合一致: {n_match_set}")
-    print(f"  顺序一致: {n_match_order}")
+    print(f"  submission rows: {len(sub_ids)}, expected {expected_n}")
+    print(f"  set matches: {n_match_set}")
+    print(f"  order matches: {n_match_order}")
 
     pass_ = bool(n_match_set and n_match_order)
     print(f"  {'✅ PASS' if pass_ else '❌ FAIL'}")
@@ -291,16 +291,16 @@ def check5_submission_format():
 def main():
     import argparse
     print("=" * 70)
-    print("D0-4: 一键门禁 scripts/gate_check.py")
+    print("D0-4: one-click gate check scripts/gate_check.py")
     print("=" * 70)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-dir", default="data/raw",
-                        help="数据目录 (默认 data/raw 全量, 云端可指定 data/sample)")
+                        help="Data directory (defaults to the full data/raw; on cloud you can point it at data/sample)")
     args, _ = parser.parse_known_args()
-    # 注入到 check1_baseline (通过 globals)
+    # Inject into check1_baseline (via globals)
     globals()["DATA_DIR"] = args.data_dir
-    print(f"  数据目录: {args.data_dir}/", flush=True)
+    print(f"  data directory: {args.data_dir}/", flush=True)
 
     results = {}
 
@@ -313,7 +313,7 @@ def main():
         "pass": bool(c1),
     }
 
-    # check 2: SSE 全局自洽
+    # check 2: global SSE self-consistency
     c2, rmse_recomp, diff = check2_sse_global(rmse_global, df_ho_dep, y_pred, y_true)
     results["check2_sse_global_recompute"] = {
         "rmse_direct": rmse_global,
@@ -323,7 +323,7 @@ def main():
         "pass": bool(c2),
     }
 
-    # check 3: 跨进程推理 allclose
+    # check 3: cross-process inference allclose
     c3, max_diff, _ = check3_cross_process_inference(booster, df_ho_dep, feat_cols, cat_path)
     results["check3_cross_process_inference"] = {
         "max_abs_diff": max_diff,
@@ -331,7 +331,7 @@ def main():
         "pass": bool(c3),
     }
 
-    # check 4: 无 NaN, 无负值 (检查最新提交)
+    # check 4: no NaN, no negative values (check the latest submission)
     c4, n_nan, n_neg = check4_no_nan_no_negative()
     results["check4_no_nan_no_negative"] = {
         "nan_count": n_nan,
@@ -339,33 +339,33 @@ def main():
         "pass": bool(c4),
     }
 
-    # check 5: 提交 schema
+    # check 5: submission schema
     c5, info = check5_submission_format()
     results["check5_submission_format"] = {
         "info": info,
         "pass": bool(c5),
     }
 
-    # 汇总
+    # Summary
     all_pass = all(r["pass"] for r in results.values())
     print("\n" + "=" * 70)
-    print("汇总")
+    print("Summary")
     print("=" * 70)
     for name, r in results.items():
         marker = "✅" if r["pass"] else "❌"
         print(f"  {marker} {name}: pass={r['pass']}")
-    print(f"\n  总判定: {'✅ ALL PASS' if all_pass else '❌ FAIL'}")
+    print(f"\n  overall verdict: {'✅ ALL PASS' if all_pass else '❌ FAIL'}")
 
-    # 保存 report
+    # Save the report
     final_report = {
         "gate_check_results": results,
         "all_pass": bool(all_pass),
         "timestamp": pd.Timestamp.now().isoformat(),
-        "note": "任何实验没过此门禁直接拒收",
+        "note": "any experiment that fails this gate is rejected outright",
     }
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(json.dumps(final_report, indent=2, default=str))
-    print(f"\n✅ 报告已保存到 {REPORT_PATH}")
+    print(f"\n✅ report saved to {REPORT_PATH}")
     return 0 if all_pass else 1
 
 

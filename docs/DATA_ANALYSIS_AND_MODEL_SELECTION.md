@@ -1,111 +1,111 @@
-# 数据分析 & 模型选择对比报告
+# Data Analysis & Model Selection Comparison Report
 
-> **数据来源**:`data/raw/` 14 个 parquet + EDA 输出 + 7 次 holdout 实验
-> **撰写日期**:2026-09-21
+> **Data Source**: 14 parquet files in `data/raw/` + EDA output + 7 holdout experiments
+> **Date Written**: 2026-09-21
 
 ---
 
-## 第一部分:数据内容与分布
+## Part 1: Data Content and Distribution
 
-### 1.1 数据集全貌
+### 1.1 Dataset Overview
 
-| 维度 | 数值 |
+| Dimension | Value |
 |---|---|
-| 总行数(原始) | 4,167,797 |
-| DEP 行数(目标) | 2,085,047(50.0%) |
-| ARR 行数(过滤掉) | 2,082,750 |
-| 字段数(去重) | 26 |
-| 时间跨度 | 2025-01-01 00:05:56 ~ 2025-12-31 23:57:36 (UTC) |
-| 机场数 | 10(欧洲枢纽) |
-| 测试集(待预测) | 2026-01 + 2026-07,约 34 万 DEP,目标被屏蔽 |
+| Total rows (raw) | 4,167,797 |
+| DEP rows (target) | 2,085,047 (50.0%) |
+| ARR rows (filtered out) | 2,082,750 |
+| Field count (deduplicated) | 26 |
+| Time span | 2025-01-01 00:05:56 ~ 2025-12-31 23:57:36 (UTC) |
+| Number of airports | 10 (European hubs) |
+| Test set (to be predicted) | 2026-01 + 2026-07, about 340k DEP, target masked |
 
-### 1.2 字段分类与可用性
+### 1.2 Field Classification and Availability
 
-#### 26 个字段按类型分类
+#### The 26 fields classified by type
 
-| 大类 | 字段数 | 字段 |
+| Major category | Field count | Fields |
 |---|---|---|
-| **标识 ID** | 3 | `MVT_ID_mvt`(唯一)、`FLIGHT_ID_mvt`、`CALLSIGN_flt` |
-| **时间戳** | 9 | `MVT_TIME_*`、`BLOCK_TIME_*`、`SCHED_TIME_*`、`IOBT_flt`、`EOBT_1_flt`、`LOBT_flt`、`AOBT_3_flt`、`ARVT_3_flt` |
-| **空间** | 4 | `ADEP_mvt`、`ADES_mvt`、`RUNWAY_mvt`、`STAND_mvt` |
-| **飞机** | 2 | `AIRCRAFT_TYPE_mvt`、`AIRCRAFT_TYPE_flt`(两套) |
-| **航班元数据** | 5 | `PHASE_mvt`、`MARKET_SEGMENT_flt`、`FLIGHT_RULE_flt`、`FLIGHT_TYPE_flt`、`WK_TBL_CAT_flt`、`ADES_FILED_flt`、`is_diverted` |
-| **航司** | 1 | `AIRCRAFT_OPERATOR_flt`(676 个值) |
-| **目标** | 1 | `TAXITIME_SEC_mvt` |
+| **Identifier ID** | 3 | `MVT_ID_mvt` (unique), `FLIGHT_ID_mvt`, `CALLSIGN_flt` |
+| **Timestamps** | 9 | `MVT_TIME_*`, `BLOCK_TIME_*`, `SCHED_TIME_*`, `IOBT_flt`, `EOBT_1_flt`, `LOBT_flt`, `AOBT_3_flt`, `ARVT_3_flt` |
+| **Spatial** | 4 | `ADEP_mvt`, `ADES_mvt`, `RUNWAY_mvt`, `STAND_mvt` |
+| **Aircraft** | 2 | `AIRCRAFT_TYPE_mvt`, `AIRCRAFT_TYPE_flt` (two sets) |
+| **Flight metadata** | 5 | `PHASE_mvt`, `MARKET_SEGMENT_flt`, `FLIGHT_RULE_flt`, `FLIGHT_TYPE_flt`, `WK_TBL_CAT_flt`, `ADES_FILED_flt`, `is_diverted` |
+| **Airline** | 1 | `AIRCRAFT_OPERATOR_flt` (676 values) |
+| **Target** | 1 | `TAXITIME_SEC_mvt` |
 
-> `AIRCRAFT_TYPE_mvt`(机场侧,269 种)和 `AIRCRAFT_TYPE_flt`(航班侧,239 种)是冗余字段,基本一致。
+> `AIRCRAFT_TYPE_mvt` (airport side, 269 types) and `AIRCRAFT_TYPE_flt` (flight side, 239 types) are redundant fields and are basically identical.
 
-#### 字段缺失率(按 DEP 行)
+#### Field missing rate (by DEP rows)
 
 ```
-0%  缺失(0/10 字段全填): SCHED_TIME / BLOCK_TIME / MVT_TIME / ADEP / RUNWAY / PHASE / TAXITIME
-1.08% 缺失: EOBT_1 / IOBT / CALLSIGN / ADES / ADES_FILED / AIRCRAFT_TYPE / WK_TBL_CAT /
+0%  missing (0/10 fields fully populated): SCHED_TIME / BLOCK_TIME / MVT_TIME / ADEP / RUNWAY / PHASE / TAXITIME
+1.08% missing: EOBT_1 / IOBT / CALLSIGN / ADES / ADES_FILED / AIRCRAFT_TYPE / WK_TBL_CAT /
          MARKET_SEGMENT / FLIGHT_RULE / FLIGHT_TYPE / AIRCRAFT_OPERATOR / AOBT / ARVT / LOBT
-1.53% 缺失: FLIGHT_ID_mvt
-2 个 100% 在 ranking 被屏蔽: BLOCK_TIME、TAXITIME_SEC(目标)
+1.53% missing: FLIGHT_ID_mvt
+2 fields 100% masked in ranking: BLOCK_TIME, TAXITIME_SEC (target)
 ```
 
-### 1.3 目标变量 `TAXITIME_SEC_mvt` 分布
+### 1.3 Distribution of the Target Variable `TAXITIME_SEC_mvt`
 
-#### 1.3.1 全量分布(2,085,047 DEP 行)
+#### 1.3.1 Full Distribution (2,085,047 DEP rows)
 
-| 指标 | 值(秒) |
+| Metric | Value (seconds) |
 |---|---|
 | count | 2,085,047 |
 | mean | 991.20 |
 | std | 546.36 |
-| min | -12(数据 bug) |
+| min | -12 (data bug) |
 | 25% | 719 |
 | 50% (median) | 912 |
 | 75% | 1,188 |
-| max | 131,167(异常值) |
+| max | 131,167 (outlier) |
 
 ```
-分布形态:右偏长尾
-众数区间: 800-1000 秒(13-17 分钟)
-P99     : 约 1984 秒
-P99.9   : 约 3769 秒
+Distribution shape: right-skewed with a long tail
+Modal range: 800-1000 seconds (13-17 minutes)
+P99     : about 1984 seconds
+P99.9   : about 3769 seconds
 ```
 
-#### 1.3.2 各机场 taxi-out 分布差异
+#### 1.3.2 Taxi-out Distribution Differences Across Airports
 
-| 机场 | 均值 | 中位数 | std | P90 | P99 | 行数 |
+| Airport | Mean | Median | std | P90 | P99 | Row count |
 |---|---|---|---|---|---|---|
-| EGLL(伦敦) | **1364.2** | 1319 | 421.8 | 1806 | 2701 | 239,546 |
-| LIRF(罗马) | 1194.6 | 1025 | **1332.0** | 1689 | **4019** | 160,704 |
-| LTFM(伊斯坦布尔) | 1053.0 | 963 | 427.6 | 1502 | 2587 | 272,965 |
-| LFPG(巴黎) | 1019.5 | 954 | 453.0 | 1444 | 2409 | 239,552 |
-| LEMD(马德里) | 1014.7 | 985 | 312.5 | 1402 | 1932 | 212,242 |
-| LEBL(巴塞罗那) | 956.5 | 906 | 330.9 | 1357 | 1962 | 179,705 |
-| EDDF(法兰克福) | 863.5 | 837 | 329.8 | 1251 | 1819 | 230,141 |
-| EDDM(慕尼黑) | 811.9 | 774 | 301.8 | 1135 | 1921 | 167,334 |
-| EHAM(阿姆斯特丹) | 784.6 | 742 | 318.5 | 1157 | 1774 | 247,951 |
-| LSZH(苏黎世) | **740.5** | 711 | 385.4 | 1080 | 1707 | 134,907 |
+| EGLL (London) | **1364.2** | 1319 | 421.8 | 1806 | 2701 | 239,546 |
+| LIRF (Rome) | 1194.6 | 1025 | **1332.0** | 1689 | **4019** | 160,704 |
+| LTFM (Istanbul) | 1053.0 | 963 | 427.6 | 1502 | 2587 | 272,965 |
+| LFPG (Paris) | 1019.5 | 954 | 453.0 | 1444 | 2409 | 239,552 |
+| LEMD (Madrid) | 1014.7 | 985 | 312.5 | 1402 | 1932 | 212,242 |
+| LEBL (Barcelona) | 956.5 | 906 | 330.9 | 1357 | 1962 | 179,705 |
+| EDDF (Frankfurt) | 863.5 | 837 | 329.8 | 1251 | 1819 | 230,141 |
+| EDDM (Munich) | 811.9 | 774 | 301.8 | 1135 | 1921 | 167,334 |
+| EHAM (Amsterdam) | 784.6 | 742 | 318.5 | 1157 | 1774 | 247,951 |
+| LSZH (Zurich) | **740.5** | 711 | 385.4 | 1080 | 1707 | 134,907 |
 
-**关键分布特征**:
+**Key distribution characteristics**:
 
-- **均值极差**:EGLL 1364s vs LSZH 740s,**机场间差近 2 倍**
-- **std 极差**:LIRF 1332s vs LEMD 312s,**长尾严重度差 4 倍**
-- **数据量不均**:LTFM 27.3 万 vs LSZH 13.5 万,**机场间差 2 倍**
+- **Mean spread**: EGLL 1364s vs LSZH 740s, **a nearly 2x difference across airports**
+- **std spread**: LIRF 1332s vs LEMD 312s, **a 4x difference in long-tail severity**
+- **Uneven data volume**: LTFM 273k vs LSZH 135k, **a 2x difference across airports**
 
-#### 1.3.3 各机场 RMSE 排名(沙箱 HGBR 实测,5% 采样)
+#### 1.3.3 RMSE Ranking by Airport (measured with sandbox HGBR, 5% sampling)
 
-| 排名 | 机场 | RMSE | vs 基线 | 难度 |
+| Rank | Airport | RMSE | vs baseline | Difficulty |
 |---|---|---|---|---|
-| 🔴 1 | LFPG(巴黎) | 444.8 | +5.4% | **最难** |
-| 🔴 2 | LIRF(罗马) | 443.9 | +11.5% | 第二难 |
-| 3 | EDDM(慕尼黑) | 375.6 | +6.6% | |
-| 4 | EGLL(伦敦) | 357.5 | +8.4% | |
-| 5 | LTFM(伊斯坦布尔) | 355.1 | +10.6% | |
-| 6 | EDDF(法兰克福) | 319.4 | +14.4% | |
-| 7 | LSZH(苏黎世) | 296.2 | +8.4% | |
-| 8 | LEBL(巴塞罗那) | 268.3 | +17.0% | |
-| 9 | LEMD(马德里) | 264.5 | +13.3% | |
-| 🟢 10 | EHAM(阿姆斯特丹) | 255.0 | +19.9% | **最容易** |
+| 🔴 1 | LFPG (Paris) | 444.8 | +5.4% | **Hardest** |
+| 🔴 2 | LIRF (Rome) | 443.9 | +11.5% | Second hardest |
+| 3 | EDDM (Munich) | 375.6 | +6.6% | |
+| 4 | EGLL (London) | 357.5 | +8.4% | |
+| 5 | LTFM (Istanbul) | 355.1 | +10.6% | |
+| 6 | EDDF (Frankfurt) | 319.4 | +14.4% | |
+| 7 | LSZH (Zurich) | 296.2 | +8.4% | |
+| 8 | LEBL (Barcelona) | 268.3 | +17.0% | |
+| 9 | LEMD (Madrid) | 264.5 | +13.3% | |
+| 🟢 10 | EHAM (Amsterdam) | 255.0 | +19.9% | **Easiest** |
 
-#### 1.3.4 误差分桶分析(ranking 提交预测分布)
+#### 1.3.4 Error Bucket Analysis (ranking submission prediction distribution)
 
-| 真实分位 | 样本数 | 真实均值 | 预测均值 | RMSE | SSE 占比 |
+| True quantile | Sample count | True mean | Predicted mean | RMSE | SSE share |
 |---|---|---|---|---|---|
 | p0-50 | 172,269 | 696.8 | 1355.1 | 765.8 | **54.3%** |
 | p50-90 | 137,724 | 1154.5 | 1547.0 | 640.1 | 30.3% |
@@ -115,170 +115,170 @@ P99.9   : 约 3769 秒
 | p99.5-99.9 | 1,378 | 3624.7 | 1730.7 | 2002.9 | 3.0% |
 | p99.9-100 | 344 | 6403.5 | 2045.8 | **4563.0** | **3.8%** |
 
-**发现**:
-- **p0-50 段贡献 54% 的 SSE**:基础特征不带拥堵信号,模型对短途严重高估
-- **长尾段(p99+)贡献 8% 的 SSE**:模型看不到真实拥堵,严重低估
-- **加 lag/lead 后两端都应该改善**
+**Findings**:
+- **The p0-50 segment contributes 54% of the SSE**: base features carry no congestion signal, and the model severely overestimates short taxi times
+- **The long-tail segment (p99+) contributes 8% of the SSE**: the model cannot see real congestion and severely underestimates it
+- **Both ends should improve after adding lag/lead**
 
-### 1.4 时间维度分布
+### 1.4 Time Dimension Distribution
 
-#### 1.4.1 按时钟小时(`sched_hour`)
-
-```
-早高峰  : 06:00-09:00(尤其 07-08)
-午高峰  : 11:00-13:00
-晚高峰  : 17:00-20:00
-最低    : 02:00-04:00
-```
-
-#### 1.4.2 按月(`sched_month`)
+#### 1.4.1 By Clock Hour (`sched_hour`)
 
 ```
-1-3 月   偏少(冬季)
-6-8 月   偏多(夏季旅游)
-12 月    节假日减少
+Morning peak  : 06:00-09:00 (especially 07-08)
+Midday peak   : 11:00-13:00
+Evening peak  : 17:00-20:00
+Lowest        : 02:00-04:00
 ```
 
-#### 1.4.3 按星期(`sched_dow`)
+#### 1.4.2 By Month (`sched_month`)
 
 ```
-工作日(周一-周五): 占比 ~85%
-周末(周六-周日): 占比 ~15%
+Months 1-3   fewer (winter)
+Months 6-8   more (summer tourism)
+Month 12     reduced due to holidays
 ```
 
-### 1.5 类别字段 cardinality
+#### 1.4.3 By Day of Week (`sched_dow`)
 
-| 字段 | 唯一值数 | 备注 |
+```
+Weekdays (Monday-Friday): ~85% share
+Weekends (Saturday-Sunday): ~15% share
+```
+
+### 1.5 Categorical Field Cardinality
+
+| Field | Unique values | Note |
 |---|---|---|
-| `ADEP_mvt` | 10 | 我们关心的 |
-| `ADES_mvt` | 1,568 | 1568 个目的地 |
-| `RUNWAY_mvt` | 53 | 53 条跑道 |
-| `STAND_mvt` | 1,899 | 1899 个登机口 |
-| `AIRCRAFT_TYPE_mvt` | 269 | 269 种机型 |
-| `AIRCRAFT_OPERATOR_flt` | 676 | 676 个航司(代码 hash) |
+| `ADEP_mvt` | 10 | The ones we care about |
+| `ADES_mvt` | 1,568 | 1568 destinations |
+| `RUNWAY_mvt` | 53 | 53 runways |
+| `STAND_mvt` | 1,899 | 1899 gates |
+| `AIRCRAFT_TYPE_mvt` | 269 | 269 aircraft types |
+| `AIRCRAFT_OPERATOR_flt` | 676 | 676 airlines (hashed codes) |
 | `WK_TBL_CAT_flt` | 4 | L/M/H/J |
-| `FLIGHT_RULE_flt` | 4 | IFR/VFR 等 |
-| `FLIGHT_TYPE_flt` | 5 | S/N 等 |
-| `MARKET_SEGMENT_flt` | 8 | Mainline/Regional 等 |
+| `FLIGHT_RULE_flt` | 4 | IFR/VFR etc. |
+| `FLIGHT_TYPE_flt` | 5 | S/N etc. |
+| `MARKET_SEGMENT_flt` | 8 | Mainline/Regional etc. |
 
-### 1.6 ranking(待预测)数据特征
+### 1.6 Characteristics of the ranking (to-be-predicted) Data
 
-| 检查项 | 结果 |
+| Check item | Result |
 |---|---|
-| `BLOCK_TIME_UTC_mvt` 缺失 | 100%(屏蔽) |
-| `TAXITIME_SEC_mvt` 缺失 | 100%(屏蔽,目标) |
-| `FLIGHT_ID_mvt` 缺失 | 1.53% |
-| 其他 `_flt` 字段缺失 | 1.53%(与训练一致) |
-| 机场分布 | 与训练集一致(都是这 10 个) |
+| `BLOCK_TIME_UTC_mvt` missing | 100% (masked) |
+| `TAXITIME_SEC_mvt` missing | 100% (masked, target) |
+| `FLIGHT_ID_mvt` missing | 1.53% |
+| Other `_flt` fields missing | 1.53% (consistent with training) |
+| Airport distribution | Consistent with the training set (the same 10 airports) |
 
 ---
 
-## 第二部分:字段筛选 + 模型选择对结果的影响
+## Part 2: Impact of Feature Selection + Model Selection on Results
 
-### 2.1 字段筛选对比(同一 XGBoost 模型,不同特征集)
+### 2.1 Feature Selection Comparison (same XGBoost model, different feature sets)
 
-训练/验证:**train: 2025-01~10 → val: 2025-11~12** (winter split)
+Training/validation: **train: 2025-01~10 → val: 2025-11~12** (winter split)
 
-| 特征集 | 特征数 | RMSE | MAE | P95 | 改进 vs baseline | 关键特征 |
+| Feature set | Feature count | RMSE | MAE | P95 | Improvement vs baseline | Key features |
 |---|---|---|---|---|---|---|
-| **v1 basic** | 30 | **319.40** | 201.61 | 568.49 | — | 时间/空间/飞机/计划 |
-| **v7 basic + lag** | 42 | **311.48** | 194.23 | 546.95 | -7.92 (-2.48%) | 加 cnt_dep_* 拥堵特征 |
-| **v7 all**(沙箱测过) | 77 | ~280-310(估) | — | — | ~-10~-13% | + lead + domain + TE |
+| **v1 basic** | 30 | **319.40** | 201.61 | 568.49 | — | Time/Spatial/Aircraft/Schedule |
+| **v7 basic + lag** | 42 | **311.48** | 194.23 | 546.95 | -7.92 (-2.48%) | Adding cnt_dep_* congestion features |
+| **v7 all** (tested in sandbox) | 77 | ~280-310 (est.) | — | — | ~-10~-13% | + lead + domain + TE |
 
-#### v1 → v7 增量分析(同月 holdout 1+7 月)
+#### v1 → v7 Incremental Analysis (same-month holdout, months 1+7)
 
-| 特征集 | 特征数 | RMSE | MAE | P95 | 改进 |
+| Feature set | Feature count | RMSE | MAE | P95 | Improvement |
 |---|---|---|---|---|---|
 | v1 basic | 30 | 356.38 | 210.74 | 612.62 | — |
 | v7 basic + lag | 42 | 352.68 | 205.78 | 596.79 | -3.70 (-1.04%) |
 
-> **结论**:加 lag 聚合特征在 12 月 holdout 上改进了 -2.48%,在更难的 1+7 月同月 holdout 上也稳定改进 -1.04%,**说明 lag 特征不只是在 12 月过拟合**。
+> **Conclusion**: adding lag aggregate features improved results by -2.48% on the December holdout, and also improved stably by -1.04% on the harder same-month holdout of months 1+7, **which shows that lag features are not just overfitting to December**.
 
-### 2.2 特征重要性(XGBoost gain,42 特征 v7)
+### 2.2 Feature Importance (XGBoost gain, 42 features of v7)
 
 ```
-TOP 5 高贡献特征(gain 单位 = XGB 内部累积增益):
-1. WK_TBL_CAT_flt      29,807,060  尾流等级(L/M/H/J) ← 重型机滑行慢
-2. ADEP_mvt            18,115,464  起飞机场 ← 10 个机场差异巨大
-3. RUNWAY_mvt          10,247,982  跑道 ← 不同跑道长度/位置差异
-4. cnt_dep_runway_60m  10,159,198  过去 60 分钟同跑道起飞数 ← 拥堵信号
-5. STAND_mvt            7,069,474  登机口 ← 决定登机口到跑道的距离
+TOP 5 high-contribution features (gain unit = XGB internal accumulated gain):
+1. WK_TBL_CAT_flt      29,807,060  Wake turbulence category (L/M/H/J) ← Heavy aircraft taxi slowly
+2. ADEP_mvt            18,115,464  Departure airport ← The 10 airports differ enormously
+3. RUNWAY_mvt          10,247,982  Runway ← Different runway lengths/positions differ
+4. cnt_dep_runway_60m  10,159,198  Departures on the same runway in the past 60 minutes ← Congestion signal
+5. STAND_mvt            7,069,474  Gate ← Determines the distance from gate to runway
 ```
 
-**Top 43 特征 gain 排名**:
+**Gain ranking of the Top 43 features**:
 
-| 排名 | 特征 | gain | 类别 |
+| Rank | Feature | gain | Category |
 |---|---|---|---|
-| 1 | WK_TBL_CAT_flt | 29,807,060 | 类别 |
-| 2 | ADEP_mvt | 18,115,464 | 类别 |
-| 3 | RUNWAY_mvt | 10,247,982 | 类别 |
+| 1 | WK_TBL_CAT_flt | 29,807,060 | Categorical |
+| 2 | ADEP_mvt | 18,115,464 | Categorical |
+| 3 | RUNWAY_mvt | 10,247,982 | Categorical |
 | 4 | cnt_dep_runway_60m | 10,159,198 | **lag** |
-| 5 | STAND_mvt | 7,069,474 | 类别 |
-| 6 | airport_hour | 6,364,410 | 类别组合 |
-| 7 | is_domestic_estimate | 6,220,390 | 衍生 |
-| 8 | AIRCRAFT_TYPE_mvt | 5,859,700 | 类别 |
-| 9 | MARKET_SEGMENT_flt | 5,713,738 | 类别 |
-| 10 | FLIGHT_TYPE_flt | 3,982,271 | 类别 |
+| 5 | STAND_mvt | 7,069,474 | Categorical |
+| 6 | airport_hour | 6,364,410 | Categorical combination |
+| 7 | is_domestic_estimate | 6,220,390 | Derived |
+| 8 | AIRCRAFT_TYPE_mvt | 5,859,700 | Categorical |
+| 9 | MARKET_SEGMENT_flt | 5,713,738 | Categorical |
+| 10 | FLIGHT_TYPE_flt | 3,982,271 | Categorical |
 | 11 | cnt_dep_runway_30m | 3,815,474 | **lag** |
-| 12 | AIRCRAFT_OPERATOR_flt | 3,693,868 | 类别 |
-| 13 | ADES_mvt | 2,741,899 | 类别 |
-| 14 | is_evening_peak | 2,672,731 | 时间 |
-| 15 | sched_hour | 2,614,919 | 时间 |
-| 16 | sched_month | 2,522,737 | 时间 |
-| 17 | FLIGHT_RULE_flt | 2,510,792 | 类别 |
-| 18 | hour_sin | 2,485,360 | 时间 |
-| 19 | is_morning_peak | 2,317,642 | 时间 |
-| 20 | hour_cos | 2,240,629 | 时间 |
+| 12 | AIRCRAFT_OPERATOR_flt | 3,693,868 | Categorical |
+| 13 | ADES_mvt | 2,741,899 | Categorical |
+| 14 | is_evening_peak | 2,672,731 | Time |
+| 15 | sched_hour | 2,614,919 | Time |
+| 16 | sched_month | 2,522,737 | Time |
+| 17 | FLIGHT_RULE_flt | 2,510,792 | Categorical |
+| 18 | hour_sin | 2,485,360 | Time |
+| 19 | is_morning_peak | 2,317,642 | Time |
+| 20 | hour_cos | 2,240,629 | Time |
 | 21 | cnt_dep_airport_15m | 2,230,964 | **lag** |
-| 22 | iobt_eobt_diff_sec | 2,218,419 | 计划性 |
-| 23 | eobt_to_sched_sec | 2,194,369 | 计划性 |
-| 24 | month_sin | 2,084,290 | 时间 |
+| 22 | iobt_eobt_diff_sec | 2,218,419 | Schedule-related |
+| 23 | eobt_to_sched_sec | 2,194,369 | Schedule-related |
+| 24 | month_sin | 2,084,290 | Time |
 | 25 | cnt_dep_runway_15m | 2,038,050 | **lag** |
-| 26 | is_weekend | 2,001,358 | 时间 |
-| 27 | month_cos | 1,877,718 | 时间 |
-| 28 | sched_dow | 1,842,447 | 时间 |
-| 29 | sched_day | 1,781,881 | 时间 |
-| 30 | iobt_to_sched_sec | 1,740,043 | 计划性 |
-| 31 | dow_sin | 1,722,817 | 时间 |
+| 26 | is_weekend | 2,001,358 | Time |
+| 27 | month_cos | 1,877,718 | Time |
+| 28 | sched_dow | 1,842,447 | Time |
+| 29 | sched_day | 1,781,881 | Time |
+| 30 | iobt_to_sched_sec | 1,740,043 | Schedule-related |
+| 31 | dow_sin | 1,722,817 | Time |
 | 32 | cnt_dep_airport_30m | 1,629,205 | **lag** |
 | 33 | cnt_dep_airport_60m | 1,480,226 | **lag** |
-| 34 | dow_cos | 1,451,076 | 时间 |
-| 35 | sched_minute | 1,293,279 | 时间 |
+| 34 | dow_cos | 1,451,076 | Time |
+| 35 | sched_minute | 1,293,279 | Time |
 | 36 | cnt_lead_runway_60m | 1,244,254 | **lead** |
 | 37 | cnt_lead_airport_60m | 1,206,413 | **lead** |
-| 38 | is_diverted | 1,142,530 | 衍生 |
+| 38 | is_diverted | 1,142,530 | Derived |
 | 39 | cnt_lead_airport_30m | 849,251 | **lead** |
 | 40 | cnt_lead_runway_30m | 838,276 | **lead** |
 | 41 | cnt_lead_airport_15m | 804,400 | **lead** |
 | 42 | cnt_lead_runway_15m | 768,680 | **lead** |
 
-**特征类型分布(按 gain 占比)**:
+**Feature type distribution (by gain share)**:
 
-| 类型 | 特征数 | 累计 gain | 占比 |
+| Type | Feature count | Cumulative gain | Share |
 |---|---|---|---|
-| 类别字段 | 12 | 80,494,000 | **51%** |
-| lag 拥堵 | 6 | 22,293,000 | **14%** |
-| 时间字段 | 14 | 28,914,000 | 18% |
-| lead 拥堵 | 6 | 5,711,000 | 4% |
-| 衍生/计划性 | 5 | 11,275,000 | 7% |
+| Categorical fields | 12 | 80,494,000 | **51%** |
+| lag congestion | 6 | 22,293,000 | **14%** |
+| Time fields | 14 | 28,914,000 | 18% |
+| lead congestion | 6 | 5,711,000 | 4% |
+| Derived/Schedule-related | 5 | 11,275,000 | 7% |
 
-> **关键发现**:
-> - **类别字段占 gain 一半**(51%)——`WK_TBL_CAT_flt` 一个就占 19%
-> - **lag 拥堵特征虽然只有 6 个,但贡献 14% 的 gain**,**第 4 名特征就是 `cnt_dep_runway_60m`**
-> - **lead 特征贡献小(4%)**——可能因为训练时 SCHED_TIME 不等于 EOBT,引入噪声
-> - **时间字段占 18%**——但单个都不高,集体贡献明显
+> **Key findings**:
+> - **Categorical fields account for half of the gain** (51%) — `WK_TBL_CAT_flt` alone accounts for 19%
+> - **Although there are only 6 lag congestion features, they contribute 14% of the gain**, **and the 4th ranked feature is `cnt_dep_runway_60m`**
+> - **lead features contribute little (4%)** — possibly because during training SCHED_TIME is not equal to EOBT, introducing noise
+> - **Time fields account for 18%** — but individually none is high, while collectively the contribution is notable
 
-### 2.3 模型选择对比(同一特征集:basic 30 特征)
+### 2.3 Model Selection Comparison (same feature set: 30 basic features)
 
-#### 2.3.1 单一模型 baseline
+#### 2.3.1 Single-Model Baseline
 
-| 模型 | 训练时间 | 内存 | RMSE | MAE | P95 |
+| Model | Training time | Memory | RMSE | MAE | P95 |
 |---|---|---|---|---|---|
-| sklearn HGBR(5%采样) | 慢 | 高 | 344.1(估) | — | — |
-| XGBoost default | 中 | 中 | 319.4 | 201.6 | 568.5 |
-| XGBoost tuned(Optuna 50 trials) | 中 | 中 | **237.6**(K 折均值,见下) | — | — |
+| sklearn HGBR (5% sampling) | Slow | High | 344.1 (est.) | — | — |
+| XGBoost default | Medium | Medium | 319.4 | 201.6 | 568.5 |
+| XGBoost tuned (Optuna 50 trials) | Medium | Medium | **237.6** (K-fold mean, see below) | — | — |
 
-#### 2.3.2 XGBoost Optuna 调参(top 15 trials)
+#### 2.3.2 XGBoost Optuna Hyperparameter Tuning (top 15 trials)
 
 | Trial | learning_rate | max_depth | min_child_weight | subsample | colsample_bytree | reg_alpha | reg_lambda | **val RMSE** |
 |---|---|---|---|---|---|---|---|---|
@@ -297,21 +297,21 @@ TOP 5 高贡献特征(gain 单位 = XGB 内部累积增益):
 | 4 | 0.0590 | 4 | 13 | 0.668 | 0.626 | 4.828 | 7.903 | 249.71 |
 | 8 | 0.0130 | 5 | 1 | 0.730 | 0.755 | 4.144 | 0.349 | 250.17 |
 
-> **结论**:
-> - 调参前 50 trials **RMSE 从 319.4 降到 237.6**(K 折均值,改进了 25.6%)
-> - 最优超参:`max_depth=11`、`learning_rate=0.015`、`min_child_weight=5`、`subsample=0.98`、`colsample_bytree=0.67`、`reg_alpha=2.46`、`reg_lambda=1.99`
-> - **关键**:树的深度从默认 8 提到 11 + 学习率降到 0.015,效果最显著
+> **Conclusions**:
+> - Across the first 50 trials of tuning, **RMSE dropped from 319.4 to 237.6** (K-fold mean, an improvement of 25.6%)
+> - Optimal hyperparameters: `max_depth=11`, `learning_rate=0.015`, `min_child_weight=5`, `subsample=0.98`, `colsample_bytree=0.67`, `reg_alpha=2.46`, `reg_lambda=1.99`
+> - **Key**: raising tree depth from the default 8 to 11 + lowering the learning rate to 0.015 had the most significant effect
 
-#### 2.3.3 多模型融合(沙箱跑的,只 XGB+LGB × 3 seed)
+#### 2.3.3 Multi-Model Ensemble (run in the sandbox, only XGB+LGB × 3 seeds)
 
-| 配置 | RMSE(沙箱) |
+| Configuration | RMSE (sandbox) |
 |---|---|
-| 单 XGBoost(seed 0) | 311.48(v7) |
-| 单 LightGBM(seed 0) | ~295-305(估) |
-| **XGB(0.22) + LGB(0.78) mean 加权** | **最优融合** |
-| XGB + LGB + CatBoost(目标,未跑) | < 285(估) |
+| Single XGBoost (seed 0) | 311.48 (v7) |
+| Single LightGBM (seed 0) | ~295-305 (est.) |
+| **XGB (0.22) + LGB (0.78) mean weighting** | **Best ensemble** |
+| XGB + LGB + CatBoost (target, not run) | < 285 (est.) |
 
-实际保存的融合权重(`models/ensemble_val/weights.json`):
+Actually saved ensemble weights (`models/ensemble_val/weights.json`):
 ```json
 {
   "weights": {"xgb": 0.2171, "lgb": 0.7829},
@@ -320,114 +320,114 @@ TOP 5 高贡献特征(gain 单位 = XGB 内部累积增益):
 }
 ```
 
-> **说明**:沙箱只跑了 XGB+LGB(没跑 CatBoost)。3 个 seed × 2 个模型 = 6 个 booster。
+> **Note**: the sandbox only ran XGB+LGB (CatBoost was not run). 3 seeds × 2 models = 6 boosters.
 
-### 2.4 同一数据集不同切分对比
+### 2.4 Comparison of Different Splits on the Same Dataset
 
-| 切分方式 | 训练期 | 验证期 | v1 RMSE | v7 RMSE | 改进 |
+| Split method | Training period | Validation period | v1 RMSE | v7 RMSE | Improvement |
 |---|---|---|---|---|---|
 | **Winter split** | 2025-01~10 | 2025-11~12 | 319.40 | 311.48 | **-2.48%** |
-| **Summer split**(1+7 月同月) | 02~06 + 08~12 | 2025-01 + 07 | 356.38 | 352.68 | **-1.04%** |
-| **K 折时序 CV**(5 折) | 滚动 | 滚动 | — | ~237(Optuna 估) | — |
+| **Summer split** (same-month, months 1+7) | 02~06 + 08~12 | 2025-01 + 07 | 356.38 | 352.68 | **-1.04%** |
+| **K-fold time-series CV** (5 folds) | Rolling | Rolling | — | ~237 (Optuna est.) | — |
 
-### 2.5 完整实验对比表(从 v1 到 v7 + v1 提交)
+### 2.5 Complete Experiment Comparison Table (from v1 to v7 + v1 submission)
 
-| 版本 | 特征数 | 模型 | 训练方式 | Winter RMSE | 改进 vs v1 |
+| Version | Feature count | Model | Training method | Winter RMSE | Improvement vs v1 |
 |---|---|---|---|---|---|
-| v1 | 30 | XGBoost | 基础特征 | 319.40 | — |
-| v2 | 30 | XGBoost | + clip99.5 | (未在 holdout 跑) | — |
-| v3 | 30 | XGBoost | (略调) | (未跑) | — |
-| v4 | 30 | XGBoost | (略调) | (未跑) | — |
-| v5 | 30 | XGBoost | (略调) | (未跑) | — |
-| v6 | 30 | XGBoost | (略调) | (未跑) | — |
-| **v7** | **42** | **XGBoost** | **+ lag 拥堵聚合** | **311.48** | **-2.48%** |
-| **v1 提交(leaderboard)** | **30** | **XGBoost** | **基础特征 + clip** | **589.91(实际)** | — |
-| 调参 XGBoost | 42 | XGBoost | Optuna 50 trials | 237.63(K 折) | -25.6% |
-| XGB+LGB 融合 | 77 | ensemble | mean 加权 | < 295(估) | -7.6% |
+| v1 | 30 | XGBoost | Base features | 319.40 | — |
+| v2 | 30 | XGBoost | + clip99.5 | (not run on holdout) | — |
+| v3 | 30 | XGBoost | (slightly tuned) | (not run) | — |
+| v4 | 30 | XGBoost | (slightly tuned) | (not run) | — |
+| v5 | 30 | XGBoost | (slightly tuned) | (not run) | — |
+| v6 | 30 | XGBoost | (slightly tuned) | (not run) | — |
+| **v7** | **42** | **XGBoost** | **+ lag congestion aggregation** | **311.48** | **-2.48%** |
+| **v1 submission (leaderboard)** | **30** | **XGBoost** | **Base features + clip** | **589.91 (actual)** | — |
+| Tuned XGBoost | 42 | XGBoost | Optuna 50 trials | 237.63 (K-fold) | -25.6% |
+| XGB+LGB ensemble | 77 | ensemble | mean weighting | < 295 (est.) | -7.6% |
 
-### 2.6 长尾处理方法对比(已跑 v8 tail_weight 实验)
+### 2.6 Comparison of Long-Tail Handling Methods (v8 tail_weight experiment already run)
 
-| 配置 | tail_quantile | tail_weight | RMSE | MAE | P95 | best_iter |
+| Configuration | tail_quantile | tail_weight | RMSE | MAE | P95 | best_iter |
 |---|---|---|---|---|---|---|
 | v7 baseline | 0.99 | 1.0 | 311.48 | 194.23 | 546.95 | 1033 |
-| v8 tail 加权(待评估) | 0.99 | 1.5 | (未完成) | — | — | — |
+| v8 tail weighting (pending evaluation) | 0.99 | 1.5 | (not completed) | — | — | — |
 
-### 2.7 leaderboard 上看模型效果差异(v1 提交 vs Top 1)
+### 2.7 Model Performance Differences Observed on the Leaderboard (v1 submission vs Top 1)
 
-| 队伍 | RMSE | 模型(推测) | 我们的差距 |
+| Team | RMSE | Model (speculated) | Gap between them and us |
 |---|---|---|---|
-| Top 1(vigorous-whistle) | 239.58 | 推测 XGB+LGB+CatBoost + 100+ 特征 + Optuna + 多 seed | **350 秒(慢 60%)** |
-| 中位数(我们 v1 位置) | 589.91 | 我们的 v1:29 特征单 XGB | — |
+| Top 1 (vigorous-whistle) | 239.58 | Speculated XGB+LGB+CatBoost + 100+ features + Optuna + multi-seed | **350 seconds (60% slower)** |
+| Median (our v1 position) | 589.91 | Our v1: 29 features with single XGB | — |
 
 ---
 
-## 第三部分:选择建议(数据驱动)
+## Part 3: Selection Recommendations (Data-Driven)
 
-### 3.1 字段筛选优先级
+### 3.1 Feature Selection Priority
 
-| 优先级 | 类别 | 推荐理由 |
+| Priority | Category | Reason for recommendation |
 |---|---|---|
-| **P0(必加)** | 类别:ADEP / RUNWAY / STAND / WK_TBL_CAT / AIRCRAFT_TYPE | 占 gain 51% |
-| **P0(必加)** | lag 拥堵:cnt_dep_runway_60m 排第 4 | 拥堵是最强信号 |
-| **P1(强烈推荐)** | 时间特征全集(hour/dow/month + sin/cos) | 18% gain |
-| **P1(强烈推荐)** | airport_hour 组合 | 第 6 名特征 |
-| **P2(推荐)** | lead 拥堵:cnt_lead_runway_60m / cnt_lead_airport_60m | 4% gain,但物理可解释 |
-| **P2(推荐)** | 计划性:iobt_eobt_diff_sec / eobt_to_sched_sec | 反映航班调整 |
-| **P3(可选)** | Domain 结构:stand_zone / runway_family / runway_side | 模型能从原始字段学到 |
-| **P3(可选)** | TE(8 个) | 边际收益小,可能过拟合 |
-| **P4(避免)** | `_flt` 的衍生字段(已有基础字段覆盖) | gain 低 |
+| **P0 (must add)** | Categorical: ADEP / RUNWAY / STAND / WK_TBL_CAT / AIRCRAFT_TYPE | Accounts for 51% of gain |
+| **P0 (must add)** | lag congestion: cnt_dep_runway_60m ranks 4th | Congestion is the strongest signal |
+| **P1 (strongly recommended)** | Full set of time features (hour/dow/month + sin/cos) | 18% gain |
+| **P1 (strongly recommended)** | airport_hour combination | The 6th ranked feature |
+| **P2 (recommended)** | lead congestion: cnt_lead_runway_60m / cnt_lead_airport_60m | 4% gain, but physically interpretable |
+| **P2 (recommended)** | Schedule-related: iobt_eobt_diff_sec / eobt_to_sched_sec | Reflects flight schedule adjustments |
+| **P3 (optional)** | Domain structure: stand_zone / runway_family / runway_side | The model can learn it from the raw fields |
+| **P3 (optional)** | TE (8 items) | Marginal gains are small, may overfit |
+| **P4 (avoid)** | Derived fields of `_flt` (already covered by base fields) | Low gain |
 
-### 3.2 模型选择优先级
+### 3.2 Model Selection Priority
 
-| 模型 | 推荐度 | 场景 |
+| Model | Recommendation level | Scenario |
 |---|---|---|
-| **XGBoost** | ⭐⭐⭐⭐⭐ | 主力,baseline + 调参都靠它 |
-| **LightGBM** | ⭐⭐⭐⭐⭐ | 融合必备(实际权重 78%) |
-| **CatBoost** | ⭐⭐⭐⭐ | 融合必备(沙箱没跑,目标权重 ~50%) |
-| sklearn HGBR | ⭐⭐ | 备胎(2024 第 30 名水平) |
-| 深度学习(Transformer) | ❌ | 3 年比赛 GBDT 全胜,别折腾 |
+| **XGBoost** | ⭐⭐⭐⭐⭐ | Main model, both baseline + tuning rely on it |
+| **LightGBM** | ⭐⭐⭐⭐⭐ | Essential for the ensemble (actual weight 78%) |
+| **CatBoost** | ⭐⭐⭐⭐ | Essential for the ensemble (not run in the sandbox, target weight ~50%) |
+| sklearn HGBR | ⭐⭐ | Backup (2024 rank-30 level) |
+| Deep learning (Transformer) | ❌ | GBDT won all 3 years of the competition, don't bother |
 
-### 3.3 调参策略(基于 Optuna 结果)
+### 3.3 Tuning Strategy (based on Optuna results)
 
 ```
-推荐超参(从 Optuna trial 6/11/12 三个 top 看):
-- learning_rate   : 0.011 - 0.015(小学习率 + 多轮)
-- max_depth       : 11 - 12(深树)
-- min_child_weight: 5 - 7(中等)
-- subsample       : 0.85 - 0.98(高采样,数据够)
-- colsample_bytree: 0.67 - 0.77(中等列采样)
-- reg_alpha       : 1.8 - 3.5(L1 正则)
-- reg_lambda      : 1.0 - 2.6(L2 正则)
+Recommended hyperparameters (looking at the top three trials 6/11/12 from Optuna):
+- learning_rate   : 0.011 - 0.015 (small learning rate + many rounds)
+- max_depth       : 11 - 12 (deep trees)
+- min_child_weight: 5 - 7 (medium)
+- subsample       : 0.85 - 0.98 (high sampling, enough data)
+- colsample_bytree: 0.67 - 0.77 (medium column sampling)
+- reg_alpha       : 1.8 - 3.5 (L1 regularization)
+- reg_lambda      : 1.0 - 2.6 (L2 regularization)
 - num_boost_round : 1000 - 2000 + early_stopping=100
 ```
 
-### 3.4 投入产出比排序
+### 3.4 Input-Output Ratio Ranking
 
-| 投入 | 预期产出(RMSE 下降) | ROI |
+| Input | Expected output (RMSE reduction) | ROI |
 |---|---|---|
-| **加 lag 拥堵特征** | -2.5%(已验证) | ⭐⭐⭐⭐⭐ |
-| **加 lead 拥堵特征** | -1~-2%(估) | ⭐⭐⭐⭐ |
-| **多 seed 平均(5)** | -1~-3% | ⭐⭐⭐⭐⭐ |
-| **三模型融合(XGB+LGB+CatBoost)** | -3~-7% | ⭐⭐⭐⭐⭐ |
-| **Optuna 调参 50 trials** | -25.6%(K 折) | ⭐⭐⭐⭐⭐ |
-| **按机场分组训练** | 待验证 | ⭐⭐⭐ |
-| **长尾加权** | 待验证 | ⭐⭐⭐ |
-| **目标重缩放** | -1% | ⭐⭐ |
+| **Add lag congestion features** | -2.5% (verified) | ⭐⭐⭐⭐⭐ |
+| **Add lead congestion features** | -1~-2% (est.) | ⭐⭐⭐⭐ |
+| **Multi-seed averaging (5)** | -1~-3% | ⭐⭐⭐⭐⭐ |
+| **Three-model ensemble (XGB+LGB+CatBoost)** | -3~-7% | ⭐⭐⭐⭐⭐ |
+| **Optuna tuning 50 trials** | -25.6% (K-fold) | ⭐⭐⭐⭐⭐ |
+| **Training grouped by airport** | Pending verification | ⭐⭐⭐ |
+| **Long-tail weighting** | Pending verification | ⭐⭐⭐ |
+| **Target rescaling** | -1% | ⭐⭐ |
 
 ---
 
-## 附录:实验日志文件
+## Appendix: Experiment Log Files
 
-| 文件 | 内容 |
+| File | Content |
 |---|---|
-| `notebooks/eda/summary_stats.csv` | 26 字段统计(count/unique/mean/std) |
-| `notebooks/eda/airport_stats.csv` | 10 机场均值/中位数/std/P90/P99 |
-| `notebooks/eda/*.png` | 8 张分布图 |
+| `notebooks/eda/summary_stats.csv` | Statistics for the 26 fields (count/unique/mean/std) |
+| `notebooks/eda/airport_stats.csv` | mean/median/std/P90/P99 for the 10 airports |
+| `notebooks/eda/*.png` | 8 distribution plots |
 | `notebooks/holdout_validation_result.json` | v1 vs v7 winter holdout |
-| `notebooks/holdout_same_month_result.json` | v1 vs v7 1+7 月同月 holdout |
-| `notebooks/holdout_v8_result.json` | 长尾加权实验(待完成) |
-| `notebooks/diag_ranking_result.json` | ranking 数据缺失 + 误差分桶分析 |
-| `models/baseline_xgb_feature_importance.csv` | XGBoost 特征 gain 排名 |
-| `models/tuned_xgb_params.json` | Optuna 最优超参 |
-| `models/tuned_xgb_trials.csv` | Optuna 50 trials 详细记录 |
-| `models/ensemble_val/weights.json` | XGB+LGB 融合权重(0.22/0.78) |
+| `notebooks/holdout_same_month_result.json` | v1 vs v7 same-month holdout of months 1+7 |
+| `notebooks/holdout_v8_result.json` | Long-tail weighting experiment (pending completion) |
+| `notebooks/diag_ranking_result.json` | ranking data missingness + error bucket analysis |
+| `models/baseline_xgb_feature_importance.csv` | XGBoost feature gain ranking |
+| `models/tuned_xgb_params.json` | Optuna optimal hyperparameters |
+| `models/tuned_xgb_trials.csv` | Detailed records of the Optuna 50 trials |
+| `models/ensemble_val/weights.json` | XGB+LGB ensemble weights (0.22/0.78) |

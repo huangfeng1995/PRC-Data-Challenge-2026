@@ -1,97 +1,97 @@
-# 沙箱 Day 1 战报(2026-09-20)
+# Sandbox Day 1 Report (2026-09-20)
 
-## ✅ 今天做了什么
+## ✅ What Was Done Today
 
-| 时间 | 事件 |
+| Time | Event |
 |---|---|
-| 09:00 | 你提交 OSN 报名,审核通过 |
-| 09:30 | 拿到 access key + secret |
-| 10:00 | 数据下载完成(330 MB,14 个 parquet) |
-| 10:30 | EDA 跑完(8 张图 + 2 个 CSV) |
-| 11:00 | 沙箱 baseline(5% 采样 + sklearn HGBR)= RMSE 344 |
-| 13:00 | **修 libomp 问题**:下载 R-project 预编译 OpenMP,install_name_tool 加 rpath |
-| 13:30 | **XGBoost 真跑通**!RMSE 318(winter 11-12 月验证) |
-| 14:00 | 生成 submission + 上传 OSN |
-| 14:30 | **拿到第一个 leaderboard 分数:589.91** |
+| 09:00 | You submitted the OSN registration, and it was approved |
+| 09:30 | Obtained the access key + secret |
+| 10:00 | Data download complete (330 MB, 14 parquet files) |
+| 10:30 | EDA finished (8 charts + 2 CSVs) |
+| 11:00 | Sandbox baseline (5% sampling + sklearn HGBR) = RMSE 344 |
+| 13:00 | **Fixed the libomp problem**: downloaded the R-project precompiled OpenMP, used install_name_tool to add the rpath |
+| 13:30 | **XGBoost really ran through**! RMSE 318 (winter Nov-Dec validation) |
+| 14:00 | Generated the submission + uploaded to OSN |
+| 14:30 | **Got the first leaderboard score: 589.91** |
 
-## 📊 真实数字
+## 📊 The Real Numbers
 
-| 项目 | 数字 |
+| Item | Number |
 |---|---|
-| 我们的 v1 RMSE | **589.91** |
+| Our v1 RMSE | **589.91** |
 | top 1 RMSE | 239.58 (vigorous-whistle) |
-| 差距 | 350 秒(我们比第 1 名慢 60%) |
-| 排名 | 前 50%(中位数) |
+| Gap | 350 seconds (we are 60% slower than 1st place) |
+| Ranking | top 50% (median) |
 
-## 🔍 Top 队伍 vs 我们的差距分析
+## 🔍 Gap Analysis Between the Top Team and Us
 
-我们:
-- 29 个基础特征
-- 单 XGBoost 模型
-- 没有 lag/lead 聚合
-- 没有三模型融合
-- 没有 Optuna 调参
+Us:
+- 29 basic features
+- a single XGBoost model
+- no lag/lead aggregation
+- no three-model ensemble
+- no Optuna hyperparameter tuning
 
-Top 队伍(推测):
-- 100+ 特征(含机场/跑道 lag/lead)
-- XGB+LGB+CatBoost 融合
-- Optuna 50 trials 调参
-- 多 seed 平均
+Top team (speculated):
+- 100+ features (including airport/runway lag/lead)
+- XGB+LGB+CatBoost ensemble
+- Optuna 50 trials of hyperparameter tuning
+- multi-seed averaging
 
-## 🎯 优化路径(接下来 28-21=7 天)
+## 🎯 Optimization Path (28-21=7 days remaining)
 
 ```
-第 1 天(今天已完成): 590 - v1 已提交
-第 2 天(家里): 280-320 - 加 77 特征 XGBoost
-第 3 天: 240-280 - 三模型融合(XGB+LGB)
-第 4 天: 200-250 - Optuna 调参 + 多 seed
-第 5 天: 180-220 - 错误分析 + 针对性特征
-第 6-7 天: 冲 top 10 - 150-200
+Day 1 (already completed today): 590 - v1 has been submitted
+Day 2 (at home): 280-320 - add the 77-feature XGBoost
+Day 3: 240-280 - three-model ensemble (XGB+LGB)
+Day 4: 200-250 - Optuna tuning + multi-seed
+Day 5: 180-220 - error analysis + targeted features
+Day 6-7: push for top 10 - 150-200
 ```
 
-## 🛠️ 技术突破(供家里 Mac 参考)
+## 🛠️ Technical Breakthroughs (for reference on your home Mac)
 
-1. **预编译 OpenMP**: `https://mac.r-project.org/openmp/openmp-19.1.5-darwin20-Release.tar.gz`(universal arm64+x86_64)
-2. **改 rpath**: `install_name_tool -add_rpath $PWD/libomp/lib <lib_path>`
-3. **MLflow 文件存储**: 设 `MLFLOW_ALLOW_FILE_STORE=true`
-4. **聚合特征单线程太慢**: 家用 Mac 8 核会快 5-10 倍
+1. **Precompiled OpenMP**: `https://mac.r-project.org/openmp/openmp-19.1.5-darwin20-Release.tar.gz` (universal arm64+x86_64)
+2. **Modify the rpath**: `install_name_tool -add_rpath $PWD/libomp/lib <lib_path>`
+3. **MLflow file store**: set `MLFLOW_ALLOW_FILE_STORE=true`
+4. **Aggregate features are too slow single-threaded**: a home Mac with 8 cores will be 5-10 times faster
 
-## 📁 当前 bucket 状态
+## 📁 Current Bucket Status
 
 ```
 osn/prc-2026-jubilant-puzzle/
-  └── jubilant-puzzle_v1.parquet  (4.0 MB, 344,841 行)
+  └── jubilant-puzzle_v1.parquet  (4.0 MB, 344,841 rows)
 ```
 
-## 📂 当前模型
+## 📂 Current Model
 
 ```
 models/
-  └── baseline_xgb.json  (XGBoost 29 特征,~300 KB)
+  └── baseline_xgb.json  (XGBoost 29 features, ~300 KB)
 ```
 
-## ⚠️ 沙箱里放弃的事(原因)
+## ⚠️ What Was Abandoned in the Sandbox (reasons)
 
-- **train_ensemble(全特征 + 5 seed)**:单线程 60m 窗口聚合要 30+ 分钟,**沙箱 CPU 算力不够**
-- **Optuna 50 trials**:同上
+- **train_ensemble (full features + 5 seeds)**: single-threaded 60m window aggregation takes 30+ minutes, **the sandbox does not have enough CPU computing power**
+- **Optuna 50 trials**: same as above
 
-**这两个在家里 Mac 上能跑**(多核 + JIT 后 30-40 分钟能跑完)。
+**Both of them can run on your home Mac** (with multiple cores + JIT they finish in 30-40 minutes).
 
-## 🏠 回家后第一件事
+## 🏠 The First Thing to Do Once Home
 
-按 [HOME_GUIDE.md](HOME_GUIDE.md) 顺序跑:
-1. `bash scripts/setup_mac.sh` - 环境就绪(15 分钟)
-2. `python -m src.train_xgb --data-dir data/raw --feature-set all` - 期望 280-320(40 分钟)
-3. `python -m src.train_ensemble --data-dir data/raw --feature-set all --models xgb,lgb --n-seeds 5` - 期望 220-260(60 分钟)
-4. `python -m src.predict_ensemble --output submissions/jubilant-puzzle_v2.parquet` - 推理(5 分钟)
-5. `mc cp submissions/jubilant-puzzle_v2.parquet osn/prc-2026-jubilant-puzzle/` - 上传(1 分钟)
+Run them in the order given in [HOME_GUIDE.md](HOME_GUIDE.md):
+1. `bash scripts/setup_mac.sh` - environment ready (15 minutes)
+2. `python -m src.train_xgb --data-dir data/raw --feature-set all` - expected 280-320 (40 minutes)
+3. `python -m src.train_ensemble --data-dir data/raw --feature-set all --models xgb,lgb --n-seeds 5` - expected 220-260 (60 minutes)
+4. `python -m src.predict_ensemble --output submissions/jubilant-puzzle_v2.parquet` - inference (5 minutes)
+5. `mc cp submissions/jubilant-puzzle_v2.parquet osn/prc-2026-jubilant-puzzle/` - upload (1 minute)
 
-**预计 3 小时内出第二个分数**。
+**The second score is expected within 3 hours**.
 
-## 📌 重要细节(避免家里踩坑)
+## 📌 Important Details (to avoid pitfalls at home)
 
-1. **macOS 14+ 上 LightGBM 可能需要 OpenMP 11+**,我们预编译的是 19.1.5,够新
-2. **`MLFLOW_ALLOW_FILE_STORE=true`** 必须设(否则 mlflow 报错)
-3. **predict 时 fit 类别编码**:已在 `predict_xgb.py` 里自动做(从训练数据 fit)
-4. **TE 列在 ranking 上**:已修复(`features_domain.py` fit/apply 分离 + `predict_ensemble.py` 加载 mapping)
-5. **clip_max=10800**:已放宽(应对极端长尾)
+1. **On macOS 14+, LightGBM may need OpenMP 11+**; the one we precompiled is 19.1.5, which is new enough
+2. **`MLFLOW_ALLOW_FILE_STORE=true`** must be set (otherwise mlflow reports an error)
+3. **Fitting the categorical encoding at predict time**: already done automatically in `predict_xgb.py` (fit from the training data)
+4. **TE columns on ranking**: already fixed (`features_domain.py` fit/apply separation + `predict_ensemble.py` loads the mapping)
+5. **clip_max=10800**: has been relaxed (to cope with extreme long tails)

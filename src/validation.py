@@ -1,17 +1,17 @@
 """
-时序验证模块
-============
+Time-series validation module
+==============================
 
-时序预测不能用随机切分(会泄漏未来信息),我们提供两种切分方式:
+Time-series forecasting cannot use random splits (that would leak future information), so we provide two split strategies:
 
-1. time_split(df, ...):按时间点硬切,主验证用这个
-2. time_series_kfold(df, ...):按月滚动 K 折,辅验证/调优用
+1. time_split(df, ...): hard split at a time point, used for the main validation
+2. time_series_kfold(df, ...): rolling K-fold by month, used for the auxiliary validation / tuning
 
-设计要点:
-- 切分锚点是 SCHED_TIME_UTC_mvt(计划时间),不是实际时间,否则会泄漏
-- 主验证月份的选择要匹配测试集:
-  - 测试集 1 月 → 验证用 11/12 月(紧邻的前几个月)
-  - 测试集 7 月 → 验证用 6 月(同季,去年同月)
+Design notes:
+- The split anchor is SCHED_TIME_UTC_mvt (scheduled time), not the actual time, otherwise it would leak
+- The month chosen for the main validation must match the test set:
+  - test set January -> validate on Nov/Dec (the immediately preceding months)
+  - test set July -> validate on June (same season, same month last year)
 """
 
 from __future__ import annotations
@@ -24,26 +24,26 @@ from sklearn.model_selection import TimeSeriesSplit
 
 
 # ---------------------------------------------------------------------------
-# 评估指标
+# Evaluation metrics
 # ---------------------------------------------------------------------------
 
 def rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """RMSE,这就是比赛的官方评分指标。"""
+    """RMSE, this is the official scoring metric of the competition."""
     return float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
 
 
 def mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """MAE,辅助看模型是否在长尾上栽跟头。"""
+    """MAE, an auxiliary metric to check whether the model falls apart on the long tail."""
     return float(np.mean(np.abs(y_true - y_pred)))
 
 
 def p95_error(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """P95 绝对误差,反映长尾表现。"""
+    """P95 absolute error, reflects the long-tail behaviour."""
     return float(np.percentile(np.abs(y_true - y_pred), 95))
 
 
 def evaluate(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
-    """一次性算 RMSE / MAE / P95。"""
+    """Compute RMSE / MAE / P95 all at once."""
     return {
         "rmse": rmse(y_true, y_pred),
         "mae": mae(y_true, y_pred),
@@ -52,12 +52,12 @@ def evaluate(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# 切分函数
+# Split functions
 # ---------------------------------------------------------------------------
 
 @dataclass
 class TimeSplit:
-    """时序切分结果:训练 mask + 验证 mask + 描述信息。"""
+    """Time-series split result: train mask + val mask + description."""
     train_mask: np.ndarray
     val_mask: np.ndarray
     train_period: str
@@ -73,9 +73,9 @@ class TimeSplit:
 
 
 def time_split_winter(df: pd.DataFrame) -> TimeSplit:
-    """主验证:模拟"用 1~10 月训练,预测 11~12 月"。
+    """Main validation: simulates "train on Jan-Oct, predict Nov-Dec".
 
-    对应比赛测试集 = 2026 年 1 月(冬季)。11~12 月和 1 月的拥堵模式最接近。
+    Corresponding competition test set = January 2026 (winter). Nov-Dec and January have the closest congestion patterns.
     """
     t = df["SCHED_TIME_UTC_mvt"]
     train_mask = (t >= "2025-01-01") & (t < "2025-11-01")
@@ -89,10 +89,10 @@ def time_split_winter(df: pd.DataFrame) -> TimeSplit:
 
 
 def time_split_summer(df: pd.DataFrame) -> TimeSplit:
-    """辅验证:模拟"用 1~5 月训练,预测 6 月"。
+    """Auxiliary validation: simulates "train on Jan-May, predict June".
 
-    对应比赛测试集 = 2026 年 7 月(夏季)。
-    注意:不能用全量训练,因为验证月份必须在训练月份之后。
+    Corresponding competition test set = July 2026 (summer).
+    Note: full training data cannot be used, because the validation month must come after the training months.
     """
     t = df["SCHED_TIME_UTC_mvt"]
     train_mask = (t >= "2025-01-01") & (t < "2025-06-01")
@@ -110,21 +110,21 @@ def time_series_kfold(
     n_splits: int = 5,
     time_col: str = "SCHED_TIME_UTC_mvt",
 ) -> list[TimeSplit]:
-    """K 折时序交叉验证。
+    """K-fold time-series cross validation.
 
-    用 sklearn TimeSeriesSplit:每次增加一个时间窗口作为验证,前面的全是训练。
+    Uses sklearn TimeSeriesSplit: each time one more time window becomes the validation set, everything before it is training.
     """
     t = pd.to_datetime(df[time_col])
-    order = t.argsort().values  # 按时序排的索引
+    order = t.argsort().values  # indices sorted by time
 
-    # sklearn 的 TimeSeriesSplit 期望连续序列,这里把 df 按时间排好再切
+    # sklearn TimeSeriesSplit expects a contiguous sequence, so sort df by time before splitting
     df_sorted = df.iloc[order].reset_index(drop=True)
     splitter = TimeSeriesSplit(n_splits=n_splits)
 
     splits = []
     for fold, (train_idx, val_idx) in enumerate(splitter.split(df_sorted)):
-        # 把 sorted 的 mask 转回原 df 的 mask
-        sorted_indices = df_sorted.index.values  # 排序后的位置
+        # Convert the mask of the sorted frame back to the mask of the original df
+        sorted_indices = df_sorted.index.values  # positions after sorting
         train_orig_idx = sorted_indices[train_idx]
         val_orig_idx = sorted_indices[val_idx]
 
@@ -147,17 +147,17 @@ def time_series_kfold(
 
 
 # ---------------------------------------------------------------------------
-# 整合入口
+# Aggregation entry point
 # ---------------------------------------------------------------------------
 
 def get_validation_splits(df: pd.DataFrame) -> dict:
-    """返回所有可用的验证切分。
+    """Return all available validation splits.
 
-    返回:
+    Returns:
         {
-            "winter": TimeSplit,    # 主:1~10 → 11~12
-            "summer": TimeSplit,    # 辅:1~5 → 6
-            "kfold":  list[TimeSplit],  # 5 折时序 CV
+            "winter": TimeSplit,    # main: Jan-Oct -> Nov-Dec
+            "summer": TimeSplit,    # auxiliary: Jan-May -> Jun
+            "kfold":  list[TimeSplit],  # 5-fold time-series CV
         }
     """
     return {
@@ -168,19 +168,19 @@ def get_validation_splits(df: pd.DataFrame) -> dict:
 
 
 if __name__ == "__main__":
-    # 模块自测
-    print("=== 时序验证模块自测 ===\n")
+    # Module self-test
+    print("=== time-series validation module self-test ===\n")
 
-    # 构造一些假数据
+    # Build some fake data
     times = pd.date_range("2025-01-01", "2025-12-31", freq="h", tz="UTC")
     df = pd.DataFrame({"SCHED_TIME_UTC_mvt": times})
 
     winter = time_split_winter(df)
-    print(f"Winter split: 训练 {winter.n_train}, 验证 {winter.n_val} ({winter.val_period})")
+    print(f"Winter split: train {winter.n_train}, val {winter.n_val} ({winter.val_period})")
 
     summer = time_split_summer(df)
-    print(f"Summer split: 训练 {summer.n_train}, 验证 {summer.n_val} ({summer.val_period})")
+    print(f"Summer split: train {summer.n_train}, val {summer.n_val} ({summer.val_period})")
 
     folds = time_series_kfold(df, n_splits=5)
     for i, fold in enumerate(folds):
-        print(f"Fold {i+1}: 训练 {fold.n_train}, 验证 {fold.n_val} ({fold.val_period})")
+        print(f"Fold {i+1}: train {fold.n_train}, val {fold.n_val} ({fold.val_period})")

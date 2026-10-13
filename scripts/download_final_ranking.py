@@ -1,16 +1,16 @@
 """
-下载 final 阶段四个月数据 (1+2+6+7 月) from OpenSky MinIO
+Download final-stage four-month data (1+2+6+7) from OpenSky MinIO
 ==========================================================
-- 只读下载，不覆盖现有 ranking.parquet
-- 不提交/不向 prc-2026-jubilant-puzzle 上传任何对象
-- 凭据失效时如实报告，不伪造数据
+- Read-only download, never overwrites an existing ranking.parquet
+- Never commits / never uploads any object to prc-2026-jubilant-puzzle
+- Reports credential failures honestly, never fabricates data
 
-凭据来源: .env (OSN_ACCESS_KEY / OSN_SECRET_KEY)
-前置:
+Credential source: .env (OSN_ACCESS_KEY / OSN_SECRET_KEY)
+Prerequisites:
   pip install boto3 python-dotenv  (boto3 + python-dotenv)
-  mc 不可用时用 boto3 fallback
+  Falls back to boto3 when mc is unavailable
 
-用法:
+Usage:
   python3 scripts/download_final_ranking.py
 """
 from __future__ import annotations
@@ -26,14 +26,14 @@ from datetime import datetime, timezone
 ROOT = Path("/Users/openclaw/Documents/PRC_data_challenge")
 DATA_RAW = ROOT / "data" / "raw"
 
-# 目标桶与文件 (实际 final_* 在 prc-2026-datasets 桶, competition-data 桶无权)
+# Target bucket and files (the real final_* live in the prc-2026-datasets bucket; the competition-data bucket is inaccessible)
 BUCKET = "prc-2026-datasets"
 OBJ_FINAL_RANKING = "final_ranking.parquet"
 OBJ_FINAL_SUBMITTING = "final_submitting.parquet"
 LOCAL_FINAL_RANKING = DATA_RAW / OBJ_FINAL_RANKING
 LOCAL_FINAL_SUBMITTING = DATA_RAW / OBJ_FINAL_SUBMITTING
 
-# 凭据加载
+# Credential loading
 def load_creds():
     env_file = ROOT / ".env"
     if not env_file.exists():
@@ -49,10 +49,10 @@ def load_creds():
 
 # ==== mc CLI ====
 def configure_mc_alias(alias="dc26"):
-    """用 .env 凭据配置 mc alias, 返回 (alias, mc_path)"""
+    """Configure the mc alias with .env credentials, returns (alias, mc_path)"""
     ak, sk = load_creds()
     if not ak or not sk:
-        raise RuntimeError("OSN_ACCESS_KEY / OSN_SECRET_KEY 缺失于 .env")
+        raise RuntimeError("OSN_ACCESS_KEY / OSN_SECRET_KEY missing from .env")
     mc_paths = [
         Path("/Users/openclaw/.trae-cn/work/6aaca8f8b524b5e1e3ae7a73/bin/mc"),
         Path.home() / ".local" / "bin" / "mc",
@@ -72,7 +72,7 @@ def configure_mc_alias(alias="dc26"):
             except Exception:
                 pass
     if mc is None:
-        raise RuntimeError("mc CLI 未找到. 请 brew install minio/stable/mc 或下载 GitHub release")
+        raise RuntimeError("mc CLI not found. Run brew install minio/stable/mc or download the GitHub release")
     # alias set
     r = subprocess.run(
         [str(mc), "alias", "set", alias,
@@ -80,23 +80,23 @@ def configure_mc_alias(alias="dc26"):
         capture_output=True, text=True, timeout=30,
     )
     if r.returncode != 0:
-        raise RuntimeError(f"mc alias set 失败: {r.stderr.strip()}")
+        raise RuntimeError(f"mc alias set failed: {r.stderr.strip()}")
     return alias, mc
 
 
 def mc_list(alias, mc_path):
-    """列 competition-data/"""
+    """List competition-data/"""
     r = subprocess.run(
         [str(mc_path), "ls", f"{alias}/{BUCKET}/"],
         capture_output=True, text=True, timeout=30,
     )
     if r.returncode != 0:
-        raise RuntimeError(f"mc ls 失败: {r.stderr.strip()}")
+        raise RuntimeError(f"mc ls failed: {r.stderr.strip()}")
     return r.stdout.strip()
 
 
 def mc_stat(alias, key, mc_path):
-    """获取对象大小和修改时间"""
+    """Get object size and modification time"""
     r = subprocess.run(
         [str(mc_path), "stat", f"{alias}/{BUCKET}/{key}"],
         capture_output=True, text=True, timeout=30,
@@ -107,9 +107,9 @@ def mc_stat(alias, key, mc_path):
 
 
 def mc_download(alias, key, dest, mc_path):
-    """下载对象到本地路径"""
+    """Download an object to a local path"""
     dest.parent.mkdir(parents=True, exist_ok=True)
-    # 临时占位文件先标记, 避免覆盖已有 ranking.parquet
+    # Mark a temp placeholder file first, to avoid overwriting an existing ranking.parquet
     tmp = dest.with_suffix(dest.suffix + ".tmp")
     r = subprocess.run(
         [str(mc_path), "cp", f"{alias}/{BUCKET}/{key}", str(tmp)],
@@ -118,7 +118,7 @@ def mc_download(alias, key, dest, mc_path):
     if r.returncode != 0:
         if tmp.exists():
             tmp.unlink()
-        raise RuntimeError(f"mc cp 失败: {r.stderr.strip()}")
+        raise RuntimeError(f"mc cp failed: {r.stderr.strip()}")
     tmp.rename(dest)
     return dest.stat().st_size
 
@@ -157,9 +157,9 @@ def boto3_download(ak, sk, key, dest):
     return dest.stat().st_size
 
 
-# ==== 自检 + 核对 ====
+# ==== self-check + verification ====
 def audit(path):
-    """读 parquet 给出汇总统计 + 必要 assert"""
+    """Read the parquet, print summary stats + required asserts"""
     import pandas as pd
     df = pd.read_parquet(path)
     n_total = len(df)
@@ -178,61 +178,61 @@ def audit(path):
             print(f"  DEP by month: {by_month.to_dict()}")
             for mn in (1, 2, 6, 7):
                 if mn not in by_month.index:
-                    print(f"    ⚠ 月 {mn} 无 DEP 行")
-            # MVT_ID 范围
+                    print(f"    ⚠ month {mn} has no DEP rows")
+            # MVT_ID range
             for mn in sorted(by_month.index):
                 m_ids = dep.loc[dep["mo"] == mn, "MVT_ID_mvt"].astype(float).values
                 if len(m_ids):
-                    print(f"    月 {mn}: MVT_ID [{m_ids.min():.0f}, {m_ids.max():.0f}]")
+                    print(f"    month {mn}: MVT_ID [{m_ids.min():.0f}, {m_ids.max():.0f}]")
         else:
-            print(f"  DEP rows (无 MVT_TIME_UTC_mvt): {len(dep):,}")
-        # 确认 BLOCK_TIME_UTC_mvt / TAXITIME_SEC_mvt 在 DEP 行为空
+            print(f"  DEP rows (no MVT_TIME_UTC_mvt): {len(dep):,}")
+        # Verify BLOCK_TIME_UTC_mvt / TAXITIME_SEC_mvt are null for DEP rows
         if "BLOCK_TIME_UTC_mvt" in df.columns:
             n_blk_dep = int(dep["BLOCK_TIME_UTC_mvt"].notna().sum())
-            print(f"  DEP 行中 BLOCK 非空: {n_blk_dep}  (期望 0)")
+            print(f"  DEP rows with non-null BLOCK: {n_blk_dep}  (expected 0)")
             if n_blk_dep > 0:
-                print(f"    ⚠ DEP 行的 BLOCK_TIME_UTC_mvt 应空, 实际 {n_blk_dep} 行非空")
+                print(f"    ⚠ BLOCK_TIME_UTC_mvt should be null for DEP rows, but {n_blk_dep} rows are non-null")
         if "TAXITIME_SEC_mvt" in df.columns:
             n_tx_dep = int(dep["TAXITIME_SEC_mvt"].notna().sum())
-            print(f"  DEP 行中 TAXITIME 非空: {n_tx_dep}  (期望 0)")
+            print(f"  DEP rows with non-null TAXITIME: {n_tx_dep}  (expected 0)")
             if n_tx_dep > 0:
-                print(f"    ⚠ DEP 行的 TAXITIME_SEC_mvt 应空, 实际 {n_tx_dep} 行非空")
+                print(f"    ⚠ TAXITIME_SEC_mvt should be null for DEP rows, but {n_tx_dep} rows are non-null")
         # ARR
         if "PHASE_mvt" in df.columns:
             arr = df[df["PHASE_mvt"] == "ARR"]
             print(f"  ARR rows: {len(arr):,}")
     else:
-        print(f"  ⚠ 无 PHASE_mvt 列")
+        print(f"  ⚠ no PHASE_mvt column")
     return df
 
 
-# ==== 主流程 ====
+# ==== main flow ====
 def main():
     t0 = time.time()
     print("=" * 70)
-    print("[下载 final 阶段四个月数据] OSN MinIO → data/raw/")
+    print("[Download final-stage four-month data] OSN MinIO → data/raw/")
     print("=" * 70)
-    print(f"  时间: {datetime.now(timezone.utc).isoformat(timespec='seconds')}")
+    print(f"  time: {datetime.now(timezone.utc).isoformat(timespec='seconds')}")
 
-    # 0. 加载凭据
+    # 0. Load credentials
     ak, sk = load_creds()
     if not ak or not sk:
-        print("\n  ❌ 凭据缺失: .env 没有 OSN_ACCESS_KEY / OSN_SECRET_KEY")
-        print("  请用户提供新凭据后重跑")
+        print("\n  ❌ credentials missing: .env has no OSN_ACCESS_KEY / OSN_SECRET_KEY")
+        print("  Please provide new credentials and rerun")
         sys.exit(1)
-    print(f"  ✓ 凭据加载: ak={ak[:8]}... sk={sk[:8]}...")
+    print(f"  ✓ credentials loaded: ak={ak[:8]}... sk={sk[:8]}...")
 
-    # 1. 配置 mc alias (可选)
+    # 1. Configure the mc alias (optional)
     mc_alias = None
     MC = None
     try:
         mc_alias, MC = configure_mc_alias()
-        print(f"  ✓ mc alias '{mc_alias}' 已配置 ({MC})")
+        print(f"  ✓ mc alias '{mc_alias}' configured ({MC})")
     except RuntimeError as e:
-        print(f"  ⚠ mc 不可用 ({e}), fallback 到 boto3")
+        print(f"  ⚠ mc unavailable ({e}), falling back to boto3")
 
-    # 2. 列出 competition-data 桶, 确认版本与时间
-    print(f"\n[2] 列 {BUCKET}/ 桶内容")
+    # 2. List the competition-data bucket, confirm version and time
+    print(f"\n[2] List {BUCKET}/ bucket contents")
     if mc_alias:
         try:
             listing = mc_list(mc_alias, MC)
@@ -246,8 +246,8 @@ def main():
                 except RuntimeError as e:
                     print(f"  ⚠ {key}: {e}")
         except RuntimeError as e:
-            print(f"  ❌ mc ls 失败: {e}")
-            print("  fallback 到 boto3 ...")
+            print(f"  ❌ mc ls failed: {e}")
+            print("  falling back to boto3 ...")
             mc_alias = None
 
     if not mc_alias:
@@ -259,26 +259,26 @@ def main():
                 print(f"  {o['Key']}  size={o['Size']:,} ({size_mb:.2f} MB)  "
                       f"modified={o['LastModified'].isoformat()}")
         except RuntimeError as e:
-            print(f"\n  ❌ boto3 列出桶失败: {e}")
-            print("  (凭据可能失效 — InvalidAccessKeyId)")
-            print("  请用户提供新凭据后重跑")
+            print(f"\n  ❌ boto3 bucket listing failed: {e}")
+            print("  (credentials may be expired — InvalidAccessKeyId)")
+            print("  Please provide new credentials and rerun")
             sys.exit(2)
 
-    # 3. 下载两个文件
-    print(f"\n[3] 下载 → data/raw/")
+    # 3. Download both files
+    print(f"\n[3] Download → data/raw/")
     downloaded = {}
     for obj_key, local_path in [
         (OBJ_FINAL_RANKING, LOCAL_FINAL_RANKING),
         (OBJ_FINAL_SUBMITTING, LOCAL_FINAL_SUBMITTING),
     ]:
         if local_path.exists():
-            print(f"  ⚠ {local_path} 已存在 ({local_path.stat().st_size:,} bytes), 跳过")
+            print(f"  ⚠ {local_path} already exists ({local_path.stat().st_size:,} bytes), skipping")
             downloaded[obj_key] = {"exists": True, "size": local_path.stat().st_size,
                                    "path": str(local_path)}
             continue
         try:
-            # mc 在本环境下 85MB 文件传输 >10min, boto3 ~5min 内完成
-            # 默认走 boto3; mc 保留为 fallback 路径 (--prefer-mc 可启用)
+            # In this environment an 85MB mc transfer takes >10min, boto3 finishes within ~5min
+            # boto3 is used by default; mc is kept as a fallback path (--prefer-mc enables it)
             if False and mc_alias:
                 size = mc_download(mc_alias, obj_key, local_path, MC)
             else:
@@ -286,15 +286,15 @@ def main():
             print(f"  ✓ {obj_key} → {local_path.name}  ({size:,} bytes)")
             downloaded[obj_key] = {"exists": False, "size": size, "path": str(local_path)}
         except RuntimeError as e:
-            print(f"  ❌ 下载 {obj_key} 失败: {e}")
+            print(f"  ❌ download of {obj_key} failed: {e}")
             downloaded[obj_key] = {"exists": False, "size": None, "error": str(e)}
 
-    # 4. 核对
-    print(f"\n[4] 核对")
+    # 4. Verify
+    print(f"\n[4] Verify")
     summary = {
         "time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "downloaded": downloaded,
-        "delta_vs_2nd_hour_check": "未执行 (用户未指定具体时间)",
+        "delta_vs_2nd_hour_check": "not run (user did not specify an exact time)",
     }
     if LOCAL_FINAL_RANKING.exists():
         df_rank = audit(LOCAL_FINAL_RANKING)
@@ -309,28 +309,28 @@ def main():
             "cols": list(df_sub.columns),
         }
 
-    # final_submitting 与 final_ranking DEP 一致性
+    # Consistency of final_submitting vs final_ranking DEP
     if LOCAL_FINAL_SUBMITTING.exists() and LOCAL_FINAL_RANKING.exists():
         import pandas as pd
         rank_ids = set(df_rank[df_rank["PHASE_mvt"] == "DEP"]["MVT_ID_mvt"].astype(float).values)
         sub_ids = set(df_sub["MVT_ID_mvt"].astype(float).values)
         n_diff = len(rank_ids ^ sub_ids)
         print(f"\n  submitting MVT_ID vs ranking DEP MVT_ID: "
-              f"差集 {n_diff} 个 ID (期望 0)")
+              f"symmetric difference {n_diff} IDs (expected 0)")
         if n_diff > 0:
             sample = list(rank_ids ^ sub_ids)[:5]
-            print(f"    示例: {sample}")
+            print(f"    sample: {sample}")
         summary["DEP_MVTID_match"] = {
             "rank_n": len(rank_ids), "sub_n": len(sub_ids),
             "diff_n": n_diff, "sample_diff": list(rank_ids ^ sub_ids)[:5],
         }
 
-    # 落日志
+    # Write the log
     log_fn = DATA_RAW / "final_download_log.json"
     log_fn.write_text(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
-    print(f"\n  → 日志: {log_fn}")
-    print(f"  总耗时: {(time.time()-t0):.0f}s")
-    print(f"\n  === 任务完成 ===")
+    print(f"\n  → log: {log_fn}")
+    print(f"  total elapsed: {(time.time()-t0):.0f}s")
+    print(f"\n  === task complete ===")
 
 
 if __name__ == "__main__":

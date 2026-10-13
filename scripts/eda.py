@@ -1,23 +1,23 @@
 """
-一键 EDA 脚本
+One-click EDA script
 ============
 
-拿到数据后,跑这个脚本会自动生成完整的探索性数据分析报告 + 图表。
+Once you have the data, running this script automatically generates a complete exploratory data analysis report + charts.
 
-用法:
+Usage:
     python -m scripts.eda --data-dir data/raw --output-dir notebooks/eda
 
-输出:
-    - notebooks/eda/taxi_out_distribution.png   : 总分布图
-    - notebooks/eda/by_airport.png              : 各机场分布
-    - notebooks/eda/by_hour.png                 : 按计划小时分布
-    - notebooks/eda/by_month.png                : 按月分布(季节性)
-    - notebooks/eda/by_airport_hour.png         : 机场 × 小时热力图
-    - notebooks/eda/long_tail.png               : 长尾分析(P75/P90/P99)
-    - notebooks/eda/missing_values.png          : 缺失值热力图
-    - notebooks/eda/corr_basic.png              : 基础数值特征相关矩阵
-    - notebooks/eda/summary_stats.csv           : 全量数值描述统计
-    - notebooks/eda/airport_stats.csv           : 各机场 taxi-out 汇总
+Outputs:
+    - notebooks/eda/taxi_out_distribution.png   : overall distribution plot
+    - notebooks/eda/by_airport.png              : per-airport distribution
+    - notebooks/eda/by_hour.png                 : distribution by scheduled hour
+    - notebooks/eda/by_month.png                : distribution by month (seasonality)
+    - notebooks/eda/by_airport_hour.png         : airport x hour heatmap
+    - notebooks/eda/long_tail.png               : long-tail analysis (P75/P90/P99)
+    - notebooks/eda/missing_values.png          : missing-value heatmap
+    - notebooks/eda/corr_basic.png              : correlation matrix of basic numeric features
+    - notebooks/eda/summary_stats.csv           : descriptive stats for all numeric values
+    - notebooks/eda/airport_stats.csv           : per-airport taxi-out summary
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ import argparse
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")  # 非交互式后端,不依赖 display
+matplotlib.use("Agg")  # non-interactive backend, no display dependency
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -36,7 +36,7 @@ from src.data_loader import load_training
 
 
 # ---------------------------------------------------------------------------
-# 工具
+# Utilities
 # ---------------------------------------------------------------------------
 
 def setup_style():
@@ -52,27 +52,27 @@ def print_section(title: str):
 
 
 # ---------------------------------------------------------------------------
-# 各 EDA 步骤
+# Individual EDA steps
 # ---------------------------------------------------------------------------
 
 def plot_distribution(df: pd.DataFrame, out_dir: Path):
-    """目标变量总分布 + 长尾分析。"""
-    print_section("1. taxi-out 总分布")
+    """Overall target distribution + long-tail analysis."""
+    print_section("1. taxi-out overall distribution")
     y = df["TAXITIME_SEC_mvt"].dropna()
-    print(f"  样本数: {len(y):,}")
-    print(f"  均值: {y.mean():.1f}s ({y.mean() / 60:.1f}min)")
-    print(f"  中位数: {y.median():.1f}s")
+    print(f"  sample size: {len(y):,}")
+    print(f"  mean: {y.mean():.1f}s ({y.mean() / 60:.1f}min)")
+    print(f"  median: {y.median():.1f}s")
     print(f"  P90: {y.quantile(0.9):.1f}s")
     print(f"  P99: {y.quantile(0.99):.1f}s")
-    print(f"  最大: {y.max():.1f}s ({(y.max() / 3600):.1f}小时)")
+    print(f"  max: {y.max():.1f}s ({(y.max() / 3600):.1f}hours)")
 
-    # v2:clip 到合理范围,排除极端异常值(36 小时的极端值会让 log 直方图崩)
+    # v2: clip to a reasonable range to exclude extreme outliers (the 36-hour extreme breaks the log histogram)
     y_clean = y[(y > 30) & (y < 10800)]
-    print(f"  清洗后样本(30 < y < 10800): {len(y_clean):,}")
+    print(f"  cleaned sample (30 < y < 10800): {len(y_clean):,}")
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-    # 原始分布(clip 后的)
+    # Raw distribution (after clipping)
     axes[0].hist(y_clean, bins=80, color="steelblue", edgecolor="white", alpha=0.8)
     axes[0].axvline(y_clean.mean(), color="red", linestyle="--", label=f"mean={y_clean.mean():.0f}s")
     axes[0].axvline(y_clean.median(), color="green", linestyle="--", label=f"median={y_clean.median():.0f}s")
@@ -81,7 +81,7 @@ def plot_distribution(df: pd.DataFrame, out_dir: Path):
     axes[0].set_title("Taxi-out Distribution (raw, clipped 30-10800s)")
     axes[0].legend()
 
-    # log 变换后的分布
+    # Distribution after the log transform
     axes[1].hist(np.log1p(y_clean), bins=80, color="seagreen", edgecolor="white", alpha=0.8)
     axes[1].set_xlabel("log(1 + Taxi-out)")
     axes[1].set_ylabel("Count")
@@ -90,7 +90,7 @@ def plot_distribution(df: pd.DataFrame, out_dir: Path):
     fig.savefig(out_dir / "taxi_out_distribution.png", dpi=120)
     plt.close(fig)
 
-    # 长尾分析
+    # Long-tail analysis
     quantiles = [0.5, 0.75, 0.9, 0.95, 0.99, 0.999]
     fig, ax = plt.subplots(figsize=(10, 5))
     vals = [y.quantile(q) for q in quantiles]
@@ -101,12 +101,12 @@ def plot_distribution(df: pd.DataFrame, out_dir: Path):
     ax.set_title("Taxi-out Long-tail Analysis")
     fig.savefig(out_dir / "long_tail.png", dpi=120)
     plt.close(fig)
-    print(f"  → 已保存: taxi_out_distribution.png, long_tail.png")
+    print(f"  -> saved: taxi_out_distribution.png, long_tail.png")
 
 
 def plot_by_airport(df: pd.DataFrame, out_dir: Path):
-    """各机场 taxi-out 分布对比。"""
-    print_section("2. 按机场分布")
+    """Comparison of taxi-out distribution across airports."""
+    print_section("2. Distribution by airport")
 
     fig, ax = plt.subplots(figsize=(14, 6))
     order = df.groupby("ADEP_mvt")["TAXITIME_SEC_mvt"].median().sort_values().index
@@ -122,25 +122,25 @@ def plot_by_airport(df: pd.DataFrame, out_dir: Path):
     fig.savefig(out_dir / "by_airport.png", dpi=120)
     plt.close(fig)
 
-    # 同时输出汇总表
+    # Also emit the summary table
     stats = df.groupby("ADEP_mvt")["TAXITIME_SEC_mvt"].agg(
         ["count", "mean", "median", "std",
          lambda x: x.quantile(0.9), lambda x: x.quantile(0.99)]
     ).rename(columns={"<lambda_0>": "p90", "<lambda_1>": "p99"}).round(1)
     stats.to_csv(out_dir / "airport_stats.csv")
     print(stats)
-    print(f"  → 已保存: by_airport.png, airport_stats.csv")
+    print(f"  -> saved: by_airport.png, airport_stats.csv")
 
 
 def plot_by_hour(df: pd.DataFrame, out_dir: Path):
-    """按计划小时分布(高峰小时模式)。"""
-    print_section("3. 按计划小时分布")
+    """Distribution by scheduled hour (peak-hour pattern)."""
+    print_section("3. Distribution by scheduled hour")
     df = df.copy()
     df["sched_hour"] = df["SCHED_TIME_UTC_mvt"].dt.tz_convert("UTC").dt.hour
 
     fig, axes = plt.subplots(1, 2, figsize=(16, 5))
 
-    # 中位数 taxi-out by hour
+    # Median taxi-out by hour
     hourly = df.groupby("sched_hour")["TAXITIME_SEC_mvt"].agg(["mean", "median"])
     axes[0].plot(hourly.index, hourly["mean"], "o-", color="steelblue", label="mean")
     axes[0].plot(hourly.index, hourly["median"], "s-", color="coral", label="median")
@@ -150,7 +150,7 @@ def plot_by_hour(df: pd.DataFrame, out_dir: Path):
     axes[0].legend()
     axes[0].set_xticks(range(0, 24))
 
-    # 起飞架次 by hour
+    # Departure count by hour
     hourly_count = df.groupby("sched_hour").size()
     axes[1].bar(hourly_count.index, hourly_count.values, color="teal", alpha=0.7)
     axes[1].set_xlabel("Scheduled hour (UTC)")
@@ -160,12 +160,12 @@ def plot_by_hour(df: pd.DataFrame, out_dir: Path):
 
     fig.savefig(out_dir / "by_hour.png", dpi=120)
     plt.close(fig)
-    print(f"  → 已保存: by_hour.png")
+    print(f"  -> saved: by_hour.png")
 
 
 def plot_by_month(df: pd.DataFrame, out_dir: Path):
-    """按月分布(季节性)。"""
-    print_section("4. 按月分布(季节性)")
+    """Distribution by month (seasonality)."""
+    print_section("4. Distribution by month (seasonality)")
     df = df.copy()
     df["month"] = df["SCHED_TIME_UTC_mvt"].dt.tz_convert("UTC").dt.month
 
@@ -188,12 +188,12 @@ def plot_by_month(df: pd.DataFrame, out_dir: Path):
 
     fig.savefig(out_dir / "by_month.png", dpi=120)
     plt.close(fig)
-    print(f"  → 已保存: by_month.png")
+    print(f"  -> saved: by_month.png")
 
 
 def plot_heatmap_airport_hour(df: pd.DataFrame, out_dir: Path):
-    """机场 × 计划小时 热力图(看哪些机场在哪些时段最拥堵)。"""
-    print_section("5. 机场 × 小时 热力图")
+    """Airport x scheduled-hour heatmap (see which airports are most congested at which times)."""
+    print_section("5. Airport x hour heatmap")
     df = df.copy()
     df["sched_hour"] = df["SCHED_TIME_UTC_mvt"].dt.tz_convert("UTC").dt.hour
 
@@ -208,17 +208,17 @@ def plot_heatmap_airport_hour(df: pd.DataFrame, out_dir: Path):
     ax.set_title("Median Taxi-out: Airport × Hour")
     fig.savefig(out_dir / "by_airport_hour.png", dpi=120)
     plt.close(fig)
-    print(f"  → 已保存: by_airport_hour.png")
+    print(f"  -> saved: by_airport_hour.png")
 
 
 def plot_missing(df: pd.DataFrame, out_dir: Path):
-    """缺失值分析。"""
-    print_section("6. 缺失值分析")
+    """Missing-value analysis."""
+    print_section("6. Missing-value analysis")
     miss = df.isna().mean().sort_values(ascending=False)
     miss = miss[miss > 0]
 
     if len(miss) == 0:
-        print("  ✅ 没有缺失值")
+        print("  ✅ no missing values")
         return
 
     print(miss.to_string())
@@ -229,12 +229,12 @@ def plot_missing(df: pd.DataFrame, out_dir: Path):
     ax.set_title("Missing Values by Column")
     fig.savefig(out_dir / "missing_values.png", dpi=120)
     plt.close(fig)
-    print(f"  → 已保存: missing_values.png")
+    print(f"  -> saved: missing_values.png")
 
 
 def plot_correlation(df: pd.DataFrame, out_dir: Path):
-    """基础数值特征相关矩阵。"""
-    print_section("7. 相关矩阵(基础数值特征)")
+    """Correlation matrix of the basic numeric features."""
+    print_section("7. Correlation matrix (basic numeric features)")
 
     num_cols = [
         "TAXITIME_SEC_mvt",
@@ -250,39 +250,39 @@ def plot_correlation(df: pd.DataFrame, out_dir: Path):
     ax.set_title("Correlation Matrix (basic numeric features)")
     fig.savefig(out_dir / "corr_basic.png", dpi=120)
     plt.close(fig)
-    print(f"  → 已保存: corr_basic.png")
+    print(f"  -> saved: corr_basic.png")
 
 
 def summary_stats(df: pd.DataFrame, out_dir: Path):
-    """汇总统计,落盘为 CSV。"""
-    print_section("8. 汇总统计")
+    """Summary statistics, written to CSV."""
+    print_section("8. Summary statistics")
     desc = df.describe(include="all").T
     desc.to_csv(out_dir / "summary_stats.csv")
     print(desc)
-    print(f"  → 已保存: summary_stats.csv")
+    print(f"  -> saved: summary_stats.csv")
 
 
 # ---------------------------------------------------------------------------
-# 主入口
+# Main entry point
 # ---------------------------------------------------------------------------
 
 def run_eda(data_dir: str, output_dir: str):
-    """对训练数据(2025 全年)做完整 EDA。
+    """Run a full EDA on the training data (all of 2025).
 
-    ⚠️ 注意:EDA 只看训练数据(ranking 数据的目标被屏蔽,看了也没用)。
-    如果想对比训练和测试的"特征分布差异",可以单独写一个 `eda_compare.py`,
-    但当前阶段不需要。
+    ⚠️ Note: EDA only looks at the training data (the ranking target is masked, so it would be useless anyway).
+    If you want to compare "feature distribution shift" between train and test, you can write a separate `eda_compare.py`,
+    but it is not needed at the current stage.
     """
     setup_style()
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    print_section("加载数据")
+    print_section("Load data")
     df = load_training(data_dir)
-    print(f"  形状: {df.shape}")
-    print(f"  字段:\n  {df.columns.tolist()}")
+    print(f"  shape: {df.shape}")
+    print(f"  columns:\n  {df.columns.tolist()}")
 
-    # 跑所有 EDA
+    # Run all EDA steps
     plot_distribution(df, out_dir)
     plot_by_airport(df, out_dir)
     plot_by_hour(df, out_dir)
@@ -293,12 +293,12 @@ def run_eda(data_dir: str, output_dir: str):
     summary_stats(df, out_dir)
 
     print("\n" + "=" * 70)
-    print(f"  ✅ EDA 完成,所有图表已保存到 {out_dir}/")
+    print(f"  ✅ EDA complete, all charts saved to {out_dir}/")
     print("=" * 70)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="PRC 2026 一键 EDA")
+    parser = argparse.ArgumentParser(description="PRC 2026 one-click EDA")
     parser.add_argument("--data-dir", default="data/raw")
     parser.add_argument("--output-dir", default="notebooks/eda")
     args = parser.parse_args()

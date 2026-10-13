@@ -1,13 +1,13 @@
 """
-数据加载模块
-============
+Data loading module
+===================
 
-负责从 data/raw/ 读取月度 parquet 文件,合并为全年数据,并做基础过滤。
+Reads the monthly parquet files from data/raw/, merges them into a full-year dataset, and applies basic filtering.
 
-设计要点:
-- 只读 DEP 行(taxi-out 只对出发航班有意义)
-- 保留必要的字段,减少内存
-- 时间字段统一转成 pandas datetime + UTC
+Design notes:
+- Only read DEP rows (taxi-out is only meaningful for departing flights)
+- Keep only the necessary columns to reduce memory usage
+- Convert all time columns to pandas datetime + UTC
 """
 
 from __future__ import annotations
@@ -20,63 +20,63 @@ import pyarrow.parquet as pq
 
 
 # ---------------------------------------------------------------------------
-# 字段定义(来自 https://prc-data-challenge-2026.netlify.app/data.html)
+# Field definitions (from https://prc-data-challenge-2026.netlify.app/data.html)
 # ---------------------------------------------------------------------------
 
-# 训练数据中,我们关心的字段。后缀 _mvt 是机场侧,_flt 是 NM 航班侧。
+# The columns we care about in the training data. The _mvt suffix is airport-side, _flt is NM flight-side.
 TRAIN_COLS_MVT = [
-    "MVT_ID_mvt",        # 唯一标识
+    "MVT_ID_mvt",        # unique identifier
     "FLIGHT_ID_mvt",
-    "ADEP_mvt",          # 起飞机场 ICAO
-    "ADES_mvt",          # 落地机场 ICAO
-    "PHASE_mvt",         # DEP / ARR,我们要 DEP
-    "MVT_TIME_UTC_mvt",  # 实际起飞时间(注意:这是标签终点,不能做特征)
-    "BLOCK_TIME_UTC_mvt",  # 实际推出时间(注意:这是 taxi-out 起点,会泄漏,谨慎用)
-    "SCHED_TIME_UTC_mvt",  # 计划起降时间(可以用,无泄漏)
+    "ADEP_mvt",          # departure airport ICAO
+    "ADES_mvt",          # arrival airport ICAO
+    "PHASE_mvt",         # DEP / ARR, we need DEP
+    "MVT_TIME_UTC_mvt",  # actual takeoff time (note: this is the label endpoint, must not be used as a feature)
+    "BLOCK_TIME_UTC_mvt",  # actual pushback time (note: this is the taxi-out starting point, it leaks, use with care)
+    "SCHED_TIME_UTC_mvt",  # scheduled take-off/landing time (usable, no leakage)
     "AIRCRAFT_TYPE_mvt",
     "RUNWAY_mvt",
     "STAND_mvt",
-    "TAXITIME_SEC_mvt",  # 目标变量(秒)
+    "TAXITIME_SEC_mvt",  # target variable (seconds)
 ]
 
 TRAIN_COLS_FLT = [
     "LOBT_flt",
     "CALLSIGN_flt",
     "ADES_flt",
-    "ADES_FILED_flt",    # 与 ADES_flt 不一致 = 航班改航
+    "ADES_FILED_flt",    # different from ADES_flt = flight re-routing
     "MARKET_SEGMENT_flt",
-    "IOBT_flt",          # 初始计划推出时间(可用,无泄漏)
-    "EOBT_1_flt",        # FPL 估计推出时间(可用,无泄漏)
+    "IOBT_flt",          # initial scheduled pushback time (usable, no leakage)
+    "EOBT_1_flt",        # FPL estimated pushback time (usable, no leakage)
     "FLIGHT_RULE_flt",
     "FLIGHT_TYPE_flt",
     "AIRCRAFT_TYPE_flt",
     "WK_TBL_CAT_flt",    # wake turbulence category: L/M/H/J
     "AIRCRAFT_OPERATOR_flt",
-    "AOBT_3_flt",        # ⚠️ 实际推出时间,会泄漏目标起点,只能用于事后聚合
-    "ARVT_3_flt",        # ⚠️ 实际到达时间,DEP 时也含泄漏信息
+    "AOBT_3_flt",        # WARNING: actual pushback time, leaks the target starting point, only usable for post-hoc aggregation
+    "ARVT_3_flt",        # WARNING: actual arrival time, also carries leakage information for DEP rows
 ]
 
 
 # ---------------------------------------------------------------------------
-# 工具函数
+# Utility functions
 # ---------------------------------------------------------------------------
 
 def list_monthly_files(data_dir: Path | str, prefix: str = "training_") -> list[Path]:
-    """列出 data_dir 下所有符合 prefix 的 parquet 文件,按文件名排序。"""
+    """List all parquet files under data_dir matching prefix, sorted by file name."""
     data_dir = Path(data_dir)
     files = sorted(data_dir.glob(f"{prefix}*.parquet"))
     if not files:
         raise FileNotFoundError(
-            f"在 {data_dir} 下没找到 {prefix}*.parquet 文件。"
-            f"请确认数据已下载并放到此目录。"
+            f"No {prefix}*.parquet files found under {data_dir}."
+            f"Please make sure the data has been downloaded and placed in this directory."
         )
     return files
 
 
 def load_month(file_path: Path | str, columns: list[str] | None = None) -> pd.DataFrame:
-    """读取单个月份的 parquet 文件。
+    """Read a single monthly parquet file.
 
-    用 pyarrow 显式指定列,可以大幅减少内存(原文件 ~25 MB,完整读会全量加载)。
+    Passing columns explicitly through pyarrow greatly reduces memory usage (the original file is ~25 MB, a full read would load everything).
     """
     file_path = Path(file_path)
     table = pq.read_table(file_path, columns=columns)
@@ -88,35 +88,35 @@ def load_all_months(
     prefix: str = "training_",
     columns: list[str] | None = None,
 ) -> pd.DataFrame:
-    """加载所有月度文件并拼接。
+    """Load all monthly files and concatenate them.
 
-    内存占用预估:全量 417 万行,约 280 MB parquet 解压后 ~1.5 GB pandas DataFrame。
-    如果机器内存 < 8 GB,建议改为按月训练或用 pyarrow 直接处理。
+    Estimated memory usage: 4.17M rows in total, ~280 MB of parquet expands to ~1.5 GB as a pandas DataFrame.
+    If the machine has less than 8 GB of RAM, consider training month by month or processing the data directly with pyarrow.
     """
     files = list_monthly_files(data_dir, prefix=prefix)
-    print(f"找到 {len(files)} 个 parquet 文件,开始加载...")
+    print(f"Found {len(files)} parquet files, starting to load...")
 
     dfs = []
     for f in files:
         df = load_month(f, columns=columns)
         dfs.append(df)
-        print(f"  已加载 {f.name}: {len(df):,} 行")
+        print(f"  loaded {f.name}: {len(df):,} rows")
 
     df = pd.concat(dfs, ignore_index=True)
-    print(f"合并后总行数: {len(df):,}")
+    print(f"total rows after merge: {len(df):,}")
     return df
 
 
 def filter_departures(df: pd.DataFrame) -> pd.DataFrame:
-    """只保留 DEP 行,这是 taxi-out 预测的目标。"""
+    """Keep only DEP rows, which is what taxi-out prediction targets."""
     n_before = len(df)
     df = df[df["PHASE_mvt"] == "DEP"].copy()
-    print(f"过滤 DEP: {n_before:,} → {len(df):,} 行 ({(len(df) / n_before * 100):.1f}%)")
+    print(f"filtered DEP: {n_before:,} -> {len(df):,} rows ({(len(df) / n_before * 100):.1f}%)")
     return df
 
 
 def parse_time_columns(df: pd.DataFrame, cols: Iterable[str]) -> pd.DataFrame:
-    """把 UTC 时间字符串列转成 pandas datetime(UTC)。"""
+    """Convert UTC time string columns into pandas datetime (UTC)."""
     for col in cols:
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
@@ -124,13 +124,13 @@ def parse_time_columns(df: pd.DataFrame, cols: Iterable[str]) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# 主入口:加载 + 过滤 + 时间字段解析
+# Main entry: load + filter + time column parsing
 # ---------------------------------------------------------------------------
 
 def load_training(data_dir: Path | str = "data/raw") -> pd.DataFrame:
-    """加载训练数据(2025 全年),只保留 DEP,并解析时间字段。
+    """Load training data (full year 2025), keep only DEP rows and parse time columns.
 
-    返回的 DataFrame 已经过滤 PHASE=DEP,时间列都是 datetime64[ns, UTC]。
+    The returned DataFrame has already been filtered to PHASE=DEP, and all time columns are datetime64[ns, UTC].
     """
     cols = TRAIN_COLS_MVT + TRAIN_COLS_FLT
     df = load_all_months(data_dir, prefix="training_", columns=cols)
@@ -152,9 +152,9 @@ def load_training(data_dir: Path | str = "data/raw") -> pd.DataFrame:
 
 
 def load_ranking(data_dir: Path | str = "data/raw") -> pd.DataFrame:
-    """加载排名数据集(2026-01 + 2026-07,目标变量已被屏蔽)。
+    """Load the ranking dataset (2026-01 + 2026-07, target variable masked).
 
-    BLOCK_TIME_UTC_mvt 和 TAXITIME_SEC_mvt 在 DEP 行上是空的,这正是我们要预测的部分。
+    BLOCK_TIME_UTC_mvt and TAXITIME_SEC_mvt are null on DEP rows, which is exactly the part we have to predict.
     """
     cols = TRAIN_COLS_MVT + TRAIN_COLS_FLT
     df = load_month(Path(data_dir) / "ranking.parquet", columns=cols)
@@ -176,17 +176,17 @@ def load_ranking(data_dir: Path | str = "data/raw") -> pd.DataFrame:
 
 
 def load_submission_template(data_dir: Path | str = "data/raw") -> pd.DataFrame:
-    """加载提交模板(只有 MVT_ID_mvt 和 TAXITIME_SEC_mvt 两列)。"""
+    """Load the submission template (only two columns: MVT_ID_mvt and TAXITIME_SEC_mvt)."""
     return pd.read_parquet(Path(data_dir) / "submitting.parquet")
 
 
 if __name__ == "__main__":
-    # 模块自测:python -m src.data_loader
+    # Module self-test: python -m src.data_loader
     import sys
 
     data_dir = sys.argv[1] if len(sys.argv) > 1 else "data/raw"
-    print("=== 训练数据 ===")
+    print("=== Training data ===")
     df = load_training(data_dir)
-    print(f"\n形状: {df.shape}")
-    print(f"\n字段类型:\n{df.dtypes}")
-    print(f"\n目标变量描述:\n{df['TAXITIME_SEC_mvt'].describe()}")
+    print(f"\nshape: {df.shape}")
+    print(f"\ncolumn dtypes:\n{df.dtypes}")
+    print(f"\ntarget variable description:\n{df['TAXITIME_SEC_mvt'].describe()}")

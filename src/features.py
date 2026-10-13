@@ -1,14 +1,14 @@
 """
-特征工程模块(baseline 版:只基础特征)
-====================================
+Feature Engineering Module (baseline version: basic features only)
+==================================================================
 
-这一版只做"航班自身信息"的特征,不含拥堵聚合。
-等 baseline 跑通后,在 src/features_aggregate.py 里加拥堵特征。
+This version only builds "the flight's own information" features, without congestion aggregation.
+Once the baseline works, add congestion features in src/features_aggregate.py.
 
-防泄漏原则(非常重要):
-- ✅ 可用:SCHED_TIME_UTC_mvt, IOBT_flt, EOBT_1_flt(计划时间,实时可拿)
-- ⚠️ 慎用:AOBT_3_flt(实际推出 = taxi-out 起点),仅做训练目标/事后聚合
-- ❌ 禁用:MVT_TIME_UTC_mvt(实际起飞 = taxi-out 终点,就是标签)
+Leakage prevention principles (very important):
+- OK: SCHED_TIME_UTC_mvt, IOBT_flt, EOBT_1_flt (scheduled times, available in real time)
+- USE WITH CARE: AOBT_3_flt (actual pushback = taxi-out start), only for the training target / ex-post aggregation
+- FORBIDDEN: MVT_TIME_UTC_mvt (actual takeoff = taxi-out end, which is exactly the label)
 """
 
 from __future__ import annotations
@@ -18,18 +18,18 @@ import pandas as pd
 
 
 # ---------------------------------------------------------------------------
-# 时间特征(基于计划时间,无泄漏)
+# Time features (based on scheduled time, no leakage)
 # ---------------------------------------------------------------------------
 
 def add_time_features(df: pd.DataFrame, time_col: str = "SCHED_TIME_UTC_mvt") -> pd.DataFrame:
-    """从计划时间提取时间维度的特征。
+    """Extract time-dimension features from the scheduled time.
 
-    注意:用 SCHED_TIME_UTC_mvt 而不是 AOBT/MVT 的实际时间,否则会泄漏。
+    Note: uses SCHED_TIME_UTC_mvt instead of the actual AOBT/MVT time, otherwise it leaks.
     """
     if time_col not in df.columns:
-        raise KeyError(f"缺少时间列 {time_col}")
+        raise KeyError(f"missing time column {time_col}")
 
-    # 转 UTC(无时区)以便提取 hour/dow 等
+    # Convert to UTC (no timezone) to extract hour/dow etc.
     t = df[time_col].dt.tz_convert("UTC")
 
     df = df.copy()
@@ -39,12 +39,12 @@ def add_time_features(df: pd.DataFrame, time_col: str = "SCHED_TIME_UTC_mvt") ->
     df["sched_day"] = t.dt.day.astype("int8")
     df["sched_minute"] = t.dt.minute.astype("int8")
 
-    # 是否周末 / 是否典型高峰小时
+    # Is weekend / is typical peak hour
     df["is_weekend"] = (df["sched_dow"] >= 5).astype("int8")
     df["is_morning_peak"] = df["sched_hour"].isin([6, 7, 8, 9]).astype("int8")
     df["is_evening_peak"] = df["sched_hour"].isin([17, 18, 19, 20]).astype("int8")
 
-    # 周期性编码(让模型理解 23 点和 0 点是相邻的)
+    # Cyclical encoding (let the model understand that 23 o'clock and 0 o'clock are adjacent)
     df["hour_sin"] = np.sin(2 * np.pi * df["sched_hour"] / 24).astype("float32")
     df["hour_cos"] = np.cos(2 * np.pi * df["sched_hour"] / 24).astype("float32")
     df["dow_sin"] = np.sin(2 * np.pi * df["sched_dow"] / 7).astype("float32")
@@ -56,38 +56,38 @@ def add_time_features(df: pd.DataFrame, time_col: str = "SCHED_TIME_UTC_mvt") ->
 
 
 # ---------------------------------------------------------------------------
-# 空间特征
+# Spatial features
 # ---------------------------------------------------------------------------
 
 def add_route_features(df: pd.DataFrame) -> pd.DataFrame:
-    """提取起飞机场 + 落地机场相关的简单特征。"""
+    """Extract simple features related to the departure airport + arrival airport."""
     df = df.copy()
 
-    # 国内/国际(粗略判断:同国家算国内,这里用 ICAO 前缀粗分)
-    # 完整做法需要机场-国家映射表,这里先用简单的:欧洲内 = 国际
+    # Domestic/international (rough judgement: same country counts as domestic, here roughly split by ICAO prefix)
+    # The complete approach needs an airport-to-country mapping table, here use a simple one: within Europe = international
     df["is_domestic_estimate"] = (df["ADEP_mvt"].str[:2] == df["ADES_mvt"].str[:2]).astype("int8")
 
-    # 起飞机场 x 计划小时 组合(隐含"机场高峰模式"信息)
-    # 用字符串拼接,LightGBM 会作为类别处理
+    # Departure airport x scheduled hour combination (implicitly carries "airport peak pattern" information)
+    # Use string concatenation, LightGBM will treat it as a category
     df["airport_hour"] = df["ADEP_mvt"].astype(str) + "_" + df["sched_hour"].astype(str)
 
     return df
 
 
 # ---------------------------------------------------------------------------
-# 计划性特征(基于 IOBT/SCHED 的偏差)
+# Planning features (deviations based on IOBT/SCHED)
 # ---------------------------------------------------------------------------
 
 def add_planning_features(df: pd.DataFrame) -> pd.DataFrame:
-    """提取与"计划-估计"相关的时间差。
+    """Extract the time differences related to "scheduled - estimated".
 
-    这些是结构化特征,反映航班在系统里的"状态":
-    - IOBT 到 SCHED 的差 = 计划推出到计划起飞的滑行预期
-    - EOBT 到 SCHED 的差 = FPL 估计到计划起飞的偏差
+    These are structured features that reflect the "state" of the flight in the system:
+    - difference from IOBT to SCHED = expected taxi from scheduled pushback to scheduled takeoff
+    - difference from EOBT to SCHED = deviation from FPL estimate to scheduled takeoff
     """
     df = df.copy()
 
-    # 计划推出时间(sched_hour 已经在前面算过)
+    # Scheduled pushback time (sched_hour has already been computed above)
     if "IOBT_flt" in df.columns:
         df["iobt_to_sched_sec"] = (
             (df["SCHED_TIME_UTC_mvt"] - df["IOBT_flt"]).dt.total_seconds().astype("float32")
@@ -97,12 +97,12 @@ def add_planning_features(df: pd.DataFrame) -> pd.DataFrame:
         df["eobt_to_sched_sec"] = (
             (df["SCHED_TIME_UTC_mvt"] - df["EOBT_1_flt"]).dt.total_seconds().astype("float32")
         )
-        # 估计推出 vs 初始计划的差,反映"航班计划被更新了多少"
+        # Difference between estimated pushback and the initial plan, reflecting "how much the flight plan was updated"
         df["iobt_eobt_diff_sec"] = (
             (df["EOBT_1_flt"] - df["IOBT_flt"]).dt.total_seconds().astype("float32")
         )
 
-    # 是否改航
+    # Is diverted
     if "ADES_flt" in df.columns and "ADES_FILED_flt" in df.columns:
         df["is_diverted"] = (df["ADES_flt"] != df["ADES_FILED_flt"]).astype("int8")
 
@@ -110,7 +110,7 @@ def add_planning_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# 类别字段规范化(LightGBM 用 category dtype 效果最好)
+# Categorical field normalization (LightGBM works best with category dtype)
 # ---------------------------------------------------------------------------
 
 CATEGORICAL_COLS = [
@@ -125,12 +125,12 @@ CATEGORICAL_COLS = [
     "AIRCRAFT_TYPE_flt",
     "WK_TBL_CAT_flt",
     "AIRCRAFT_OPERATOR_flt",
-    "airport_hour",  # 组合特征
+    "airport_hour",  # combination feature
 ]
 
 
 def to_categorical(df: pd.DataFrame, cols: list[str] | None = None) -> pd.DataFrame:
-    """把指定列转成 pandas category 类型(LightGBM 原生支持,内存也省)。"""
+    """Convert the specified columns to pandas category type (LightGBM supports it natively and it also saves memory)."""
     cols = cols or CATEGORICAL_COLS
     df = df.copy()
     for col in cols:
@@ -140,14 +140,14 @@ def to_categorical(df: pd.DataFrame, cols: list[str] | None = None) -> pd.DataFr
 
 
 # ---------------------------------------------------------------------------
-# 主入口:完整特征流水线
+# Main entry: complete feature pipeline
 # ---------------------------------------------------------------------------
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
-    """跑完所有特征工程的入口函数。
+    """Entry function that runs all feature engineering.
 
-    输入:从 data_loader 加载的原始 DataFrame(DEP only, 时间已 parse)
-    输出:可喂给 LightGBM 的特征矩阵
+    Input: raw DataFrame loaded from data_loader (DEP only, time already parsed)
+    Output: feature matrix that can be fed to LightGBM
     """
     df = add_time_features(df)
     df = add_route_features(df)
@@ -157,15 +157,15 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# 目标重缩放(从 2024 第 1 名 team_likable_jelly 学到)
+# Target rescaling (learned from the 1st place team_likable_jelly in 2024)
 # ---------------------------------------------------------------------------
 #
-# 他们的发现:不同机场的 taxi-out 平均值差异巨大(FRA 比中小机场长 ~50%)。
-# 如果按 (target - group_min) / (group_max - group_min) 缩放,
-# 所有机场的"目标"被拉平到 [0, 1],模型更容易学。
+# Their finding: the average taxi-out differences across airports are huge (FRA is ~50% longer
+# than small/medium airports). If you scale by (target - group_min) / (group_max - group_min),
+# the "target" of all airports is flattened to [0, 1], which is easier for the model to learn.
 #
-# 注意:这只能用于训练(因为要用 target),推理时需要保存的 mapping。
-# 我们做成"可选"——默认关闭,你能用就用。
+# Note: this can only be used for training (because it uses the target), and inference needs the saved mapping.
+# We make it "optional" - off by default, use it if it works for you.
 #
 
 def fit_target_rescaler(
@@ -173,15 +173,15 @@ def fit_target_rescaler(
     target_col: str = "TAXITIME_SEC_mvt",
     group_col: str = "ADEP_mvt",
 ) -> dict:
-    """学"按机场分组的 target 重缩放"参数。
+    """Learn the parameters of "target rescaling grouped by airport".
 
-    对每个机场:
-        mean, std → 用于 (target - mean) / std 标准化
+    For each airport:
+        mean, std -> used for (target - mean) / std standardization
 
-    返回可序列化的 mapping。
+    Returns a serializable mapping.
     """
     grouped = df_train.groupby(group_col, observed=True)[target_col].agg(["mean", "std"])
-    # 防止 std=0(某机场只有一条记录)
+    # Prevent std=0 (an airport with only one record)
     grouped["std"] = grouped["std"].fillna(1.0).clip(lower=1.0)
 
     mapping = {
@@ -201,7 +201,7 @@ def apply_target_rescale(
     target_col: str = "TAXITIME_SEC_mvt",
     out_col: str = "target_rescaled",
 ) -> pd.DataFrame:
-    """应用重缩放 mapping 到目标变量,新增 out_col 列。"""
+    """Apply the rescale mapping to the target variable, adding the out_col column."""
     df = df.copy()
     group_col = mapping["group_col"]
     per_group = mapping["per_group"]
@@ -220,9 +220,9 @@ def inverse_target_rescale(
     group_values: np.ndarray,
     mapping: dict,
 ) -> np.ndarray:
-    """把"重缩放空间"的预测还原回原始尺度。
+    """Convert predictions in the "rescaled space" back to the original scale.
 
-    用在推理时:模型预测出 rescaled 值,我们反变换回去。
+    Used at inference time: the model predicts rescaled values, we inverse-transform them back.
     """
     per_group = mapping["per_group"]
     global_mean = mapping["global_mean"]
@@ -235,42 +235,42 @@ def inverse_target_rescale(
     return out
 
 
-# baseline 用到的特征列清单(不含聚合,不含 leakage)
+# List of feature columns used by the baseline (no aggregation, no leakage)
 BASELINE_FEATURE_COLS = [
-    # 时间
+    # Time
     "sched_hour", "sched_dow", "sched_month", "sched_day", "sched_minute",
     "is_weekend", "is_morning_peak", "is_evening_peak",
     "hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos",
-    # 空间/路线
+    # Spatial/route
     "ADEP_mvt", "ADES_mvt", "RUNWAY_mvt", "STAND_mvt", "airport_hour",
     "is_domestic_estimate",
-    # 飞机/航班
+    # Aircraft/flight
     "AIRCRAFT_TYPE_mvt", "WK_TBL_CAT_flt",
     "MARKET_SEGMENT_flt", "FLIGHT_RULE_flt", "FLIGHT_TYPE_flt",
     "AIRCRAFT_OPERATOR_flt", "is_diverted",
-    # 计划性
+    # Planning
     "iobt_to_sched_sec", "eobt_to_sched_sec", "iobt_eobt_diff_sec",
 ]
 
 
 if __name__ == "__main__":
-    # 模块自测:加载数据 + 跑特征
+    # Module self-test: load data + run features
     import sys
     from src.data_loader import load_training
 
     data_dir = sys.argv[1] if len(sys.argv) > 1 else "data/raw"
     df = load_training(data_dir)
-    print(f"原始: {df.shape}")
+    print(f"raw: {df.shape}")
 
     df_feat = build_features(df)
-    print(f"特征后: {df_feat.shape}")
+    print(f"after features: {df_feat.shape}")
 
-    # 检查所有 baseline 特征都在
+    # Check that all baseline features are present
     missing = [c for c in BASELINE_FEATURE_COLS if c not in df_feat.columns]
     if missing:
-        print(f"⚠️ 缺失特征: {missing}")
+        print(f"missing features: {missing}")
     else:
-        print(f"✅ 所有 {len(BASELINE_FEATURE_COLS)} 个 baseline 特征都齐全")
+        print(f"all {len(BASELINE_FEATURE_COLS)} baseline features are present")
 
-    print(f"\n目标变量分布:")
+    print(f"\ntarget variable distribution:")
     print(df_feat["TAXITIME_SEC_mvt"].describe())

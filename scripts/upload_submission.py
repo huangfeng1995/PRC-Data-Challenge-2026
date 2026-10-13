@@ -1,7 +1,7 @@
 """
-上传提交 parquet 到 OSN bucket(prc-2026-jubilant-puzzle)
+Upload a submission parquet to the OSN bucket (prc-2026-jubilant-puzzle)
 
-用法:
+Usage:
     python -m scripts.upload_submission \
         --access-key "ABC..." \
         --secret-key "xyz..." \
@@ -27,7 +27,7 @@ def upload_file(
     bucket: str = SUBMISSION_BUCKET,
     object_name: str | None = None,
 ) -> str:
-    """上传本地文件到 bucket。返回 object 名。"""
+    """Upload a local file to the bucket. Returns the object name."""
     client = Minio(
         ENDPOINT,
         access_key=access_key,
@@ -42,7 +42,7 @@ def upload_file(
 
     object_name = object_name or local.name
     size = local.stat().st_size
-    print(f"上传 {local} ({size/1024:.1f} KB) -> {bucket}/{object_name}")
+    print(f"uploading {local} ({size/1024:.1f} KB) -> {bucket}/{object_name}")
 
     # content_type: parquet
     import mimetypes
@@ -56,21 +56,21 @@ def upload_file(
         content_type=ctype,
     )
 
-    print(f"✅ 上传成功: s3://{bucket}/{object_name}")
+    print(f"✅ upload succeeded: s3://{bucket}/{object_name}")
     return object_name
 
 
 def main():
-    parser = argparse.ArgumentParser(description="上传提交到 OSN")
+    parser = argparse.ArgumentParser(description="Upload the submission to OSN")
     parser.add_argument("--access-key", default=os.environ.get("OSN_ACCESS_KEY"))
     parser.add_argument("--secret-key", default=os.environ.get("OSN_SECRET_KEY"))
-    parser.add_argument("--local", required=True, help="本地 parquet 路径")
+    parser.add_argument("--local", required=True, help="Local parquet path")
     parser.add_argument("--bucket", default=SUBMISSION_BUCKET)
-    parser.add_argument("--object-name", default=None, help="object 名(默认用文件名)")
-    parser.add_argument("--env-file", default=".env", help=".env 文件路径,凭据自动读取")
+    parser.add_argument("--object-name", default=None, help="Object name (defaults to the file name)")
+    parser.add_argument("--env-file", default=".env", help=".env file path, credentials are read automatically")
     args = parser.parse_args()
 
-    # 如果环境变量没设,从 .env 读
+    # If the environment variables are not set, read them from .env
     if not args.access_key or not args.secret_key:
         env_path = Path(args.env_file)
         if env_path.exists():
@@ -87,7 +87,7 @@ def main():
         args.secret_key = args.secret_key or os.environ.get("OSN_SECRET_KEY")
 
     if not args.access_key or not args.secret_key:
-        parser.error("需要 --access-key 和 --secret-key,或 .env 文件,或 OSN_ACCESS_KEY/OSN_SECRET_KEY 环境变量")
+        parser.error("need --access-key and --secret-key, or a .env file, or the OSN_ACCESS_KEY/OSN_SECRET_KEY environment variables")
 
     upload_file(
         access_key=args.access_key,

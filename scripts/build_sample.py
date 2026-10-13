@@ -1,16 +1,16 @@
 """
-生成小样本数据 (data/sample/), 用于云端 clone 后快速验证特征管线
+Generate small sample data (data/sample/) for quick feature-pipeline validation after cloning in the cloud
 ==================================================================
-- 从 data/raw/training_2025_*.parquet × 12 + ranking.parquet 按机场抽少量行
-- 每机场每月保留若干行 DEP + 对应 ARR (同 FLIGHT_ID 或同 MVT 时刻 ±5 分钟)
-- 控制总量在几 MB ~ 几十 MB, 使仓库总增长 < 50 MB
-- 不接触 .gitignore 列表里的敏感目录
-- 输出:
+- Sample a small number of rows per airport from data/raw/training_2025_*.parquet x 12 + ranking.parquet
+- Keep a few DEP rows per airport per month + the matching ARR rows (same FLIGHT_ID or same MVT time +/-5 minutes)
+- Keep the total at a few MB ~ tens of MB so the repo grows by < 50 MB
+- Never touch the sensitive directories listed in .gitignore
+- Outputs:
     data/sample/
-        training_2025-{MM}-{MM+1}.parquet  (12 个, 每个 < 1 MB)
+        training_2025-{MM}-{MM+1}.parquet  (12 files, each < 1 MB)
         ranking.parquet
         submitting.parquet
-        sample_meta.json  (本采样脚本参数 + 行数明细)
+        sample_meta.json  (parameters of this sampling script + per-file row counts)
 """
 from __future__ import annotations
 
@@ -25,31 +25,31 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data/raw"
 SAMPLE = ROOT / "data/sample"
 
-# 机场 (10 个, 与比赛一致)
+# Airports (10, same as the competition)
 AIRPORTS = ["EDDF", "EDDM", "EGLL", "EHAM", "LEBL",
             "LEMD", "LFPG", "LIRF", "LTFM", "LSZH"]
 
-# 训练: 每机场每月 N_DEP 行 (DEP) + 同月同机场 N_ARR 行 (ARR), 关联的 FLIGHT_ID 上下文
+# Training: N_DEP rows per airport per month (DEP) + N_ARR rows for the same airport/month (ARR), with the linked FLIGHT_ID context
 N_DEP_PER_AP_PER_MONTH = 40
-N_ARR_PER_AP_PER_MONTH = 30  # ARR 抽样稍少
+N_ARR_PER_AP_PER_MONTH = 30  # sample slightly fewer ARR rows
 
-# ranking + submitting: 全量 (本来就小, ~45MB 总)
+# ranking + submitting: full copies (they are small anyway, ~45MB in total)
 KEEP_RANKING_FULL = True
 
 
 def sample_month(month: int) -> pd.DataFrame:
-    """抽样某月: 每机场按 PHASE 分组各取若干行, 尽量保留时序"""
+    """Sample a given month: take a few rows from each PHASE group per airport, preserving the time order as much as possible"""
     if month < 12:
         fp = RAW / f"training_2025-{month:02d}-01_2025-{month+1:02d}-01.parquet"
     else:
         fp = RAW / "training_2025-12-01_2026-01-01.parquet"
     if not fp.exists():
-        print(f"⚠️ 缺 {fp.name}, 跳过", flush=True)
+        print(f"⚠️ missing {fp.name}, skipping", flush=True)
         return pd.DataFrame()
-    print(f"  [m={month:02d}] 读 {fp.name} ...", flush=True)
-    # 全列 (列数稳定, 不大)
+    print(f"  [m={month:02d}] reading {fp.name} ...", flush=True)
+    # All columns (column count is stable, not large)
     df = pd.read_parquet(fp)
-    print(f"    原始 {len(df):,} 行", flush=True)
+    print(f"    original {len(df):,} rows", flush=True)
 
     out_parts = []
     for ap in AIRPORTS:
@@ -66,13 +66,13 @@ def sample_month(month: int) -> pd.DataFrame:
     if not out_parts:
         return pd.DataFrame()
     out = pd.concat(out_parts, ignore_index=True)
-    print(f"    抽样后 {len(out):,} 行 ({len(out_parts)} 机场)", flush=True)
+    print(f"    after sampling {len(out):,} rows ({len(out_parts)} airports)", flush=True)
     return out
 
 
 def main():
     if not RAW.exists():
-        print(f"❌ 缺数据源 {RAW}/, 先跑 scripts/download_data.py", flush=True)
+        print(f"❌ missing data source {RAW}/, run scripts/download_data.py first", flush=True)
         return 1
     SAMPLE.mkdir(parents=True, exist_ok=True)
 
@@ -81,7 +81,7 @@ def main():
             "files": {}}
 
     print("=" * 60)
-    print("生成小样本 (data/sample/)")
+    print("Generating small sample (data/sample/)")
     print("=" * 60)
     total_bytes = 0
     for m in range(1, 13):
@@ -97,14 +97,14 @@ def main():
         sz = out_path.stat().st_size
         total_bytes += sz
         meta["files"][out_name] = {"rows": int(len(df)), "bytes": sz}
-        print(f"  写 {out_name}: {len(df):,} 行, {sz/1024:.1f} KB", flush=True)
+        print(f"  wrote {out_name}: {len(df):,} rows, {sz/1024:.1f} KB", flush=True)
 
-    # ranking + submitting 抽样 (云端不需全量, 5000 行够测试特征管线)
+    # ranking + submitting sampling (no need for the full set in the cloud, 5000 rows is enough to test the feature pipeline)
     N_RANK_SAMPLE = 5000
     for name, n_sample in [("ranking.parquet", N_RANK_SAMPLE), ("submitting.parquet", N_RANK_SAMPLE)]:
         src = RAW / name
         if not src.exists():
-            print(f"⚠️ 缺 {name}, 跳过", flush=True)
+            print(f"⚠️ missing {name}, skipping", flush=True)
             continue
         df = pd.read_parquet(src)
         if len(df) > n_sample:
@@ -114,12 +114,12 @@ def main():
         sz2 = out_path.stat().st_size
         total_bytes += sz2
         meta["files"][name] = {"rows": int(len(df)), "bytes": sz2, "sampled": n_sample < len(pd.read_parquet(src)) if src.exists() else False}
-        print(f"  写 {name}: {len(df):,} 行, {sz2/1024:.1f} KB", flush=True)
+        print(f"  wrote {name}: {len(df):,} rows, {sz2/1024:.1f} KB", flush=True)
 
     meta["total_bytes"] = total_bytes
     (SAMPLE / "sample_meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False))
-    print(f"\n✅ 总计 {total_bytes/1024:.1f} KB ({total_bytes/1e6:.2f} MB)")
-    print(f"   落盘到 {SAMPLE}/")
+    print(f"\n✅ total {total_bytes/1024:.1f} KB ({total_bytes/1e6:.2f} MB)")
+    print(f"   written to {SAMPLE}/")
     return 0
 
 

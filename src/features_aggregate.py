@@ -1,21 +1,21 @@
 """
-拥堵聚合特征模块(方案 B 的核心)
-=================================
+Congestion Aggregate Feature Module (core of plan B)
+====================================================
 
-对每条 DEP 记录,统计它"推出时刻"之前的若干时间窗口内,同机场/跑道的拥堵状况。
+For each DEP record, compute the congestion status at the same airport/runway within several time windows before its "pushback moment".
 
-⚠️ 重要:训练 vs 推理用的"参考时间"不同!
-  - 训练时:用 AOBT_3_flt(实际推出时间)做参考 —— 因为我们事后能拿到,聚合特征最准
-  - 推理时:ranking 数据里 BLOCK_TIME_UTC_mvt 被屏蔽了,但 EOBT_1_flt 是可用的"计划估计"
-  - 折中方案:用 EOBT_1_flt 做"参考时间",这样训练和推理一致,代价是引入一点噪声
+WARNING: the "reference time" used for training vs inference is different!
+  - At training time: use AOBT_3_flt (actual pushback time) as reference - because we can obtain it after the fact, aggregate features are most accurate
+  - At inference time: BLOCK_TIME_UTC_mvt is masked in the ranking data, but EOBT_1_flt is available as a "scheduled estimate"
+  - Compromise: use EOBT_1_flt as the "reference time", so training and inference are consistent, at the cost of introducing some noise
 
-模块入口:add_aggregate_features(df, ref_time_col='EOBT_1_flt')
+Module entry: add_aggregate_features(df, ref_time_col='EOBT_1_flt')
 
-性能说明(v3 cumsum 重构):
-  - 旧版本 O(N²):内层 for k + np.searchsorted + np.percentile
-  - 新版本 O(N):先 sort+lexsort,然后用 cumsum 一次性算出 count/mean
-  - p90 用 np.partition 替代 np.percentile,O(W) vs O(W log W)
-  - 200万行 10 机场 30m 窗口:旧版 12+ 分钟 → 新版 < 10 秒(实测)
+Performance notes (v3 cumsum refactor):
+  - Old version O(N^2): inner for k + np.searchsorted + np.percentile
+  - New version O(N): sort+lexsort first, then use cumsum to compute count/mean in one pass
+  - p90 uses np.partition instead of np.percentile, O(W) vs O(W log W)
+  - 2 million rows, 10 airports, 30m window: old version 12+ minutes -> new version < 10 seconds (measured)
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ import pandas as pd
 
 
 # ---------------------------------------------------------------------------
-# 核心工具:O(N) cumsum 实现
+# Core utility: O(N) cumsum implementation
 # ---------------------------------------------------------------------------
 
 def _vectorized_past_window(
@@ -37,22 +37,22 @@ def _vectorized_past_window(
     target_col: str,
     window_min: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """向量化计算 [t-window_min, t) 窗口内的 count / mean / p90。
+    """Vectorized computation of count / mean / p90 within the [t-window_min, t) window.
 
-    算法(O(N) 总体):
-      1. 按 (group, time) 排序
-      2. 在每个 group 内构造 cumsum:
-         - cumcnt: 指示器的累计和
-         - cumsum_y: target 的累计和(NaN 当 0)
-      3. 对每个时间点 t_now:
+    Algorithm (O(N) overall):
+      1. Sort by (group, time)
+      2. Build cumsum inside each group:
+         - cumcnt: cumulative sum of the indicator
+         - cumsum_y: cumulative sum of target (NaN treated as 0)
+      3. For each time point t_now:
          - lo = searchsorted(group_times, t_now - window, 'left')
-         - hi = k  (不包含自己)
+         - hi = k  (excluding self)
          - count = cumcnt[hi] - cumcnt[lo]
          - sum_y = cumsum_y[hi] - cumsum_y[lo]
          - mean = sum_y / count
-         - p90 = 窗口内的 partition(近似 O(W))
+         - p90 = partition within the window (approximate O(W))
 
-    返回三个 numpy 数组(count, mean, p90),按 df 原始顺序。
+    Returns three numpy arrays (count, mean, p90), in the original df order.
     """
     n = len(df)
 
@@ -61,7 +61,7 @@ def _vectorized_past_window(
     else:
         groups_raw = df[list(group_col)].astype(str).agg("_".join, axis=1).values
 
-    # 把 group 编码成整数(方便 np.diff 找边界)
+    # Encode group as integers (easy for np.diff to find boundaries)
     _, groups = np.unique(groups_raw, return_inverse=True)
     groups = groups.astype(np.int64)
 
@@ -73,10 +73,10 @@ def _vectorized_past_window(
     sorted_times = times[order]
     raw_targets = df[target_col].values[order]
 
-    # 把 NaN 当 0 处理(对 mean/cumsum),但计数时只算非 NaN
+    # Treat NaN as 0 (for mean/cumsum), but count only non-NaN
     not_nan = ~np.isnan(raw_targets)
     safe_targets = np.where(not_nan, raw_targets, 0.0).astype("float64")
-    # 计数 = 1 - is_nan,所以 NaN 算 0 个
+    # count = 1 - is_nan, so NaN counts as 0
     safe_indicators = not_nan.astype("float64")
 
     counts = np.zeros(n, dtype="float32")
@@ -85,47 +85,47 @@ def _vectorized_past_window(
 
     window_ns = np.timedelta64(window_min, "m")
 
-    # 找 group 边界
+    # Find group boundaries
     boundaries = np.where(np.diff(sorted_groups) != 0)[0] + 1
     group_starts = np.concatenate([[0], boundaries])
     group_ends = np.concatenate([boundaries, [n]])
 
-    # 遍历每个 group
+    # Iterate over each group
     for start, end in zip(group_starts, group_ends):
         gtimes = sorted_times[start:end]
         gsum = safe_targets[start:end]
         gcount = safe_indicators[start:end]
         m = end - start
 
-        # cumsum(在每组前加 0 哨兵,简化边界)
+        # cumsum (prepend a 0 sentinel before each group to simplify boundaries)
         cum_sum = np.concatenate([[0.0], np.cumsum(gsum, dtype="float64")])
         cum_cnt = np.concatenate([[0.0], np.cumsum(gcount, dtype="float64")])
 
-        # 窗口下界(每个时间点)
+        # Window lower bound (for each time point)
         t_lo_all = gtimes - window_ns  # array
-        # searchsorted 返回 lo 索引(1-based 因为有哨兵)
+        # searchsorted returns the lo index (1-based because of the sentinel)
         lo_idx = np.searchsorted(gtimes, t_lo_all, side="left")  # 0..m
-        # hi = 自己位置 = k+1(因为 cumsum 前面加了哨兵)
-        # 也就是 cum_idx_k+1 的索引
+        # hi = own position = k+1 (because a sentinel was prepended to cumsum)
+        # that is, the index of cum_idx_k+1
         # count = cum_cnt[k+1] - cum_cnt[lo_idx[k]]
         cnt = cum_cnt[np.arange(1, m + 1)] - cum_cnt[lo_idx]
         s = cum_sum[np.arange(1, m + 1)] - cum_sum[lo_idx]
 
         counts_sorted = cnt.astype("float32")
-        # 写回(注意:这是 sorted 顺序的索引,要写回原始 order)
-        # 我们直接构造 sorted 顺序的数组,然后用 inv_order 重排
-        # 这样最清晰:先存到 sorted_* 数组,最后 inv_order 重排回原 df 顺序
+        # Write back (note: these are indices in sorted order, must be written back to the original order)
+        # We directly build arrays in sorted order, then reorder back with inv_order
+        # This is the clearest approach: first store into sorted_* arrays, finally reorder with inv_order back to the original df order
 
         # mean = sum / count
         with np.errstate(divide="ignore", invalid="ignore"):
             mean_sorted = np.where(cnt > 0, s / np.maximum(cnt, 1), np.nan).astype("float32")
 
-        # p90:对每个时间点,切片 [lo_idx, k+1),用 np.partition
-        # 用列表推导+向量化混合(因为切片长度不一,纯向量化困难)
+        # p90: for each time point, slice [lo_idx, k+1) and use np.partition
+        # Use a list comprehension mixed with vectorization (slice lengths differ, pure vectorization is hard)
         p90_sorted = np.full(m, np.nan, dtype="float32")
-        # p90:用 max 替代真正的 90% 分位
-        # (max 比 percentile 快 100 倍,而且 tree 模型能从 mean + max 推断分布)
-        # 对拥堵特征而言,max ≈ p90 是合理的近似
+        # p90: use max instead of the true 90th percentile
+        # (max is 100x faster than percentile, and tree models can infer the distribution from mean + max)
+        # For congestion features, max ~= p90 is a reasonable approximation
         nonzero = cnt > 0
         if nonzero.any():
             for k in np.where(nonzero)[0]:
@@ -136,7 +136,7 @@ def _vectorized_past_window(
                     if len(seg) > 0:
                         p90_sorted[k] = float(np.max(seg))
 
-        # 写回原始顺序
+        # Write back in original order
         local_idx = order[start:end]
         counts[local_idx] = counts_sorted
         means[local_idx] = mean_sorted
@@ -146,7 +146,7 @@ def _vectorized_past_window(
 
 
 # ---------------------------------------------------------------------------
-# 便捷包装:对多个窗口 + 多个 target 一次跑完
+# Convenience wrapper: run multiple windows + multiple targets in one pass
 # ---------------------------------------------------------------------------
 
 def _past_n_minutes_stats(
@@ -157,7 +157,7 @@ def _past_n_minutes_stats(
     windows_min: Iterable[int],
     stats: Iterable[str] = ("count", "mean", "p90"),
 ) -> pd.DataFrame:
-    """对每个分组(group_col),在每条记录 time_col 之前的 windows_min 分钟内,统计 target_col。"""
+    """For each group (group_col), compute target_col within the windows_min minutes before time_col of each record."""
     out = pd.DataFrame(index=df.index)
 
     if isinstance(group_col, str):
@@ -188,15 +188,15 @@ def _compute_past_for_group(
     target_col: str,
     windows_min: tuple[int, ...],
 ) -> dict[int, dict[str, np.ndarray]]:
-    """对单个 group,一次扫描算多个窗口的 count/mean/p90。
+    """For a single group, compute count/mean/p90 for multiple windows in one scan.
 
-    v3.6 fix: NaT 时间戳被 np.searchsorted 当作极小值,导致 cnt/mean/p90
-    被算成"同机场全部历史",污染预测。修复:
-    - 在算聚合前,把 ref_time_col=NaT 的行从 cumsum/sort 链中剔除
-    - 这些行的输出直接填 NaN,让模型学到"NaN = 无拥堵信号,用基础特征"
-    - 训练和推理完全一致
+    v3.6 fix: NaT timestamps were treated as extremely small values by np.searchsorted, causing cnt/mean/p90
+    to be computed as "the entire history of the same airport", polluting predictions. Fix:
+    - Before computing aggregates, remove rows where ref_time_col=NaT from the cumsum/sort chain
+    - Fill the output of those rows directly with NaN, so the model learns "NaN = no congestion signal, use basic features"
+    - Training and inference are fully consistent
 
-    返回: dict {window_min: {"count": arr, "mean": arr, "p90": arr}} 按原 df 顺序
+    Returns: dict {window_min: {"count": arr, "mean": arr, "p90": arr}} in the original df order
     """
     n = len(df)
 
@@ -207,90 +207,90 @@ def _compute_past_for_group(
     _, groups = np.unique(groups_raw, return_inverse=True)
     groups = groups.astype(np.int64)
 
-    # v3.6 fix: 解析时间,识别 NaT(NaT 在 datetime64[ns] 里是 int64 min)
+    # v3.6 fix: parse time, identify NaT (NaT is int64 min in datetime64[ns])
     times = pd.to_datetime(df[time_col]).values.astype("datetime64[ns]")
     INT64_MIN = np.iinfo(np.int64).min
-    # pandas 把 NaT 存为 int64 min
+    # pandas stores NaT as int64 min
     sorted_times_raw_int = times.view("i8")
     valid_time_mask = sorted_times_raw_int != INT64_MIN  # True = valid time
 
-    # 对 raw_targets 也做 NaN 处理(target 缺失行不算)
+    # Also handle NaN for raw_targets (rows with missing target are not counted)
     raw_targets = df[target_col].values
     target_nan_mask = np.isnan(raw_targets)
-    # 一个行 valid 用于聚合的前提:时间有效 AND target 不是 NaN(只有 target NaN 的行不算入统计)
-    # 但 count 类只需要时间有效(target=NaN 也不影响 count,只要 DEP 指示器 =1 就行)
-    # 这里我们保守:对 cnt 类只用时间有效;对 mean/p90 同时要求 target 非 NaN
+    # Prerequisite for a row to be valid for aggregation: time is valid AND target is not NaN (rows with target NaT are excluded from the statistics)
+    # But count-type features only need valid time (target=NaN does not affect count, as long as the DEP indicator = 1)
+    # Here we are conservative: for cnt use only valid time; for mean/p90 also require target to be non-NaN
 
-    # 先在原始顺序上构造有效位(后面写回时用)
-    valid_count_row = valid_time_mask.copy()  # time 非 NaT → 可以算 count
-    valid_target_row = valid_time_mask & ~target_nan_mask  # time + target 都有效 → 可以算 mean/p90
+    # First build the validity bits in the original order (used later when writing back)
+    valid_count_row = valid_time_mask.copy()  # time is not NaT -> can compute count
+    valid_target_row = valid_time_mask & ~target_nan_mask  # time + target both valid -> can compute mean/p90
 
-    # 用 (group, time) 排序;NaT 行会排到组内最前/最后(因为 int64 min 最小)
-    # 我们用 NaT 作为最大 key 排到最后,这样 cumsum 只在非 NaT 段累加
-    # 技巧:把 NaT 时间的 int64 替换成 int64 max,然后从排序中排除
+    # Sort by (group, time); NaT rows sort to the front/back within the group (because int64 min is the smallest)
+    # We use NaT as the largest key to sort last, so cumsum only accumulates within the non-NaT segment
+    # Trick: replace NaT time int64 with int64 max, then exclude it from the sort
     safe_times_int = np.where(valid_time_mask, sorted_times_raw_int, np.iinfo(np.int64).max)
     safe_times = safe_times_int.view("datetime64[ns]")
 
     order = np.lexsort((safe_times, groups))
     sorted_groups = groups[order]
-    sorted_times = times[order]  # 原始时间(可能有 NaT)
-    # raw_targets 也按 order 重排
+    sorted_times = times[order]  # original time (may contain NaT)
+    # reorder raw_targets by order too
     raw_targets_ordered = raw_targets[order]
     target_nan_ordered = np.isnan(raw_targets_ordered)
 
-    # safe_targets: target NaN → 0(不影响 sum,影响 cnt)
+    # safe_targets: target NaT -> 0 (does not affect sum, does affect cnt)
     safe_targets = np.where(target_nan_ordered, 0.0, raw_targets_ordered).astype("float64")
-    # safe_indicators: 1 if (时间有效 AND target 非 NaN),else 0
+    # safe_indicators: 1 if (time valid AND target non-NaN), else 0
     time_valid_ordered = (safe_times_int[order] != np.iinfo(np.int64).max)
     safe_indicators = (time_valid_ordered & ~target_nan_ordered).astype("float64")
-    # count 用的指示器:只要求时间有效(target NaN 仍算 1 架)
+    # indicator for count: only requires valid time (target NaT still counts as 1 flight)
     count_indicators = time_valid_ordered.astype("float64")
 
     boundaries = np.where(np.diff(sorted_groups) != 0)[0] + 1
     group_starts = np.concatenate([[0], boundaries])
     group_ends = np.concatenate([boundaries, [n]])
 
-    # 结果数组(按 sorted 顺序)—— 默认 NaN,sorted_count 也用 NaN 表示"无信号"
+    # Result arrays (in sorted order) - NaN by default, sorted_count also uses NaN to mean "no signal"
     sorted_count = {w: np.full(n, np.nan, dtype="float32") for w in windows_min}
     sorted_mean = {w: np.full(n, np.nan, dtype="float32") for w in windows_min}
     sorted_p90 = {w: np.full(n, np.nan, dtype="float32") for w in windows_min}
 
     for start, end in zip(group_starts, group_ends):
-        gtimes = sorted_times[start:end]  # 可能有 NaT
+        gtimes = sorted_times[start:end]  # may contain NaT
         gsum = safe_targets[start:end]
-        gsum_count = count_indicators[start:end]  # 只要求时间有效
-        gcount = safe_indicators[start:end]  # 要求时间+target 都有效(给 mean/p90 用)
+        gsum_count = count_indicators[start:end]  # only requires valid time
+        gcount = safe_indicators[start:end]  # requires both time and target valid (for mean/p90)
         m = end - start
 
         cum_sum = np.concatenate([[0.0], np.cumsum(gsum, dtype="float64")])
         cum_cnt = np.concatenate([[0.0], np.cumsum(gcount, dtype="float64")])
         cum_cnt_for_count = np.concatenate([[0.0], np.cumsum(gsum_count, dtype="float64")])
 
-        # v3.6 fix: 对每行,如果时间无效 → NaN,否则正常算
+        # v3.6 fix: for each row, if time is invalid -> NaN, otherwise compute normally
         time_valid_in_group = (gtimes.view("i8") != INT64_MIN)
-        # 一个 mask 数组,表示"这一行的时间有效"
-        # 后面算 lo_idx 时,无效行的 lo_idx=0(全窗口范围),但会被 NaN mask 过滤
+        # A mask array indicating "the time of this row is valid"
+        # Later when computing lo_idx, invalid rows have lo_idx=0 (full window range), but they are filtered by the NaN mask
 
         for w in windows_min:
             window_ns = np.timedelta64(w, "m")
-            # 算 lo_idx 时,对 NaT 行也用 searchsorted(会落到组内某位置),
-            # 但我们后续会把无效行的值改成 NaN
-            t_lo_all = gtimes - window_ns  # NaT - timedelta = NaT,被当作极小值
+            # When computing lo_idx, also use searchsorted for NaT rows (which lands at some position within the group),
+            # but we will later set the values of invalid rows to NaN
+            t_lo_all = gtimes - window_ns  # NaT - timedelta = NaT, treated as extremely small value
             lo_idx = np.searchsorted(gtimes, t_lo_all, side="left")
 
-            # count 用 cum_cnt_for_count(只要求时间有效)
+            # count uses cum_cnt_for_count (only requires valid time)
             cnt = cum_cnt_for_count[np.arange(1, m + 1)] - cum_cnt_for_count[lo_idx]
             s = cum_sum[np.arange(1, m + 1)] - cum_sum[lo_idx]
             mean_v = np.where(cnt > 0, s / np.maximum(cnt, 1), np.nan).astype("float32")
 
-            # v3.6 fix: 无效时间行 → 输出 NaN(让 XGBoost 当作"无信号")
+            # v3.6 fix: invalid time rows -> output NaN (so XGBoost treats it as "no signal")
             cnt = np.where(time_valid_in_group, cnt, np.nan).astype("float32")
             mean_v = np.where(time_valid_in_group, mean_v, np.nan).astype("float32")
 
             sorted_count[w][start:end] = cnt
             sorted_mean[w][start:end] = mean_v
 
-            # p90 → 用 max(简化);只对有效时间行算
+            # p90 -> use max (simplification); only computed for valid time rows
             nonzero = (~np.isnan(cnt)) & (cnt > 0)
             if nonzero.any():
                 p90_local = sorted_p90[w][start:end]
@@ -302,7 +302,7 @@ def _compute_past_for_group(
                         if len(seg) > 0:
                             p90_local[k] = float(np.max(seg))
 
-    # 反排回原 df 顺序
+    # Reorder back to the original df order
     inv = np.argsort(order)
     return {
         w: {
@@ -323,30 +323,30 @@ def add_aggregate_features(
     windows_min: tuple[int, ...] = (15, 30, 60),
     include_runway: bool = True,
 ) -> pd.DataFrame:
-    """主入口:加所有拥堵聚合特征(过去窗口)。优化版:每个 group 内对所有窗口共享一次 cumsum。
+    """Main entry: add all congestion aggregate features (past windows). Optimized version: all windows within each group share a single cumsum.
 
-    ⚠️ 调用前请确保:
-        1. df 已经过滤了 PHASE=DEP(data_loader 已经做了)
-        2. ref_time_col(默认 EOBT_1_flt)是 timezone-aware 的 UTC datetime
-        3. target_col 在 ranking 数据里会是 NaN(ranking 屏蔽了目标),聚合会自动跳过 NaN
+    WARNING before calling, make sure:
+        1. df has already been filtered to PHASE=DEP (data_loader already does this)
+        2. ref_time_col (default EOBT_1_flt) is a timezone-aware UTC datetime
+        3. target_col will be NaN in the ranking data (ranking masks the target), aggregation automatically skips NaN
 
-    输出:在 df 上加以下列(默认参数):
-        - cnt_dep_airport_15m / 30m / 60m  : 过去 15/30/60 分钟同机场起飞航班数
-        - mean_taxi_airport_15m / 30m / 60m : 过去 15/30/60 分钟同机场平均 taxi-out
-        - p90_taxi_airport_15m / 30m / 60m  : 过去 15/30/60 分钟同机场 P90 taxi-out
-        - cnt_dep_runway_15m / 30m / 60m   : 同上,但限定同跑道(include_runway=True 时)
-        - mean_taxi_runway_15m / 30m / 60m  : 同上
-        - p90_taxi_runway_15m / 30m / 60m   : 同上
+    Output: adds the following columns to df (default parameters):
+        - cnt_dep_airport_15m / 30m / 60m  : number of departures at the same airport in the past 15/30/60 minutes
+        - mean_taxi_airport_15m / 30m / 60m : average taxi-out at the same airport in the past 15/30/60 minutes
+        - p90_taxi_airport_15m / 30m / 60m  : P90 taxi-out at the same airport in the past 15/30/60 minutes
+        - cnt_dep_runway_15m / 30m / 60m   : same as above, but restricted to the same runway (when include_runway=True)
+        - mean_taxi_runway_15m / 30m / 60m  : same as above
+        - p90_taxi_runway_15m / 30m / 60m   : same as above
     """
     df = df.copy()
-    print(f"开始聚合特征计算(ref={ref_time_col}, 机场={airport_col}, 跑道={include_runway and runway_col})...")
+    print(f"Starting aggregate feature computation (ref={ref_time_col}, airport={airport_col}, runway={include_runway and runway_col})...")
 
     import time
 
-    # 构造一个"DEP 指示器",每条 DEP 记录 = 1
+    # Build a "DEP indicator", each DEP record = 1
     df["__is_dep__"] = 1.0
 
-    # 机场级 — 一次性算所有窗口
+    # Airport level - compute all windows in one pass
     t0 = time.time()
     airport_ind = _compute_past_for_group(
         df, group_col=airport_col, time_col=ref_time_col,
@@ -356,7 +356,7 @@ def add_aggregate_features(
         df, group_col=airport_col, time_col=ref_time_col,
         target_col=target_col, windows_min=windows_min,
     )
-    print(f"  机场级 ({time.time()-t0:.1f}s)")
+    print(f"  airport level ({time.time()-t0:.1f}s)")
 
     for w in windows_min:
         df[f"cnt_dep_airport_{w}m"] = airport_ind[w]["count"]
@@ -373,30 +373,30 @@ def add_aggregate_features(
             df, group_col=[airport_col, runway_col], time_col=ref_time_col,
             target_col=target_col, windows_min=windows_min,
         )
-        print(f"  跑道级 ({time.time()-t0:.1f}s)")
+        print(f"  runway level ({time.time()-t0:.1f}s)")
 
         for w in windows_min:
             df[f"cnt_dep_runway_{w}m"] = runway_ind[w]["count"]
             df[f"mean_taxi_runway_{w}m"] = runway_taxi[w]["mean"]
             df[f"p90_taxi_runway_{w}m"] = runway_taxi[w]["p90"]
 
-    # 去掉临时列
+    # Remove temporary columns
     df = df.drop(columns=["__is_dep__"])
-    print(f"聚合特征完成,新增 {len(windows_min) * (3 + (3 if include_runway else 0))} 列")
+    print(f"Aggregate features done, added {len(windows_min) * (3 + (3 if include_runway else 0))} columns")
     return df
 
 
 # ---------------------------------------------------------------------------
-# 完整的特征流水线(含基础特征 + 聚合特征)
+# Complete feature pipeline (basic features + aggregate features)
 # ---------------------------------------------------------------------------
 
 def build_features_v2(df: pd.DataFrame, include_aggregate: bool = True, include_lead: bool = True) -> pd.DataFrame:
-    """完整特征工程 = 基础特征 + 拥堵聚合(lag) + 未来聚合(lead)。
+    """Complete feature engineering = basic features + congestion aggregate (lag) + future aggregate (lead).
 
-    参数:
-        df: 从 data_loader 加载的原始 DataFrame
-        include_aggregate: 是否加 lag 特征(过去 N 分钟拥堵)
-        include_lead: 是否加 lead 特征(未来 N 分钟计划拥堵)
+    Parameters:
+        df: raw DataFrame loaded from data_loader
+        include_aggregate: whether to add lag features (congestion in the past N minutes)
+        include_lead: whether to add lead features (scheduled congestion in the future N minutes)
     """
     from src.features import build_features as build_basic
     from src.features_laglead import add_lead_features
@@ -413,16 +413,16 @@ def build_features_v2(df: pd.DataFrame, include_aggregate: bool = True, include_
 
 
 # ---------------------------------------------------------------------------
-# CLI 自测
+# CLI self-test
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     import sys
 
-    # 自测:用 mock 数据
-    print("=== features_aggregate 模块自测 ===\n")
+    # Self-test: use mock data
+    print("=== features_aggregate module self-test ===\n")
 
-    # 构造 mock:3 个机场 × 1000 条 DEP
+    # Build mock: 3 airports x 1000 DEP
     np.random.seed(42)
     n = 1000
     airports = ["EDDF", "EGLL", "LFPG"]
@@ -438,15 +438,15 @@ if __name__ == "__main__":
         "SCHED_TIME_UTC_mvt": [base_time + pd.Timedelta(minutes=int(m))
                                for m in np.random.randint(0, 240, n)],
     })
-    # 目标:简单线性 + 噪声
+    # Target: simple linear + noise
     df["TAXITIME_SEC_mvt"] = 600 + np.random.normal(0, 100, n)
 
-    print(f"Mock 数据: {df.shape}")
+    print(f"Mock data: {df.shape}")
 
     import time
     t0 = time.time()
     df_agg = add_aggregate_features(df, windows_min=(15, 30))
-    print(f"\n耗时: {time.time() - t0:.2f}s")
-    print(f"输出形状: {df_agg.shape}")
-    print(f"新增列: {[c for c in df_agg.columns if c not in df.columns]}")
-    print(f"\n聚合特征示例:\n{df_agg[[c for c in df_agg.columns if 'airport_15m' in c or 'airport_30m' in c]].head()}")
+    print(f"\nTime taken: {time.time() - t0:.2f}s")
+    print(f"Output shape: {df_agg.shape}")
+    print(f"New columns: {[c for c in df_agg.columns if c not in df.columns]}")
+    print(f"\nAggregate feature example:\n{df_agg[[c for c in df_agg.columns if 'airport_15m' in c or 'airport_30m' in c]].head()}")

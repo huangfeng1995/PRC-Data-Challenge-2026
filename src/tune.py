@@ -1,17 +1,17 @@
 """
-Optuna 自动调参脚本
-===================
+Optuna auto-tuning script
+=========================
 
-从 2025 第 2 名 jubilant-vase 学到:
+Learned from the 2nd place of 2025 jubilant-vase:
 "Hyperparameter optimization via Optuna with K-fold CV"
 
-策略:
-- 用 Optuna 搜索 XGBoost 超参(learning_rate, max_depth, min_child_weight, subsample, colsample_bytree, reg_lambda)
-- 目标:在 winter 主验证集上的 RMSE
-- 30 次 trials(平衡时间和收益)
-- 完成后输出最优参数,可以直接传给 train_xgb.py / train_ensemble.py
+Strategy:
+- Use Optuna to search the XGBoost hyperparameters (learning_rate, max_depth, min_child_weight, subsample, colsample_bytree, reg_lambda)
+- Objective: RMSE on the winter main validation set
+- 30 trials (balancing time and gain)
+- After it finishes, output the best parameters, which can be passed directly to train_xgb.py / train_ensemble.py
 
-使用:
+Usage:
     python -m src.tune --data-dir data/raw --feature-set all --n-trials 30
 """
 
@@ -33,12 +33,12 @@ from src.train_ensemble import build_full_features
 from src.validation import evaluate, time_split_winter
 
 
-# Optuna 默认不开 verbose,自己控制
+# Optuna verbose is off by default, we control it ourselves
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
 def objective_xgb(trial: optuna.Trial, X_tr, y_tr, X_va, y_va) -> float:
-    """单次 trial:训练 XGBoost 并返回验证 RMSE。"""
+    """A single trial: train XGBoost and return the validation RMSE."""
     import xgboost as xgb
 
     params = {
@@ -75,7 +75,7 @@ def objective_xgb(trial: optuna.Trial, X_tr, y_tr, X_va, y_va) -> float:
 
 
 def objective_lgb(trial: optuna.Trial, X_tr, y_tr, X_va, y_va) -> float:
-    """单次 trial:训练 LightGBM 并返回验证 RMSE。"""
+    """A single trial: train LightGBM and return the validation RMSE."""
     import lightgbm as lgb
 
     params = {
@@ -115,13 +115,13 @@ def run_tuning(
     data_dir: str = "data/raw",
     feature_set: str = "all",
     model_type: str = "xgb",
-    n_trials: int = 50,  # v2:50 是甜蜜点(参考 2025 第 3 名 v18 160 trials 过拟合案例)
-    subsample: float = 0.25,  # v2:默认用 25% 数据调参,避免超时
+    n_trials: int = 50,  # v2: 50 is the sweet spot (referencing the 2025 3rd place v18 case where 160 trials overfit)
+    subsample: float = 0.25,  # v2: tune on 25% of the data by default to avoid a timeout
     tracking_uri: str = "mlruns",
     experiment_name: str = "prc-2026-tuning",
     cache_path: str | None = None,
 ) -> dict:
-    """跑 Optuna 调参。"""
+    """Run Optuna tuning."""
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(experiment_name)
 
@@ -131,9 +131,9 @@ def run_tuning(
         mlflow.log_param("n_trials", n_trials)
 
         print("=" * 70)
-        print("1. 加载数据 + 构造特征...")
+        print("1. Loading data + building features...")
         if cache_path and Path(cache_path).exists():
-            print(f"  使用缓存: {cache_path}")
+            print(f"  Using cache: {cache_path}")
             df = pd.read_parquet(cache_path)
             feat_cols = [c for c in df.columns
                          if c in BASELINE_FEATURE_COLS or
@@ -144,42 +144,42 @@ def run_tuning(
             df = load_training(data_dir)
             df, feat_cols = build_full_features(df, feature_set=feature_set)
             if cache_path:
-                print(f"  保存缓存: {cache_path}")
+                print(f"  Saving cache: {cache_path}")
                 df.to_parquet(cache_path, index=False)
         df = df.dropna(subset=["TAXITIME_SEC_mvt"]).reset_index(drop=True)
         df = df[(df["TAXITIME_SEC_mvt"] > 30) & (df["TAXITIME_SEC_mvt"] < 10800)].reset_index(drop=True)
-        print(f"过滤后样本: {len(df):,}")
-        print(f"特征数: {len(feat_cols)}")
+        print(f"Samples after filtering: {len(df):,}")
+        print(f"Number of features: {len(feat_cols)}")
 
         _clear_cat_cache()
         X = df[feat_cols].copy()
         X = _encode_categoricals(X, fit=True)
         y = df["TAXITIME_SEC_mvt"]
 
-        # 用 winter 主验证
+        # Use the winter main validation
         split = time_split_winter(df)
         X_tr_full, y_tr_full = X[split.train_mask], y[split.train_mask]
         X_va, y_va = X[split.val_mask], y[split.val_mask]
 
-        # v2:subsample 调参(默认 25%,可在 CLI 改)
+        # v2: subsample for tuning (25% by default, changeable via CLI)
         if subsample < 1.0:
             n_sub = int(len(X_tr_full) * subsample)
             X_tr = X_tr_full.sample(n=n_sub, random_state=42).sort_index()
             y_tr = y_tr_full.loc[X_tr.index]
-            print(f"训练(调参): {len(X_tr):,} (subsample={subsample}), 验证: {len(X_va):,}")
+            print(f"Train (tuning): {len(X_tr):,} (subsample={subsample}), val: {len(X_va):,}")
         else:
             X_tr, y_tr = X_tr_full, y_tr_full
-            print(f"训练: {len(X_tr):,}, 验证: {len(X_va):,}")
+            print(f"Train: {len(X_tr):,}, val: {len(X_va):,}")
 
-        print(f"\n2. 启动 Optuna 调参({model_type}, {n_trials} trials)...")
+        print(f"\n2. Starting Optuna tuning ({model_type}, {n_trials} trials)...")
 
-        # 选 objective
+        # Select the objective
         if model_type == "xgb":
             objective_fn = lambda trial: objective_xgb(trial, X_tr, y_tr, X_va, y_va)
         elif model_type == "lgb":
             objective_fn = lambda trial: objective_lgb(trial, X_tr, y_tr, X_va, y_va)
         else:
-            raise ValueError(f"未知 model_type: {model_type}")
+            raise ValueError(f"Unknown model_type: {model_type}")
 
         study = optuna.create_study(
             direction="minimize",
@@ -187,13 +187,13 @@ def run_tuning(
         )
         study.optimize(objective_fn, n_trials=n_trials, show_progress_bar=False)
 
-        print(f"\n3. 调参完成!")
-        print(f"   最优 RMSE: {study.best_value:.4f}")
-        print(f"   最优参数:")
+        print(f"\n3. Tuning finished!")
+        print(f"   Best RMSE: {study.best_value:.4f}")
+        print(f"   Best parameters:")
         for k, v in study.best_params.items():
             print(f"     {k}: {v}")
 
-        # 保存结果
+        # Save the results
         results_dir = Path("models")
         results_dir.mkdir(exist_ok=True)
         result_path = results_dir / f"tuned_{model_type}_params.json"
@@ -206,13 +206,13 @@ def run_tuning(
         mlflow.log_artifact(str(result_path))
         mlflow.log_metric("best_rmse", study.best_value)
 
-        # 记录所有 trials
+        # Record all trials
         trials_df = study.trials_dataframe()
         trials_csv = results_dir / f"tuned_{model_type}_trials.csv"
         trials_df.to_csv(trials_csv, index=False)
         mlflow.log_artifact(str(trials_csv))
 
-        print(f"\n✅ 调参结果已保存:")
+        print(f"\n✅ Tuning results saved:")
         print(f"   - {result_path}")
         print(f"   - {trials_csv}")
 
@@ -224,15 +224,15 @@ def run_tuning(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="PRC 2026 Optuna 调参")
+    parser = argparse.ArgumentParser(description="PRC 2026 Optuna tuning")
     parser.add_argument("--data-dir", default="data/raw")
     parser.add_argument("--feature-set", default="all", choices=["basic", "domain", "aggregate", "all"])
     parser.add_argument("--model-type", default="xgb", choices=["xgb", "lgb"])
-    parser.add_argument("--n-trials", type=int, default=50, help="默认 50 trials(v2 推荐)")
+    parser.add_argument("--n-trials", type=int, default=50, help="default 50 trials (recommended in v2)")
     parser.add_argument("--tracking-uri", default="mlruns")
     parser.add_argument("--subsample", type=float, default=0.25,
-                        help="v2:只用训练数据的 N 做调参(默认 0.25 = 25%),避免 200 万行跑 17 小时")
-    parser.add_argument("--cache", default=None, help="features 缓存 parquet 路径(跳过 lag/lead 重算)")
+                        help="v2: only use N of the training data for tuning (default 0.25 = 25%), avoids 17 hours on 2 million rows")
+    parser.add_argument("--cache", default=None, help="path to the features cache parquet (skips recomputing lag/lead)")
     args = parser.parse_args()
 
     result = run_tuning(
@@ -244,7 +244,7 @@ def main():
         tracking_uri=args.tracking_uri,
         cache_path=args.cache,
     )
-    print(f"\n📊 调参结果:\n{json.dumps(result, indent=2, default=str)}")
+    print(f"\nTuning results:\n{json.dumps(result, indent=2, default=str)}")
 
 
 if __name__ == "__main__":

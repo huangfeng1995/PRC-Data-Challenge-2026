@@ -1,50 +1,48 @@
-# 真榜战绩台账 · PRC 2026 Taxi-Time
+# Leaderboard Ledger · PRC 2026 Taxi-Time
 
-最后更新：2026-10-13
+Last updated: 2026-10-13
 
-## 最终提交（已上传）
+## Final submission (uploaded)
 
-| 项 | 值 |
+| Item | Value |
 |---|---|
-| **文件** | `submissions/jubilant-puzzle_final.parquet`（670,790 行） |
-| **上传时间** | 2026-10-13 |
-| **官方回执** | `Succeeded`，used_pairs=670,790，inputs=`final_submitting.parquet` |
-| **评分方式** | `jubilant-puzzle_final.parquet` 槽位**不即时出分**，赛后统一评分 |
-| **holdout 四月 RMSE** | **324.76**（mo1 405.49 / mo2 223.58 / mo6 300.62 / mo7 338.02） |
-| **vs LGB 基线 493.05** | **−34.1%**，10/10 机场不劣化，LIRF 1483.94 → 654.77 |
-| **配方** | noclip E2：LIRF T=14400 完整口径硬替换（63 行 pred==MVT−SCHED，**不 clip**）+ 全局 LOBT 窗口 [MVT−LOBT±3606] 投影 + 其余 LGB 3-seed 基线 + clip[30,10800] |
+| **File** | `submissions/jubilant-puzzle_final.parquet` (670,790 rows) |
+| **Uploaded** | 2026-10-13 |
+| **Official receipt** | `Succeeded`, used_pairs=670,790, inputs=`final_submitting.parquet` |
+| **Scoring** | The `jubilant-puzzle_final.parquet` slot does **not** score immediately; it is evaluated after the deadline |
+| **Four-month holdout RMSE** | **324.76** (mo1 405.49 / mo2 223.58 / mo6 300.62 / mo7 338.02) |
+| **vs LGB baseline 493.05** | **−34.1%**, 10/10 airports no worse, LIRF 1483.94 → 654.77 |
+| **Recipe** | noclip E2: LIRF T=14400 full-rule hard replacement (63 rows with pred == MVT−SCHED, **not clipped**) + global LOBT window `[MVT − LOBT ± 3606]` projection + LGB 3-seed baseline elsewhere + clip[30, 10800] |
 
-**当前真榜最佳（leaderboard 试错口径）**：v22 = 360.8565（truthing.parquet 344,841 行）。final 槽位换用
-final_submitting.parquet 670,790 行，与 truthing 口径不可直接比较；按 v22 偏移（holdout 342.40 → 真榜 360.86）
-推算 final 官方分预期区间 335–370（中位 ≈345）。
+**Best leaderboard score (immediate-scoring path)**: v22 = 360.8565 (`truthing.parquet`, 344,841 rows). The final slot uses `final_submitting.parquet` (670,790 rows) instead, which is not directly comparable to the truthing scope; extrapolating from the v22 offset (holdout 342.40 → leaderboard 360.86) puts the final official score in the **335–370** range.
 
-### noclip 决策链（为何 63 行允许 >10800）
+### The noclip decision chain (why 63 rows are allowed to exceed 10,800 s)
 
-- v22 真榜 360.86 **未 clip**：43/43 修复行预测逐字等于 MVT−SCHED（差值=0），max=111,654，官方接受
-- 命中行真实标签：2025 中位 20,576s、88.2% >10800、max 131,167s——真实极端运行而非异常值
-- clip 使命中行 RMSE 7,918 → 33,313（4.2 倍）；holdout 四月 noclip 324.76 vs clip 460.87
-- 命中行 100% 整套时刻缺失（ADEP_flt/BLOCK/EOBT_1/IOBT/AOBT_3/LOBT），LOBT 窗口对其结构性无效
-- Gate 13 项全过（commit 138a122，`notebooks/diag/d0/gate_noclip.py`）
+- v22's leaderboard run (360.86) was **unclipped**: all 43 repaired rows predicted exactly `MVT − SCHED` (difference = 0), max = 111,654 s, accepted by the official scorer
+- True labels on hit rows: 2025 median 20,576 s, 88.2% > 10,800 s, max 131,167 s — genuine extreme operations, not outliers
+- Clipping inflates RMSE on those rows from 7,918 → 33,313 (4.2×); four-month holdout noclip 324.76 vs clip 460.87
+- Hit rows have 100% of the schedule missing (`ADEP_flt`/`BLOCK`/`EOBT_1`/`IOBT`/`AOBT_3`/`LOBT`), so the LOBT window is structurally useless for them
+- All 13 Gate checks pass (commit 138a122, `notebooks/diag/d0/gate_noclip.py`)
 
-## 全部提交记录
+## All submission records
 
-| 版本 | 真榜 RMSE | Δ vs 上一版 | 说明 |
+| Version | Leaderboard RMSE | Δ vs previous | Note |
 |---|---:|---:|---|
-| v15 | 532.2765 | — | 全年训练 LGB 基线 |
-| v17 | 578.60 | +46.3 | 旧 XGB/LGB blend |
+| v15 | 532.2765 | — | Full-year trained LGB baseline |
+| v17 | 578.60 | +46.3 | Older XGB/LGB blend |
 | v18 | 538.22 | −40.4 | LGB 3-seed full |
-| v21 | 363.5146 | **−168.77** | LIRF 损坏行复现，T=21600，改 26 行 |
-| **v22** | **360.8565** | **−2.65** | 同上，T=14400，改 43 行（新增 17） |
-| v23 | 392.5762 | **+31.72** | P50(quantile α=0.5) 全年重训 + LIRF T=14400，**目标函数改动反而劣化** |
-| final | 赛后出分 | — | **noclip E2**（holdout 324.76），670,790 行，2026-10-13 上传 `jubilant-puzzle_final.parquet` 槽位，官方回执 Succeeded |
+| v21 | 363.5146 | **−168.77** | LIRF corrupted-row replication, T=21600, 26 rows changed |
+| **v22** | **360.8565** | **−2.65** | Same, T=14400, 43 rows changed (17 new) |
+| v23 | 392.5762 | **+31.72** | P50 (quantile α=0.5) full-year retrain + LIRF T=14400 — **objective change made it worse** |
+| final | post-deadline | — | **noclip E2** (holdout 324.76), 670,790 rows, uploaded 2026-10-13, receipt `Succeeded` |
 
-## v23 失败归因（真榜已验证）
+## v23 failure attribution (verified on the leaderboard)
 
-v23 = P50 目标 + LIRF T=14400，是 v15(L2) 的目标函数替换版。真榜 **392.58**，比 v22 劣化 **31.72s**。
+v23 = P50 objective + LIRF T=14400, i.e. the objective-function replacement of v15 (L2). Leaderboard result **392.58**, **31.72 s worse** than v22.
 
-差异结构（v23 − v22，344,798 行，剔除 43 行 LIRF 修复）：
+Difference structure (v23 − v22, 344,798 rows, excluding the 43 LIRF repairs):
 
-| 统计量 | v22 | v23 | 比值 |
+| Statistic | v22 | v23 | Ratio |
 |---|---:|---:|---:|
 | mean | 1026.8 | 1046.0 | 1.019 |
 | p50 | 972.5 | 994.2 | 1.022 |
@@ -52,112 +50,90 @@ v23 = P50 目标 + LIRF T=14400，是 v15(L2) 的目标函数替换版。真榜 
 | p99 | 2155.4 | 2088.2 | 0.969 |
 | p99.9 | 3706.8 | 3022.3 | **0.815** |
 
-- **主体段整体上抬 2.2%**（p50~p90 一致 +2.2%），不是随机噪声
-- **尾部被压缩**：p99.9 比值 0.815；按 v22 分档，`[3600,10800)` 段均值从 4794.7 掉到 3376.9（**−1417.8s**）
-- diff-SSE 归因：`[600,1800)` 占 52.1%、`[1800,3600)` 占 26.0%、`[3600,10800)` 占 20.9%
-- 按 \|Δ\| 分档：`|Δ|∈[200,1000)` 的 23,154 行贡献 48.1% diff-SSE，`|Δ|>1000` 的 558 行贡献 28.3%
+- **The body of the distribution shifts up ~2.2%** (consistent +2.2% from p50 to p90) — not random noise
+- **The tail is compressed**: p99.9 ratio 0.815; bucketed by v22, the mean of the `[3600, 10800)` segment drops from 4,794.7 to 3,376.9 (**−1,417.8 s**)
+- diff-SSE attribution: `[600, 1800)` accounts for 52.1%, `[1800, 3600)` 26.0%, `[3600, 10800)` 20.9%
+- Bucketed by |Δ|: the 23,154 rows with `|Δ| ∈ [200, 1000)` contribute 48.1% of diff-SSE; the 558 rows with `|Δ| > 1000` contribute 28.3%
 
-**结论：P50 在真榜上不可用。** 内部 holdout 上 P50 优于 L2（core 306 vs 457），
-但真榜相反——因为榜单 RMSE 由**极端长尾**主导，而 P50 作为中位数估计器
-天然压缩上尾（p99.9 只有 L2 的 81.5%），在平方损失下被重罚。
+**Conclusion: P50 is unusable on this leaderboard.** On internal holdout, P50 beats L2 (core 306 vs 457); on the leaderboard the opposite holds — because the leaderboard RMSE is dominated by the **extreme tail**, and P50 as a median estimator compresses the upper tail by construction (p99.9 only 81.5% of L2), which is heavily penalised under squared loss.
 
-内部 holdout 结论与真榜相反的根因：holdout 的 core 段（`y<=10800`）过滤掉了
-长尾主导项，而榜单 full RMSE 不做任何过滤。**holdout 的 core 口径会系统性高估 P50。**
+Root cause of the holdout/leaderboard disagreement: the holdout `core` scope (`y <= 10800`) filters out the tail-dominated terms, while leaderboard full RMSE applies no filtering. **The holdout core scope systematically over-estimates P50.**
 
-### 消融实验：把三个混淆因素拆开
+### Ablation: separating three confounded factors
 
-`notebooks/diag/d0/v23_ablation.py` — 同一 ES 划分（全年 MVT 排序最后 10%，208,505 行），
-seed=42，逐组隔离「目标函数 / 轮数 / 标签清洗」三个变量。
+`notebooks/diag/d0/v23_ablation.py` — same ES split (last 10% of the year by MVT order, 208,505 rows), seed=42, isolating objective / rounds / label cleaning one group at a time.
 
-| 组合 | 训练标签 | 轮数 | 目标 | ES full | ES core |
+| Combination | Training labels | Rounds | Objective | ES full | ES core |
 |---|---|---:|---|---:|---:|
-| L2 r2000 dirty | 未清洗 | 1160 | L2 | **345.00** | 268.19 |
-| **L2 r3000 clean（= v15）** | 清洗 | 3000 | L2 | **354.70** | **254.70** |
-| L2 r2000 clean | 清洗 | 1996 | L2 | 356.29 | 256.78 |
-| P50 r2000 dirty（= v23） | 未清洗 | 2000 | P50 | 371.21 | 272.87 |
-| P50 r3000 clean | 清洗 | 3000 | P50 | 378.67 | 274.60 |
-| P50 r2000 clean | 清洗 | 2000 | P50 | 382.22 | 277.62 |
+| L2 r2000 dirty | uncleaned | 1160 | L2 | **345.00** | 268.19 |
+| **L2 r3000 clean (= v15)** | cleaned | 3000 | L2 | **354.70** | **254.70** |
+| L2 r2000 clean | cleaned | 1996 | L2 | 356.29 | 256.78 |
+| P50 r2000 dirty (= v23) | uncleaned | 2000 | P50 | 371.21 | 272.87 |
+| P50 r3000 clean | cleaned | 3000 | P50 | 378.67 | 274.60 |
+| P50 r2000 clean | cleaned | 2000 | P50 | 382.22 | 277.62 |
 
-**三个结论：**
+**Three conclusions:**
 
-1. **目标函数是唯一主因。** 每一对同口径对照，P50 都比 L2 差 **23~26s**：
-   dirty/r2000 差 26.21s，clean/r2000 差 25.93s，clean/r3000 差 23.97s。
-   与真榜实测的 31.72s 退化量级一致。
-2. **轮数不是原因。** L2 从 1996 → 3000 轮 full 反而略好（356.29 → 354.70）；
-   P50 从 2000 → 3000 轮也只改善 3.55s（382.22 → 378.67），远不够补平差距。
-3. **标签清洗不是原因。** 未清洗只影响 590 行（0.028%），dirty↔clean 的差异
-   在两个目标函数下方向一致、量级相当（+9.70s / −3.55s），属于噪声。
+1. **The objective function is the only main cause.** In every like-for-like pair, P50 is **23–26 s** worse than L2: dirty/r2000 by 26.21 s, clean/r2000 by 25.93 s, clean/r3000 by 23.97 s — consistent in magnitude with the 31.72 s degradation measured on the leaderboard.
+2. **Rounds are not the cause.** L2 from 1,996 → 3,000 rounds is marginally better on full (356.29 → 354.70); P50 from 2,000 → 3,000 rounds improves only 3.55 s (382.22 → 378.67), far short of closing the gap.
+3. **Label cleaning is not the cause.** Uncleaned labels affect only 590 rows (0.028%); the dirty↔clean difference is directionally consistent across both objectives and of comparable magnitude (+9.70 s / −3.55 s) — i.e. noise.
 
-**为什么 P50 必然更差：** RMSE 的最优估计是条件**均值**，L2 直接优化它。
-P50 优化条件**中位数**。当 `y|x` 右偏时中位数 < 均值，P50 系统性低估，
-且尾部压缩越厉害（p99.9 只有 L2 的 81.5%）平方损失惩罚越重。
-这是目标函数与评测指标的不匹配，不是训练不足。**分位数目标在本赛题上永久关闭。**
+**Why P50 must be worse:** the optimal estimator for RMSE is the conditional **mean**, which L2 optimises directly. P50 optimises the conditional **median**. When `y|x` is right-skewed the median sits below the mean, so P50 systematically underestimates, and the more the tail is compressed (p99.9 only 81.5% of L2) the heavier the squared-loss penalty. This is an objective/metric mismatch, not insufficient training. **Quantile objectives are permanently closed for this task.**
 
-## 当前最佳配方
+## Best recipe
 
 ```
-基础：v15 全年训练 ranking 预测
-规则：PHASE_mvt=='DEP' AND ADEP_mvt=='LIRF'
-      AND ADEP_flt 缺失 AND (MVT-SCHED) > 14400
-      → 预测改为 (MVT - SCHED)
+Base: v15 full-year trained ranking prediction
+Rule: PHASE_mvt=='DEP' AND ADEP_mvt=='LIRF'
+      AND ADEP_flt missing AND (MVT-SCHED) > 14400
+      → prediction becomes (MVT - SCHED)
 ```
 
-生成脚本：`notebooks/diag/d0/ranking_lirf_repair_t14400.py`
+Generator: `notebooks/diag/d0/ranking_lirf_repair_t14400.py`
 
-## 机制结论（已真榜验证）
+## Mechanism (verified on the leaderboard)
 
-LIRF 存在**标签损坏**：`BLOCK_TIME_UTC_mvt` 被 `SCHED_TIME_UTC_mvt` 顶替，
-导致 `TAXITIME = MVT - SCHED`。该恒等式在损坏行上 max 残差 60.0s、无一例外。
+LIRF has **label corruption**: `BLOCK_TIME_UTC_mvt` is overwritten by `SCHED_TIME_UTC_mvt`, which makes `TAXITIME = MVT - SCHED`. On corrupted rows this identity holds with max residual 60.0 s, without exception.
 
-- 损坏行占 holdout DEP 全量 **8.835%**（30,428/344,419）
-- LIRF 上 `BLOCK==SCHED` 基线率 **20.725%**，极端行里 **90.7%**
-- ranking 侧 BLOCK 被 blank（DEP 100% 为哨兵 `-9223372037`），故修复只能走 `MVT-SCHED`
-- 钥匙：`ADEP_flt` 缺失 ≡ `AOBT` 哨兵（ranking 侧均 5,290 行，完全共线）
-- **除 LIRF 外无第二机场可修**：LFPG 3 行是真实长时停场（BLOCK 比 SCHED 早 23h/15.6h），
-  EHAM/EGLL 极端行均非损坏。推广到全机场 = +54 ~ +112s 劣化
+- Corrupted rows are **8.835%** of the full holdout DEP set (30,428/344,419)
+- Baseline rate of `BLOCK==SCHED` at LIRF is **20.725%**, and **90.7%** within extreme rows
+- On the ranking side BLOCK is blanked (100% of DEP rows carry the sentinel `-9223372037`), so repair must go through `MVT-SCHED`
+- The key: `ADEP_flt` missing ≡ `AOBT` sentinel (both exactly 5,290 rows on the ranking side — perfectly collinear)
+- **LIRF is the only repairable airport**: the 3 LFPG rows are genuine long ground stays (BLOCK earlier than SCHED by 23 h / 15.6 h), and the extreme rows at EHAM/EGLL are all uncorrupted. Extending to all airports degrades by +54 to +112 s
 
-## 已关闭的方向（勿重复尝试）
+## Closed directions (do not retry)
 
-| 方向 | 结论 | 依据 |
+| Direction | Conclusion | Evidence |
 |---|---|---|
-| 保序回归校准 | 天花板 ≈ 0（交叉验证 −0.04s） | calib_ceiling |
-| 只喂 oof_pred 的 stacking | 无增益，条件均值最优解为恒等映射 | corrector_ab B 变体 |
-| 残差校正器（同族同特征） | 等价于继续 boosting，无新信息 | corrector_ab D 变体 +50~87s |
-| 直接校正（含特征） | 同样恶化 | corrector_ab C 变体 |
-| ARR 到港负荷特征 | 两档均与负荷无关，净 AUC 0.5146 < 现有密度 0.5400 | arr_load_diag |
-| log / Huber 目标函数 | log 使尾部更保守；Huber 需按残差量级选 alpha | ab_tail_objective |
-| 流体队列反演 | 长滑行段物理 RMSE 差 90%~968% | fluid_inversion |
-| 阈值继续下调 | T=14400 达成率仅 28%（预测 9.22s → 实际 2.65s） | v22 真榜 |
-| **P50 / quantile 目标** | **真榜 392.58，比 L2 劣化 31.72s；消融证明是目标函数本身，与轮数/标签清洗无关** | **v23 真榜 + v23_ablation** |
-| **BLOCK 回填到 LOBT/EOBT/IOBT** | **不成立**：`only_LOBT=0`、`only_IOBT=46`、`only_EOBT` 12,674 行 ADEP 缺失率 0%、precision 0.0000 | step1/2/3 取证 |
-| P80 放大尾部 / P50+P80 门控 | 局部长滑行改善，full/core 双双恶化 | ab_ratio_quantile |
-| 学习门控融合（物理 vs 数据） | AUC 0.939 但 core 几乎不动（308.20→308.19） | gate_ab |
+| Isotonic-regression calibration | Ceiling ≈ 0 (cross-validation −0.04 s) | calib_ceiling |
+| Stacking on `oof_pred` only | No gain; the optimal conditional-mean solution is the identity map | corrector_ab variant B |
+| Residual corrector (same family, same features) | Equivalent to just boosting further; no new information | corrector_ab variant D, +50–87 s |
+| Direct correction (with features) | Degrades likewise | corrector_ab variant C |
+| ARR arrival-load features | Independent of load at both quantile levels; net AUC 0.5146 < existing density 0.5400 | arr_load_diag |
+| log / Huber objectives | log makes the tail more conservative; Huber needs alpha chosen by residual scale | ab_tail_objective |
+| Fluid queue inversion | Physical RMSE 90%–968% worse on long-taxi segments | fluid_inversion |
+| Lowering the threshold further | T=14400 achieves only 28% (predicted 9.22 s → actual 2.65 s) | v22 leaderboard |
+| **P50 / quantile objectives** | **Leaderboard 392.58, 31.72 s worse than L2; ablation shows the objective itself is responsible, unrelated to rounds or label cleaning** | **v23 leaderboard + v23_ablation** |
+| **Back-filling `BLOCK` into LOBT/EOBT/IOBT** | **Does not hold**: `only_LOBT=0`, `only_IOBT=46`, and the 12,674 `only_EOBT` rows have a 0% ADEP miss rate with precision 0.0000 | step1/2/3 forensics |
+| P80 tail amplification / P50+P80 gating | Local long-taxi improvement, both full and core get worse | ab_ratio_quantile |
+| Learned gating fusion (physical vs data) | AUC 0.939 but core barely moves (308.20 → 308.19) | gate_ab |
+| Eight further non-LIRF tail families | EVT/GPD, quantile targets, log target, Huber, winsorisation, weighted loss, quantile compression, extreme-row rescue — all falsified. The tail is real physics (congestion/de-icing/weather) and cannot be compressed without extra information | method.md §4 |
 
-## 关键陷阱备忘
+## Pitfall notes
 
-1. **P0 评估口径有泄漏**：`p0_nine_model` 训练集含 1+7 月，core 304.94 是虚高值。
-   干净口径（train 2-6,8-12）同模型 core 431.27，差 164.84s。**不可作为基线锚点。**
-2. **`BLOCK_TIME_UTC_mvt` 在 ranking DEP 是哨兵值而非真实时间**，
-   误判为"可用"会导致结论完全错误。哨兵 = 负值 `-9223372037`（查负方向）。
-3. **`ADEP_mvt` 才是机场键**，`ADEP_flt` 在损坏行上本身缺失，用它过滤机场只得 2 行。
-4. **holdout 与 ranking 的命中集不同**：LIRF 满足 v21 规则 holdout 21 行 / ranking 26 行。
-5. **pandas datetime 转 int64 是微秒**，需先 `.astype("datetime64[ns]")` 再除 1e9。
-6. **特征缓存文件名不带 smoke/full 标识**，曾导致全量跑复用 smoke 抽样缓存。
-7. **holdout 的 `core` 口径（`y<=10800`）会系统性高估 P50/分位数类目标**。
-   v23 内部 core 更好，真榜反而劣化 31.72s。评估分位数目标必须用 **full RMSE**。
-8. **P50 会整体上抬主体段约 2.2%**（不只是压尾），说明它同时改变了条件中位数本身，
-   不是单纯的"截尾"效应。
+1. **The P0 evaluation scope leaks**: the `p0_nine_model` training set includes months 1 and 7, so core 304.94 is inflated. Under the clean scope (train 2-6, 8-12) the same model scores core 431.27 — a 164.84 s gap. **Not usable as a baseline anchor.**
+2. **`BLOCK_TIME_UTC_mvt` is a sentinel on ranking DEP, not a real time.** Misreading it as "usable" leads to entirely wrong conclusions. The sentinel is the negative value `-9223372037` (search in the negative direction).
+3. **`ADEP_mvt` is the airport key.** `ADEP_flt` is itself missing on corrupted rows, so filtering by it yields only 2 rows.
+4. **Hit sets differ between holdout and ranking**: under the v21 rule, LIRF matches 21 holdout rows vs 26 ranking rows.
+5. **pandas datetime → int64 yields microseconds**: cast with `.astype("datetime64[ns]")` before dividing by 1e9.
+6. **Feature cache filenames carry no smoke/full marker** — this once caused a full run to silently reuse a smoke-sample cache.
+7. **The holdout `core` scope (`y <= 10800`) systematically over-estimates P50 / quantile-type objectives.** v23 looked better on internal core yet degraded 31.72 s on the leaderboard. Quantile objectives must be judged with **full RMSE**.
+8. **P50 lifts the body of the distribution by ~2.2%** (not just tail compression), meaning it changes the conditional median itself — it is not a pure trimming effect.
 
-## 赛后状态（2026-10-13 收尾）
+## Post-deadline status (wrap-up 2026-10-13)
 
-- 最终提交已上传并被官方接收（`jubilant-puzzle_final.parquet`，Succeeded，670,790 行）
-- 10-03 之后的主线（见 `docs/method.md`）：noclip E2 锁定 → 物理约束二阶矩混合 σ →
-  损坏感知分层共形（h2 覆盖偏差 ≤0.0023）→ `supplementary/final_uncertainty.parquet`
-- 证伪新增：μ_total 概率混合点预测 788.01（0/10 机场，UQ 不做点预测）；
-  非 LIRF 长尾 8 类方法（EVT/GPD、分位数、log、Huber、winsorize、加权、分位压缩、极端行放回）全部无效——
-  长尾是真实物理现象（拥堵/除冰/天气），无额外信息不可压缩
-- 外部数据路线评估为不可行（剩余 <24h、adsb.lol 归档 420 GiB/30h、OpenSky 配额 4.5 天、
-  METAR 增益仅 2–8s），最终决策接受 324.76 上传
-- 早期挖掘备忘（10-02，供赛后复盘）：LIRF 修复仍有 340 行未覆盖（`ADEP_flt` 缺 +
-  `MVT−SCHED ≤ 14400`，phys 中位 6450s）；非 LIRF 但 `ADEP_flt` 缺的 4,907 行是最大未开采池，
-  但全机场推广实测 +54~112s 劣化，需更精细甄别键
+- The final submission was uploaded and accepted by the official scorer (`jubilant-puzzle_final.parquet`, `Succeeded`, 670,790 rows)
+- Main line after 10-03 (see `docs/method.md`): noclip E2 locked → physics-constrained second-moment mixture σ → damage-aware stratified conformal (h2 coverage deviation ≤ 0.0023) → `supplementary/final_uncertainty.parquet`
+- New falsified results: the μ_total probabilistic mixture as a point predictor scores 788.01 (0/10 airports improve) — so UQ does not produce point predictions
+- The external-data route was assessed as infeasible (< 24 h remaining, adsb.lol archive 420 GiB / 30 h, OpenSky quota 4.5 days, METAR worth only 2–8 s). The final decision was to upload at 324.76
+- Early-mining notes (10-02, kept for post-mortem): 340 rows remain unrepaired by the LIRF rule (`ADEP_flt` missing + `MVT − SCHED ≤ 14400`, phys median 6,450 s); the 4,907 non-LIRF rows with missing `ADEP_flt` are the largest untapped pool, but naive airport-wide extension measured +54 to +112 s worse, so a finer discriminating key is required

@@ -1,24 +1,24 @@
 """
-Lag / Lead 特征模块
-===================
+Lag / Lead feature module
+=========================
 
-从 2025 第 2 名 jubilant-vase 学到:
+Learned from the 2nd place of 2025 jubilant-vase:
 "context-Aware Features: Implementation of Lag/Lead features to capture flight dynamics"
 
-具体到 taxi-out:
-- **Lag**: 同一机场/跑道过去 N 分钟的统计(在 features_aggregate.py 里)
-- **Lead**: 同机场/跑道 未来 N 分钟的"已确认/已计划"航班密度
+Concretely for taxi-out:
+- **Lag**: statistics of the same airport/runway over the past N minutes (in features_aggregate.py)
+- **Lead**: density of "confirmed/scheduled" flights at the same airport/runway in the next N minutes
 
-Lead 特征反映了"我已经知道接下来会很挤,现在就应该预判 taxi-out 会变长"。
-但注意:Lead 只能用"已知/已计划"信息(EOBT_flt),不能引入 leakage。
+Lead features reflect "I already know it will get congested next, so I should predict now that taxi-out will grow".
+But note: Lead can only use "known/scheduled" information (EOBT_flt), it must not introduce leakage.
 
-⚠️ Lead 特征的可行性:
-- ranking 数据包含 PHASE=DEP 的所有航班信息,所以我们能算未来 30 分钟有几架
-- 不会引入 leakage,因为这些"未来的航班"在预测时是已知的
+Note on the feasibility of Lead features:
+- the ranking data contains information on all flights with PHASE=DEP, so we can count how many depart in the next 30 minutes
+- no leakage is introduced, because these "future flights" are known at prediction time
 
-性能说明(v3 cumsum 重构):
-  - 跟 features_aggregate 一样,把 O(N²) 换成 O(N) cumsum
-  - p90 用 np.percentile(切片版本)
+Performance notes (v3 cumsum refactor):
+  - same as features_aggregate, O(N²) replaced with O(N) cumsum
+  - p90 uses np.percentile (sliced version)
 """
 
 from __future__ import annotations
@@ -34,17 +34,17 @@ def _vectorized_future_window(
     target_col: str,
     window_min: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """向量化计算 (t, t + window_min] 窗口内的 count / mean / p90。
+    """Vectorized computation of count / mean / p90 inside the (t, t + window_min] window.
 
-    算法(O(N)):
-      1. 按 (group, time) 排序
+    Algorithm (O(N)):
+      1. Sort by (group, time)
       2. cumsum
-      3. 对每个 t_now:
-         - lo = k+1(不包含自己)
+      3. For each t_now:
+         - lo = k+1 (excluding itself)
          - hi = searchsorted(group_times, t_now + window, 'left')
          - count = cumcnt[hi] - cumcnt[lo]
 
-    返回三个 numpy 数组(count, mean, p90),按 df 原始顺序。
+    Returns three numpy arrays (count, mean, p90), in the original order of df.
     """
     n = len(df)
 
@@ -86,11 +86,11 @@ def _vectorized_future_window(
         cum_sum = np.concatenate([[0.0], np.cumsum(gsum, dtype="float64")])
         cum_cnt = np.concatenate([[0.0], np.cumsum(gcount, dtype="float64")])
 
-        # 窗口上界(每个时间点)
+        # Window upper bound (for each timestamp)
         t_hi_all = gtimes + window_ns
-        # searchsorted 返回 hi 索引(1-based 因为有哨兵)
+        # searchsorted returns the hi index (1-based because of the sentinel)
         hi_idx = np.searchsorted(gtimes, t_hi_all, side="left")  # 0..m
-        # lo = 自己位置 k+1(不含自己)
+        # lo = own position k+1 (excluding itself)
         cnt = cum_cnt[hi_idx] - cum_cnt[np.arange(1, m + 1)]
         s = cum_sum[hi_idx] - cum_sum[np.arange(1, m + 1)]
 
@@ -99,7 +99,7 @@ def _vectorized_future_window(
             mean_sorted = np.where(cnt > 0, s / np.maximum(cnt, 1), np.nan).astype("float32")
 
         p90_sorted = np.full(m, np.nan, dtype="float32")
-        # 用 max 替代 p90(性能与效果 trade-off)
+        # Use max instead of p90 (performance vs. effect trade-off)
         nonzero = cnt > 0
         if nonzero.any():
             for k in np.where(nonzero)[0]:
@@ -125,11 +125,11 @@ def _compute_future_for_group(
     target_col: str,
     windows_min: tuple[int, ...],
 ) -> dict[int, dict[str, np.ndarray]]:
-    """对单个 group,一次扫描算多个窗口的 count/mean/p90(lead = 未来窗口)。
+    """For a single group, compute count/mean/p90 for multiple windows in one scan (lead = future window).
 
-    v3.6 fix: 同 _compute_past_for_group,NaT 时间戳行输出 NaN 而非"全历史"。
+    v3.6 fix: same as _compute_past_for_group, rows with a NaT timestamp output NaN instead of "all history".
 
-    返回: dict {window_min: {"count": arr, "mean": arr, "p90": arr}} 按原 df 顺序
+    Returns: dict {window_min: {"count": arr, "mean": arr, "p90": arr}} in the original df order
     """
     n = len(df)
 
@@ -140,7 +140,7 @@ def _compute_future_for_group(
     _, groups = np.unique(groups_raw, return_inverse=True)
     groups = groups.astype(np.int64)
 
-    # v3.6 fix: 识别 NaT 行
+    # v3.6 fix: identify NaT rows
     times = pd.to_datetime(df[time_col]).values.astype("datetime64[ns]")
     INT64_MIN = np.iinfo(np.int64).min
     times_int = times.view("i8")
@@ -149,7 +149,7 @@ def _compute_future_for_group(
     raw_targets = df[target_col].values
     target_nan_mask = np.isnan(raw_targets)
 
-    # 把 NaT 替换为最大 key 排到最后
+    # Replace NaT with the max key so it sorts last
     safe_times_int = np.where(valid_time_mask, times_int, np.iinfo(np.int64).max)
 
     order = np.lexsort((safe_times_int, groups))
@@ -192,7 +192,7 @@ def _compute_future_for_group(
             s = cum_sum[hi_idx] - cum_sum[np.arange(1, m + 1)]
             mean_v = np.where(cnt > 0, s / np.maximum(cnt, 1), np.nan).astype("float32")
 
-            # v3.6 fix: 无效时间行 → NaN
+            # v3.6 fix: invalid time rows -> NaN
             cnt = np.where(time_valid_in_group, cnt, np.nan).astype("float32")
             mean_v = np.where(time_valid_in_group, mean_v, np.nan).astype("float32")
 
@@ -230,16 +230,16 @@ def add_lead_features(
     windows_min: tuple[int, ...] = (15, 30, 60),
     include_runway: bool = True,
 ) -> pd.DataFrame:
-    """加所有 lead(未来)特征。优化版:每个 group 内对所有窗口共享一次 cumsum。
+    """Add all lead (future) features. Optimized version: share one cumsum across all windows per group.
 
-    输出新列(默认):
-        - cnt_lead_airport_15m / 30m / 60m: 未来 N 分钟同机场起飞航班数
-        - mean_lead_taxi_airport_15m / 30m / 60m: 未来 N 分钟同机场平均 taxi-out
-        - p90_lead_taxi_airport_15m / 30m / 60m: 未来 N 分钟同机场 P90
-        - 跑道级同上
+    New output columns (default):
+        - cnt_lead_airport_15m / 30m / 60m: number of departures at the same airport in the next N minutes
+        - mean_lead_taxi_airport_15m / 30m / 60m: average taxi-out at the same airport in the next N minutes
+        - p90_lead_taxi_airport_15m / 30m / 60m: P90 at the same airport in the next N minutes
+        - same at the runway level
     """
     df = df.copy()
-    print(f"开始 lead 特征计算(ref={ref_time_col}, 机场={airport_col}, 跑道={include_runway and runway_col})...")
+    print(f"Starting lead feature computation (ref={ref_time_col}, airport={airport_col}, runway={include_runway and runway_col})...")
 
     import time
 
@@ -254,7 +254,7 @@ def add_lead_features(
         df, group_col=airport_col, time_col=ref_time_col,
         target_col=target_col, windows_min=windows_min,
     )
-    print(f"  机场级 ({time.time()-t0:.1f}s)")
+    print(f"  Airport level ({time.time()-t0:.1f}s)")
 
     for w in windows_min:
         df[f"cnt_lead_airport_{w}m"] = airport_ind[w]["count"]
@@ -271,7 +271,7 @@ def add_lead_features(
             df, group_col=[airport_col, runway_col], time_col=ref_time_col,
             target_col=target_col, windows_min=windows_min,
         )
-        print(f"  跑道级 ({time.time()-t0:.1f}s)")
+        print(f"  Runway level ({time.time()-t0:.1f}s)")
 
         for w in windows_min:
             df[f"cnt_lead_runway_{w}m"] = runway_ind[w]["count"]
@@ -279,16 +279,16 @@ def add_lead_features(
             df[f"p90_lead_taxi_runway_{w}m"] = runway_taxi[w]["p90"]
 
     df = df.drop(columns=["__is_dep__"])
-    print(f"Lead 特征完成,新增 {len(windows_min) * (3 + (3 if include_runway else 0))} 列")
+    print(f"Lead features done, added {len(windows_min) * (3 + (3 if include_runway else 0))} columns")
     return df
 
 
 # ---------------------------------------------------------------------------
-# CLI 自测
+# CLI self-test
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    print("=== features_laglead 模块自测 ===\n")
+    print("=== features_laglead module self-test ===\n")
 
     np.random.seed(42)
     base_time = pd.Timestamp("2025-06-15 08:00:00", tz="UTC")
@@ -303,11 +303,11 @@ if __name__ == "__main__":
     })
 
     df_out = add_lead_features(df, windows_min=(15, 30))
-    print(f"\n输出形状: {df_out.shape}")
+    print(f"\nOutput shape: {df_out.shape}")
     new_cols = [c for c in df_out.columns if c not in df.columns]
-    print(f"新增列: {new_cols}")
+    print(f"New columns: {new_cols}")
 
-    # 验证:lead cnt 应该跟航班数成比例
-    print("\n样例:")
+    # Sanity check: lead cnt should be proportional to the number of flights
+    print("\nSample:")
     sample = df_out.sort_values("EOBT_1_flt").head(3)
     print(sample[["EOBT_1_flt", "ADEP_mvt", "cnt_lead_airport_15m", "cnt_lead_airport_30m"]])

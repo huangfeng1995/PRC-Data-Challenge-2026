@@ -1,20 +1,20 @@
 """
-三模型融合训练脚本
-==================
+Three-model ensemble training script
+===================================
 
-从 2025 第 2 名 jubilant-vase 学到:
+Learned from the 2nd place jubilant-vase in 2025:
 "Ensemble of three gradient boosting libraries to maximize performance and diversity"
 
-策略:
-1. XGBoost(主力,我们已有)
-2. LightGBM(用 try/except 包装,macOS 缺 libomp 时降级到单线程)
-3. CatBoost(可选)
+Strategy:
+1. XGBoost (main one, we already have it)
+2. LightGBM (wrapped in try/except, degrade to single thread when macOS lacks libomp)
+3. CatBoost (optional)
 
-融合方式:
-- 默认:加权平均(权重由 scipy.optimize.minimize 在 OOF 上学)
-- 也支持简单平均
+Blending method:
+- Default: weighted average (weights learned on OOF by scipy.optimize.minimize)
+- Simple average is also supported
 
-使用:
+Usage:
     python -m src.train_ensemble --data-dir data/raw --feature-set all
 """
 
@@ -42,9 +42,9 @@ from src.features_domain import (
 )
 from src.features_laglead import add_lead_features
 
-# 延迟 import train_xgb 的辅助函数 —— 因为 train_xgb 顶层 import xgboost 会触发
-# macOS 上的 libomp 缺失问题。这里只在 build_full_features 用到 _encode_categoricals
-# 时才 import。
+# Lazily import helper functions from train_xgb - because importing xgboost at the top level of
+# train_xgb triggers the missing-libomp problem on macOS. Here we only import _encode_categoricals
+# when it is used inside build_full_features.
 def _encode_categoricals_lazy(X, fit=False):
     from src.train_xgb import _encode_categoricals
     return _encode_categoricals(X, fit=fit)
@@ -57,11 +57,11 @@ from src.validation import evaluate, get_validation_splits
 
 
 # ---------------------------------------------------------------------------
-# 模型工厂
+# Model factory
 # ---------------------------------------------------------------------------
 
 class ModelWrapper:
-    """统一 XGB / LGB / CatBoost 的接口,方便融合。"""
+    """Unified interface for XGB / LGB / CatBoost, to make blending easier."""
 
     def __init__(self, name: str, model):
         self.name = name
@@ -93,7 +93,7 @@ class ModelWrapper:
             m.load_model(str(path))
             return CATWrapper(m)
         else:
-            raise ValueError(f"未知模型: {name}")
+            raise ValueError(f"unknown model: {name}")
 
 
 class XGBWrapper(ModelWrapper):
@@ -102,7 +102,7 @@ class XGBWrapper(ModelWrapper):
 
     def fit(self, X, y, eval_set=None, **kwargs):
         import xgboost as xgb
-        params = self.model  # 在 fit 前 params 放在 model 字段
+        params = self.model  # before fit, params are placed in the model field
         dtrain = xgb.DMatrix(X, label=y)
         evals = [(dtrain, "train")]
         if eval_set:
@@ -181,7 +181,7 @@ class CATWrapper(ModelWrapper):
 
 
 # ---------------------------------------------------------------------------
-# 默认超参
+# Default hyperparameters
 # ---------------------------------------------------------------------------
 
 DEFAULT_XGB_PARAMS = {
@@ -228,7 +228,7 @@ DEFAULT_CAT_PARAMS = {
 
 
 # ---------------------------------------------------------------------------
-# 特征构建(集中管理,避免和 train_xgb 重复)
+# Feature construction (centralized, to avoid duplication with train_xgb)
 # ---------------------------------------------------------------------------
 
 def build_full_features(
@@ -236,13 +236,13 @@ def build_full_features(
     feature_set: str = "all",
     te_mappings: dict | None = None,
 ) -> tuple[pd.DataFrame, list[str]]:
-    """构造完整特征矩阵,返回 (df, feat_cols)。
+    """Build the full feature matrix, return (df, feat_cols).
 
-    参数:
-        df: 原始数据
-        feature_set: 同前
-        te_mappings: 训练时学到的 TE 映射 dict(用于 ranking 推理时复用,
-                  避免 ranking 没有 TAXITIME_SEC_mvt 而无法计算 TE)
+    Parameters:
+        df: raw data
+        feature_set: same as before
+        te_mappings: TE mapping dict learned at training time (reused during ranking inference,
+                  avoiding the inability to compute TE because ranking has no TAXITIME_SEC_mvt)
     """
     _clear_cat_cache_lazy()
 
@@ -265,9 +265,9 @@ def build_full_features(
         df = add_domain_features(df)
         df = add_aggregate_features(df)
         df = add_lead_features(df)
-        # 目标编码
-        # 训练时:df 含 TAXITIME_SEC_mvt,直接 fit
-        # 推理时:taxi-out 被屏蔽,必须用 te_mappings(从训练时保存)
+        # Target encoding
+        # At training time: df contains TAXITIME_SEC_mvt, fit directly
+        # At inference time: taxi-out is masked, must use te_mappings (saved at training time)
         if "TAXITIME_SEC_mvt" in df.columns and df["TAXITIME_SEC_mvt"].notna().sum() > 100:
             df = add_target_encodings_with_mapping(df)
         elif te_mappings is not None:
@@ -283,27 +283,27 @@ def build_full_features(
             + te_cols
         )
     else:
-        raise ValueError(f"未知 feature_set: {feature_set}")
+        raise ValueError(f"unknown feature_set: {feature_set}")
 
     return df, feat_cols
 
 
 # ---------------------------------------------------------------------------
-# 融合权重优化
+# Blend weight optimization
 # ---------------------------------------------------------------------------
 
 def optimize_blend_weights(
     oof_preds: dict[str, np.ndarray],
     y_true: np.ndarray,
 ) -> tuple[dict[str, float], float]:
-    """用 scipy.optimize.minimize 在 OOF 预测上学最优融合权重。"""
+    """Learn the optimal blend weights on OOF predictions using scipy.optimize.minimize."""
     from scipy.optimize import minimize
 
     model_names = list(oof_preds.keys())
     n = len(model_names)
 
     def rmse_loss(weights):
-        # 权重归一化到 sum=1
+        # Normalize weights to sum=1
         w = np.maximum(weights, 0)
         if w.sum() == 0:
             w = np.ones(n) / n
@@ -314,7 +314,7 @@ def optimize_blend_weights(
             y_blend += w[i] * oof_preds[name]
         return float(np.sqrt(np.mean((y_blend - y_true) ** 2)))
 
-    # 初值:均匀权重
+    # Initial value: uniform weights
     x0 = np.ones(n) / n
     bounds = [(0, 1)] * n
     result = minimize(rmse_loss, x0, method="SLSQP", bounds=bounds)
@@ -329,41 +329,41 @@ def median_blend(
     oof_preds: dict[str, np.ndarray],
     y_true: np.ndarray,
 ) -> tuple[float, dict[str, float]]:
-    """Median voting 融合(从 2024 第 4 名 team_brave_pillow 学到)。
+    """Median voting blend (learned from the 4th place team_brave_pillow in 2024).
 
-    对每个样本,取所有模型预测的**中位数**(不是均值)。
-    在长尾多 / outlier 多的场景下,median 比 mean 更鲁棒。
+    For each sample, take the **median** (not the mean) of all model predictions.
+    In scenarios with many long-tail / outlier cases, median is more robust than mean.
     """
     preds_matrix = np.column_stack(list(oof_preds.values()))
     y_blend = np.median(preds_matrix, axis=1)
     rmse = float(np.sqrt(np.mean((y_blend - y_true) ** 2)))
-    # median 没法直接给"权重",我们用 uniform weights 作为记号
+    # median cannot directly give "weights", we use uniform weights as a notation
     weights = {name: 1.0 / len(oof_preds) for name in oof_preds}
     return rmse, weights
 
 
 # ---------------------------------------------------------------------------
-# 主实验
+# Main experiment
 # ---------------------------------------------------------------------------
 
 def run_ensemble_experiment(
     data_dir: str = "data/raw",
     feature_set: str = "all",
-    models: tuple[str, ...] = ("xgb", "lgb", "cat"),  # 三模型融合(v2:参考 2025 第 2 名 CatBoost 拿 64% 权重)
-    n_seeds: int = 5,  # 每个模型跑几个不同 seed,默认 5(从 2024 第 1 名学到)
+    models: tuple[str, ...] = ("xgb", "lgb", "cat"),  # three-model ensemble (v2: referencing the 2nd place in 2025 who got 64% weight with CatBoost)
+    n_seeds: int = 5,  # how many different seeds to run per model, default 5 (learned from 1st place in 2024)
     tracking_uri: str = "mlruns",
     experiment_name: str = "prc-2026-ensemble",
     cache_path: str | None = None,
 ) -> dict:
-    """跑一次多模型 + 多 seed 融合实验。
+    """Run one multi-model + multi-seed ensemble experiment.
 
-    从 2024 第 1 名 team_likable_jelly 学到:同一模型不同 seed 的平均,
-    能让 RMSE 进一步降低 1-3%。
+    Learned from the 1st place team_likable_jelly in 2024: averaging the same model over different seeds
+    can further reduce RMSE by 1-3%.
 
-    参数:
-        n_seeds: 每个模型跑几个 seed。设为 1 = 不平均,设 5 = 5 个 seed 平均,
-                 设 10 = 10 个(更稳但更慢)。
-        cache_path: features 缓存路径(跳过 lag/lead 重算,加速迭代)
+    Parameters:
+        n_seeds: how many seeds to run per model. 1 = no averaging, 5 = average of 5 seeds,
+                 10 = 10 seeds (more stable but slower).
+        cache_path: features cache path (skips lag/lead recomputation, speeds up iteration)
     """
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(experiment_name)
@@ -374,9 +374,9 @@ def run_ensemble_experiment(
         mlflow.log_param("n_seeds", n_seeds)
 
         print("=" * 70)
-        print("1. 加载数据 + 构造特征...")
+        print("1. Loading data + building features...")
         if cache_path and Path(cache_path).exists():
-            print(f"  使用缓存: {cache_path}")
+            print(f"  Using cache: {cache_path}")
             df = pd.read_parquet(cache_path)
             feat_cols = [c for c in df.columns
                          if c in BASELINE_FEATURE_COLS or
@@ -387,10 +387,10 @@ def run_ensemble_experiment(
             df = load_training(data_dir)
             df, feat_cols = build_full_features(df, feature_set=feature_set)
             if cache_path:
-                print(f"  保存缓存: {cache_path}")
+                print(f"  Saving cache: {cache_path}")
                 df.to_parquet(cache_path, index=False)
 
-        # v2:fit TE mapping 并保存,推理时复用(避免 ranking 缺 TAXITIME_SEC_mvt 时 TE 列缺失)
+        # v2: fit TE mappings and save them, reuse at inference time (avoid missing TE columns when ranking lacks TAXITIME_SEC_mvt)
         if (
             feature_set == "all"
             and "TAXITIME_SEC_mvt" in df.columns
@@ -401,35 +401,35 @@ def run_ensemble_experiment(
             self_te_mappings = None
         df = df.dropna(subset=["TAXITIME_SEC_mvt"]).reset_index(drop=True)
         df = df[(df["TAXITIME_SEC_mvt"] > 0) & (df["TAXITIME_SEC_mvt"] < 10800)].reset_index(drop=True)
-        # v2:从 EDA 看,taxi-out 有负数(数据 bug)和极端值(131167s)
-        print(f"过滤后样本: {len(df):,}")
-        print(f"特征数: {len(feat_cols)}")
+        # v2: from EDA, taxi-out has negatives (data bug) and extreme values (131167s)
+        print(f"samples after filtering: {len(df):,}")
+        print(f"number of features: {len(feat_cols)}")
 
-        # 编码 category 列
+        # Encode category columns
         X = df[feat_cols].copy()
         X = _encode_categoricals_lazy(X, fit=True)
         y = df["TAXITIME_SEC_mvt"]
 
-        print("\n2. 时序切分验证(winter + summer 两个 fold)...")
+        print("\n2. Time-series split validation (winter + summer, two folds)...")
         splits = get_validation_splits(df)
 
-        # v2:同时跑 winter + summer,选最优 fold 的 weights(测试集含 1 月+7 月)
+        # v2: run winter + summer at the same time, pick the weights of the best fold (test set contains Jan + Jul)
         primary_split = splits["winter"]
         secondary_split = splits["summer"]
         split = primary_split
         X_tr, y_tr = X[split.train_mask], y[split.train_mask]
         X_va, y_va = X[split.val_mask], y[split.val_mask]
-        print(f"训练: {len(X_tr):,}, 验证(winter): {len(X_va):,}")
-        print(f"训练: {len(X_tr):,}, 验证(summer): {secondary_split.n_val:,}")
+        print(f"train: {len(X_tr):,}, val (winter): {len(X_va):,}")
+        print(f"train: {len(X_tr):,}, val (summer): {secondary_split.n_val:,}")
 
-        # 3. 训练每个模型(每个模型跑 n_seeds 个 seed)
-        # 用 "model_name__seed_N" 作为 key 区分,融合时按 model_name 聚合
-        oof_preds = {}  # key 是 "xgb__seed_0", "xgb__seed_1", ...
-        trained_models = {}  # 同样的 key
-        all_metrics = {}  # key 是 "xgb__seed_0",值是 evaluate 返回的 dict(含 best_iter)
+        # 3. Train each model (each model runs n_seeds seeds)
+        # Use "model_name__seed_N" as key to distinguish, aggregate by model_name when blending
+        oof_preds = {}  # key is "xgb__seed_0", "xgb__seed_1", ...
+        trained_models = {}  # the same keys
+        all_metrics = {}  # key is "xgb__seed_0", value is the dict returned by evaluate (includes best_iter)
 
         for model_name in models:
-            print(f"\n3. 训练模型: {model_name} (×{n_seeds} seed)")
+            print(f"\n3. Training model: {model_name} (x{n_seeds} seed)")
             for seed_i in range(n_seeds):
                 seed_key = f"{model_name}__seed_{seed_i}"
                 try:
@@ -445,7 +445,7 @@ def run_ensemble_experiment(
                         try:
                             lgb.LGBMRegressor()
                         except Exception as e:
-                            print(f"  ⚠️ LightGBM 不可用({e}),跳过整个 lgb")
+                            print(f"  WARNING: LightGBM unavailable ({e}), skipping the whole lgb")
                             break
                         params = DEFAULT_LGB_PARAMS.copy()
                         params["seed"] = seed_i
@@ -458,7 +458,7 @@ def run_ensemble_experiment(
                         try:
                             from catboost import CatBoostRegressor  # noqa
                         except Exception as e:
-                            print(f"  ⚠️ CatBoost 不可用({e}),跳过整个 cat")
+                            print(f"  WARNING: CatBoost unavailable ({e}), skipping the whole cat")
                             break
                         params = DEFAULT_CAT_PARAMS.copy()
                         params["random_seed"] = seed_i
@@ -466,14 +466,14 @@ def run_ensemble_experiment(
                         wrapper.fit(X_tr, y_tr, eval_set=(X_va, y_va))
                         y_pred = wrapper.predict(X_va)
                     else:
-                        raise ValueError(f"未知模型: {model_name}")
+                        raise ValueError(f"unknown model: {model_name}")
 
                     metrics = evaluate(y_va.values, y_pred)
-                    print(f"  {seed_key} 指标: RMSE={metrics['rmse']:.2f}, MAE={metrics['mae']:.2f}")
+                    print(f"  {seed_key} metrics: RMSE={metrics['rmse']:.2f}, MAE={metrics['mae']:.2f}")
                     mlflow.log_metric(f"{seed_key}_rmse", metrics["rmse"])
                     mlflow.log_metric(f"{seed_key}_mae", metrics["mae"])
 
-                    # v3 bug fix:从 wrapper 拿 best_iteration(XGB 和 LGB 都有)
+                    # v3 bug fix: get best_iteration from the wrapper (both XGB and LGB have it)
                     best_iter = getattr(wrapper.model, "best_iteration", None)
                     if best_iter is None:
                         # CatBoost
@@ -484,19 +484,19 @@ def run_ensemble_experiment(
 
                     oof_preds[seed_key] = y_pred
                     trained_models[seed_key] = wrapper
-                    all_metrics[seed_key] = metrics  # v3 bug fix:save metrics for best_iter lookup
+                    all_metrics[seed_key] = metrics  # v3 bug fix: save metrics for best_iter lookup
 
                 except Exception as e:
-                    print(f"  ❌ {seed_key} 训练失败: {e}")
+                    print(f"  Training failed for {seed_key}: {e}")
                     continue
 
         if len(oof_preds) < 2:
-            print("\n⚠️ 至少需要 2 个模型才能融合,跳过融合步骤")
+            print("\nWARNING: at least 2 models are needed to blend, skipping the blending step")
             return {"run_id": run.info.run_id, "individual_metrics": {k: v for k, v in oof_preds.items()}}
 
-        # 4. 多 seed 平均 + 多模型融合
-        # 先按 model_name 做 seed 内的平均,得到每个 model 的"平均预测"
-        print("\n4. 多 seed 平均 + 优化融合权重...")
+        # 4. Multi-seed average + multi-model blending
+        # First average within seeds per model_name to get each model's "average prediction"
+        print("\n4. Multi-seed average + optimized blend weights...")
         model_avg_preds = {}
         for model_name in models:
             seeds_for_model = [k for k in oof_preds if k.startswith(f"{model_name}__")]
@@ -504,47 +504,47 @@ def run_ensemble_experiment(
                 continue
             avg_pred = np.mean([oof_preds[k] for k in seeds_for_model], axis=0)
             single_rmse = evaluate(y_va.values, avg_pred)["rmse"]
-            print(f"  {model_name}({len(seeds_for_model)} seed 平均): RMSE={single_rmse:.2f}")
+            print(f"  {model_name} (average of {len(seeds_for_model)} seeds): RMSE={single_rmse:.2f}")
             mlflow.log_metric(f"{model_name}_avg_rmse", single_rmse)
             model_avg_preds[model_name] = avg_pred
 
         if len(model_avg_preds) < 2:
-            print("  ⚠️ 只有一个模型可用,直接用其平均预测作为最终")
+            print("  WARNING: only one model is available, use its average prediction as the final one")
             final_rmse = evaluate(y_va.values, list(model_avg_preds.values())[0])["rmse"]
             weights = {list(model_avg_preds.keys())[0]: 1.0}
             blend_mode = "mean"
         else:
-            # 比较 mean 加权和 median voting(v2:参考 2024 第 4 名)
+            # Compare mean weighting vs median voting (v2: referencing the 4th place in 2024)
             mean_weights, mean_rmse = optimize_blend_weights(model_avg_preds, y_va.values)
             median_rmse, _ = median_blend(model_avg_preds, y_va.values)
-            print(f"  mean 融合 RMSE: {mean_rmse:.2f}, 权重: {mean_weights}")
-            print(f"  median 融合 RMSE: {median_rmse:.2f}")
+            print(f"  mean blend RMSE: {mean_rmse:.2f}, weights: {mean_weights}")
+            print(f"  median blend RMSE: {median_rmse:.2f}")
 
-            # 选最优的(自动比较两种策略)
+            # Choose the better one (automatically compares the two strategies)
             if median_rmse < mean_rmse:
-                print(f"  ✅ median 更好,选用 median")
+                print(f"  median is better, choosing median")
                 final_rmse = median_rmse
                 weights = {k: 1.0 / len(model_avg_preds) for k in model_avg_preds}
                 blend_mode = "median"
             else:
-                print(f"  ✅ mean 加权更好,选用 mean")
+                print(f"  weighted mean is better, choosing mean")
                 final_rmse = mean_rmse
                 weights = mean_weights
                 blend_mode = "mean"
-            print(f"  最终 RMSE: {final_rmse:.2f}, blend_mode = {blend_mode}")
+            print(f"  final RMSE: {final_rmse:.2f}, blend_mode = {blend_mode}")
 
         mlflow.log_metrics({f"weight_{k}": v for k, v in weights.items()})
         mlflow.log_metric("blend_rmse", final_rmse)
 
-        # v3.5:保存 OOF 验证模型(每个模型 × seed 单独保存),用于推理
-        # 即使 final 训练耗时太长,这些验证模型也能生成 ensemble 提交
+        # v3.5: save OOF validation models (each model x seed saved separately), used for inference
+        # Even if final training takes too long, these validation models can produce ensemble submissions
         models_dir = Path("models/ensemble_val")
         models_dir.mkdir(parents=True, exist_ok=True)
         for seed_key, wrapper in trained_models.items():
             save_path = models_dir / f"{seed_key}.pkl"
             wrapper.save(save_path)
-            print(f"  保存验证模型: {save_path}")
-        # 保存 weights + 一些推理所需元信息
+            print(f"  Saved validation model: {save_path}")
+        # Save weights + some metadata needed for inference
         meta = {
             "weights": weights,
             "blend_mode": blend_mode,
@@ -553,18 +553,18 @@ def run_ensemble_experiment(
             "feat_cols": feat_cols,
         }
         (models_dir / "weights.json").write_text(json.dumps(meta, indent=2, default=str))
-        print(f"  保存 weights: {models_dir / 'weights.json'}")
+        print(f"  Saved weights: {models_dir / 'weights.json'}")
 
-        # 5. 训练最终模型(全量 12 个月,每个模型 × n_seeds 个)
-        # v2:用验证阶段找到的 best_iteration × 1.1,而不是硬编码 500
-        print(f"\n5. 训练最终模型(全量,每个模型 × {n_seeds} seed)...")
-        # 计算每个模型的最终 num_boost_round:从验证阶段的 best_iteration × 1.1(全量数据多 20% 余量)
+        # 5. Train the final models (full 12 months, each model x n_seeds)
+        # v2: use the best_iteration found during validation x 1.1, instead of hardcoding 500
+        print(f"\n5. Training final models (full data, each model x {n_seeds} seed)...")
+        # Compute each model's final num_boost_round: best_iteration from validation phase x 1.1 (20% headroom for full data)
         model_best_iters = {}
         for model_name in models:
             seeds_for_model = [k for k in oof_preds if k.startswith(f"{model_name}__")]
             if not seeds_for_model:
                 continue
-            # 取该模型所有 seed 的 best_iteration 平均
+            # Take the average best_iteration of all seeds of that model
             best_iters = []
             for k in seeds_for_model:
                 v = all_metrics.get(k)
@@ -572,9 +572,9 @@ def run_ensemble_experiment(
                     best_iters.append(v["best_iter"])
             if best_iters:
                 avg_best = int(np.mean(best_iters))
-                # v2 bug fix:用 1.1x 而不是硬编码 500
+                # v2 bug fix: use 1.1x instead of hardcoding 500
                 model_best_iters[model_name] = max(int(avg_best * 1.1), 200)
-                print(f"  {model_name} 验证 best_iter 平均={avg_best}, final 用 {model_best_iters[model_name]}")
+                print(f"  {model_name} validation best_iter average={avg_best}, final uses {model_best_iters[model_name]}")
             else:
                 # fallback
                 model_best_iters[model_name] = 500
@@ -608,21 +608,21 @@ def run_ensemble_experiment(
                         cat = CatBoostRegressor(**params)
                         cat.fit(X, y, verbose=False)
                         final_models[seed_key] = CATWrapper(cat)
-                    print(f"  ✓ {seed_key} 全量训练完成({model_best_iters[model_name]} 轮)")
+                    print(f"  full-data training done for {seed_key} ({model_best_iters[model_name]} rounds)")
                 except Exception as e:
-                    print(f"  ⚠️ {seed_key} 全量训练失败: {e}")
+                    print(f"  Full-data training failed for {seed_key}: {e}")
 
-        # 6. 保存模型和权重
+        # 6. Save models and weights
         models_dir = Path("models")
         models_dir.mkdir(exist_ok=True)
         for name, wrapper in final_models.items():
             ext = "json" if "xgb" in name else ("txt" if "lgb" in name else "cbm")
             wrapper.save(models_dir / f"ensemble_{name}.{ext}")
         weights_path = models_dir / "ensemble_weights.json"
-        # v2:同时保存 TE mapping 给推理用
+        # v2: also save TE mappings for inference
         weights_dict = {
             "weights": weights,
-            "blend_mode": blend_mode,  # v2:mean 或 median
+            "blend_mode": blend_mode,  # v2: mean or median
             "feature_set": feature_set,
             "models": list(set(k.split("__seed_")[0] for k in final_models.keys())),
             "model_seeds": {k.split("__seed_")[0]: [k for k in final_models.keys() if k.startswith(k.split("__seed_")[0] + "__seed_")] for k in final_models.keys()},
@@ -633,7 +633,7 @@ def run_ensemble_experiment(
         weights_path.write_text(json.dumps(weights_dict, indent=2, default=str))
         mlflow.log_artifact(str(weights_path))
 
-        print(f"\n✅ 实验完成,run_id = {run.info.run_id}")
+        print(f"\nexperiment complete, run_id = {run.info.run_id}")
         return {
             "run_id": run.info.run_id,
             "individual_metrics": {k: float(evaluate(y_va.values, v)["rmse"]) for k, v in oof_preds.items()},
@@ -649,15 +649,15 @@ def run_ensemble_experiment(
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="PRC 2026 三模型融合训练")
+    parser = argparse.ArgumentParser(description="PRC 2026 three-model ensemble training")
     parser.add_argument("--data-dir", default="data/raw")
     parser.add_argument("--feature-set", default="all", choices=["basic", "domain", "aggregate", "all"])
-    parser.add_argument("--models", default="xgb,lgb,cat", help="逗号分隔,如 'xgb,lgb' 或 'xgb,lgb,cat' (默认三模型融合)")
+    parser.add_argument("--models", default="xgb,lgb,cat", help="comma separated, e.g. 'xgb,lgb' or 'xgb,lgb,cat' (default: three-model ensemble)")
     parser.add_argument("--n-seeds", type=int, default=5,
-                        help="每个模型跑几个 seed(从 2024 第 1 名学到),默认 5,推荐 5-10")
+                        help="how many seeds to run per model (learned from 1st place in 2024), default 5, recommend 5-10")
     parser.add_argument("--tracking-uri", default="mlruns")
     parser.add_argument("--cache", default=None,
-                        help="features 缓存 parquet 路径(跳过 lag/lead 重算)")
+                        help="features cache parquet path (skip lag/lead recomputation)")
     args = parser.parse_args()
 
     models = tuple(m.strip() for m in args.models.split(","))
@@ -669,7 +669,7 @@ def main():
         tracking_uri=args.tracking_uri,
         cache_path=args.cache,
     )
-    print(f"\n📊 最终结果:\n{json.dumps(result, indent=2, default=str)}")
+    print(f"\nfinal result:\n{json.dumps(result, indent=2, default=str)}")
 
 
 if __name__ == "__main__":

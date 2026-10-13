@@ -1,26 +1,26 @@
-# 🎉 沙箱 libomp 突破成功(2026-09-20)
+# 🎉 Sandbox libomp Breakthrough Succeeded (2026-09-20)
 
-## 问题
-macOS 沙箱没有 Homebrew,无法装 libomp,XGBoost/LightGBM 跑不起来。
+## Problem
+The macOS sandbox has no Homebrew, so libomp cannot be installed and XGBoost/LightGBM cannot run.
 
-## 解决方案(完整步骤)
+## Solution (complete steps)
 
-1. **下载预编译 OpenMP**(R-project 维护):
+1. **Download the precompiled OpenMP** (maintained by R-project):
    ```bash
    curl -L -o /tmp/openmp.tar.gz \
        https://mac.r-project.org/openmp/openmp-19.1.5-darwin20-Release.tar.gz
    tar -xzf /tmp/openmp.tar.gz -C /tmp/openmp-extract
    ```
 
-2. **复制到项目本地目录**:
+2. **Copy it to the project's local directory**:
    ```bash
    mkdir -p libomp/include libomp/lib
    cp /tmp/openmp-extract/usr/local/include/* libomp/include/
    cp /tmp/openmp-extract/usr/local/lib/* libomp/lib/
    ```
 
-3. **关键修复**:XGBoost 和 LightGBM 的 dylib 内部 rpath 写死了 `/opt/homebrew/opt/libomp/lib`,
-   我们需要把我们的 libomp 路径加进去:
+3. **Key fix**: the internal rpath of the XGBoost and LightGBM dylibs is hardcoded to `/opt/homebrew/opt/libomp/lib`,
+   we need to add our libomp path to it:
    ```bash
    # XGBoost
    XGB_PATH="/Users/openclaw/Library/Application Support/TRAE SOLO CN/ModularData/ai-agent/vm/tools/lib/python3.10/site-packages/xgboost/lib/libxgboost.dylib"
@@ -31,37 +31,37 @@ macOS 沙箱没有 Homebrew,无法装 libomp,XGBoost/LightGBM 跑不起来。
    install_name_tool -add_rpath "$PWD/libomp/lib" "$LGB_PATH"
    ```
 
-4. **MLflow 文件存储已被新版废弃**,设置环境变量绕开:
+4. **MLflow's file store has been deprecated in the new version**, set an environment variable to bypass it:
    ```bash
    export MLFLOW_ALLOW_FILE_STORE=true
    ```
 
-5. **修一个 _encode_categoricals 的 bug**:对 category 列 `fillna(-1)` 失败,要先转 str:
+5. **Fix a bug in _encode_categoricals**: `fillna(-1)` fails on category columns, so convert to str first:
    ```python
-   X[col] = X[col].astype(str)  # 先转 str
+   X[col] = X[col].astype(str)  # convert to str first
    X[col] = X[col].map(mapping).fillna(-1).astype("int32")
    ```
 
-## 实测 XGBoost baseline 结果(29 基础特征)
+## Measured XGBoost baseline results (29 basic features)
 
 ```
-winter_main RMSE: 318.16 秒
-summer_aux RMSE: 304.08 秒
-K 折平均:        308.12 ± 16.83
+winter_main RMSE: 318.16 seconds
+summer_aux RMSE: 304.08 seconds
+K-fold mean:      308.12 ± 16.83
 ```
 
-Top 5 重要特征:
-1. WK_TBL_CAT_flt(尾流等级)
-2. ADEP_mvt(机场)
-3. AIRCRAFT_TYPE_mvt(机型)
-4. RUNWAY_mvt(跑道)
-5. STAND_mvt(登机口)
+Top 5 most important features:
+1. WK_TBL_CAT_flt (wake turbulence category)
+2. ADEP_mvt (airport)
+3. AIRCRAFT_TYPE_mvt (aircraft type)
+4. RUNWAY_mvt (runway)
+5. STAND_mvt (stand)
 
-→ 5 个里 4 个是空间信息,**证实拥堵/lead 聚合特征的设计方向正确**。
+→ 4 out of these 5 are spatial information, **confirming that the design direction of the congestion/lead aggregate features is correct**.
 
-## 下一步
+## Next Steps
 
-- 全特征 baseline(77 特征)正在跑
-- 三模型融合(XGB+LGB+CatBoost)
-- 推理 + 生成 submission
-- 上传 OSN
+- The full-feature baseline (77 features) is running
+- Three-model ensemble (XGB+LGB+CatBoost)
+- Inference + generate the submission
+- Upload to OSN

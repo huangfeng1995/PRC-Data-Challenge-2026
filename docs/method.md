@@ -1,258 +1,242 @@
-# 离港推出滑行时间预测 — 方法说明
+# Taxi-Out Time Prediction — Method
 
-> 目标：预测 `TAXITIME_SEC_mvt`（离港航班推出滑行时间，秒）。
-> 最终提交覆盖 2026 年 1/2/6/7 四个月，DEP 共 670,790 行。
+> Task: predict `TAXITIME_SEC_mvt` (taxi-out time of departing flights, in seconds).
+> The final submission covers four months of 2026 (Jan / Feb / Jun / Jul), 670,790 DEP rows.
 
 ---
 
-## 1. 背景：LIRF 整套时刻缺失型标签损坏
+## 1. Background: LIRF label corruption with the entire schedule missing
 
-### 1.1 现象
+### 1.1 The phenomenon
 
-十个机场中，**LIRF（罗马菲乌米奇诺）**存在一类系统性的标签损坏。其特征是**整条记录只有 `MVT` 与 `SCHED` 两个时间戳有效**，其余全部缺失或被顶替：
+Among the ten airports, **LIRF (Rome Fiumicino)** exhibits a systematic label corruption pattern. Its signature is that **only two timestamps in the record — `MVT` and `SCHED` — are valid**, while everything else is either missing or overwritten:
 
-| 列 | 命中行缺失率 |
+| Column | Missing rate on hit rows |
 |---|---|
 | `ADEP_flt` | 100% |
 | `BLOCK_TIME_UTC` | 100% |
 | `EOBT_1_flt` / `IOBT_flt` / `AOBT_3_flt` / `LOBT_flt` | 100% |
 
-这不是"仅 BLOCK 损坏"，而是**整套时刻缺失**——修复时无法依赖任何其他时刻列。
+This is not "only `BLOCK` is corrupted" but rather **the entire schedule is missing** — no other timestamp column can be relied upon when repairing these rows.
 
-### 1.2 损坏行的判别口径
+### 1.2 Detection rule
 
 ```
-命中 = (ADEP == LIRF)
-       AND (ADEP_flt 缺失)
-       AND (MVT − SCHED > 14400)
+hit = (ADEP == LIRF)
+      AND (ADEP_flt is missing)
+      AND (MVT − SCHED > 14400)
 ```
 
-三个条件缺一不可。命中规模：
+All three conditions are required. Hit counts:
 
-| 数据集 | 命中行数 |
+| Dataset | Rows hit |
 |---|---|
-| 2026 真榜 ranking (Jan+Jul) | 43 |
+| 2026 leaderboard ranking (Jan+Jul) | 43 |
 | 2026 final (Jan/Feb/Jun/Jul) | **63** |
-| 2025 holdout 四个月 | 63 |
-| 2025 全 12 月 | 127 |
+| 2025 holdout (4 months) | 63 |
+| 2025 full 12 months | 127 |
 
-> 注：曾使用过不含 `ADEP_flt` 条件的**简化口径**（命中数会放大到 138/229 行），
-> 会引入大量正常航班。完整口径与 v22 真榜方案一致（2026 Jan+Jul 均为 43 行）。
+> Note: a **simplified rule** without the `ADEP_flt` condition was also tried (hit counts inflate to 138/229 rows) and pulls in many normal flights. The full rule matches the v22 leaderboard approach (43 rows for 2026 Jan+Jul).
 
-### 1.3 这些行的真实标签
+### 1.3 What the true labels look like
 
-2025 holdout 命中行的真实 `TAXITIME`：
+True `TAXITIME` on 2025 holdout hit rows:
 
-- 中位 **20,576s**、最大 131,167s
-- **88.2% 超过 10,800s**
+- Median **20,576 s**, max 131,167 s
+- **88.2% exceed 10,800 s**
 
-结论：这些是**真实极端长滑行**，不是数据错误。`MVT − SCHED` 是其唯一可用的点估计来源。
+Conclusion: these are **genuine extreme taxi events**, not data errors. `MVT − SCHED` is the only usable point-estimate source for them.
 
 ---
 
-## 2. 方法
+## 2. Method
 
-### 2.1 基线：LightGBM 71 特征
+### 2.1 Baseline: LightGBM with 71 features
 
-- 特征：71 维（时刻派生 + 机场/跑道/停机位 + 队列密度 + `t_unimp` + `rwy_month_share` + `ap_month_hourly_density`）
-- 模型：LGBM，3 seed（42/123/2024）简单平均
-- 严格 holdout：train = 2025-02..12（不含 1/7），holdout = 2025-01 + 2025-07
-- 所有 LUT / 目标编码 / `t_unimp` 统计**只用训练折**，推理时不接触 holdout 与 2026 任何标签
+- Features: 71-dimensional (timestamp-derived + airport/runway/stand + queue density + `t_unimp` + `rwy_month_share` + `ap_month_hourly_density`)
+- Model: LGBM, simple average over 3 seeds (42/123/2024)
+- Strict holdout: train = 2025-02..12 (excluding 1/7), holdout = 2025-01 + 2025-07
+- All LUT / target encoding / `t_unimp` statistics use **training folds only**; the inference path never touches holdout or any 2026 label
 
-**holdout 四个月 full RMSE = 493.05s**（mo=1: 493.67 / mo=2: 410.16 / mo=6: 388.92 / mo=7: 622.28）
+**Four-month holdout full RMSE = 493.05 s** (mo=1: 493.67 / mo=2: 410.16 / mo=6: 388.92 / mo=7: 622.28)
 
-### 2.2 损坏硬修复（完整口径，不 clip）
+### 2.2 Hard repair of corrupted rows (full rule, no clipping)
 
-对 1.2 节命中的行，**直接用 `MVT − SCHED` 替换模型预测**：
+For rows matched in §1.2, **replace the model prediction with `MVT − SCHED`**:
 
 ```python
-P[hit] = MVT[hit] - SCHED[hit]      # 不设上限
+P[hit] = MVT[hit] - SCHED[hit]      # no upper bound
 ```
 
-### 2.3 LOBT 物理窗口
+### 2.3 LOBT physical window
 
-`LOBT`（推出轮挡时刻）与 `MVT` 的差值 `d = |BLOCK − LOBT|` 在全量数据上存在**硬上界**：
+The difference between `LOBT` (push-back time) and `MVT`, `d = |BLOCK − LOBT|`, has a **hard upper bound** across the full dataset:
 
-| 分位 | p50 | p90 | p99 | p99.9 | max |
+| Quantile | p50 | p90 | p99 | p99.9 | max |
 |---|---|---|---|---|---|
-| 值(s) | 359 | 1143 | 2644 | 3479 | **3606** |
+| value (s) | 359 | 1143 | 2644 | 3479 | **3606** |
 
-`max = 3606s` 在 12 个月 × 10 个机场**恒定**，是上游数据源的物理截断。据此标定
-**T_lobt = 3606s**（100% 覆盖），将预测投影到物理可行区间：
+`max = 3606 s` is **constant** across 12 months × 10 airports — it is a physical truncation in the upstream data source. This calibrates **T_lobt = 3606 s** (100% coverage), and predictions are projected into the physically feasible interval:
 
 ```python
 ctr = MVT - LOBT
-P = clip(P, ctr - 3606, ctr + 3606)     # LOBT 缺失行跳过
+P = clip(P, ctr - 3606, ctr + 3606)     # rows with missing LOBT are skipped
 ```
 
-### 2.4 物理约束二阶矩混合 σ
+### 2.4 Physics-constrained second-moment mixture for σ
 
-**动机**：NGBoost 直接输出的 σ 在长尾处会爆炸（h1 实测 σ_max = **7.08e14**），
-且不区分"损坏"与"正常"两类异质机制。
+**Motivation**: σ emitted directly by NGBoost explodes in the tail (measured σ_max on h1 = **7.08e14**) and does not distinguish the two heterogeneous mechanisms — "corrupted" vs "normal".
 
-**做法**：把预测建模为两分量混合——
+**Approach**: model the prediction as a two-component mixture —
 
-- 损坏分量：物理有界 `μ_C = MVT − SCHED`，`σ_C = 100s`（常数，不随特征外推）
-- 正常分量：NGBoost 的 `μ_N, σ_N`，其中 `σ_N ← min(σ_N, 2000)`
-- 混合权重：拷贝分类器输出的 `p = P(拷贝损坏 | x)`（LGBM 二分类，71 特征，输出概率不 argmax）
+- Corrupted component: physically bounded `μ_C = MVT − SCHED`, `σ_C = 100 s` (constant, never extrapolated with features)
+- Normal component: NGBoost's `μ_N, σ_N`, with `σ_N ← min(σ_N, 2000)`
+- Mixing weight: `p = P(copy corruption | x)` from the copy classifier (LGBM binary, 71 features, outputs a probability — no argmax)
 
-点估计与二阶矩：
+Point estimate and second moment:
 
 ```
 μ  = p·μ_C + (1−p)·μ_N
 σ² = p·σ_C² + (1−p)·σ_N² + p(1−p)·(μ_C − μ_N)²
 ```
 
-第三项是两个分量均值差的方差贡献，在 `p` 不确定时显著放大 σ——
-这正是"模型不知道该信哪边"的不确定性表达。
+The third term is the variance contribution from the gap between the two component means; it inflates σ substantially when `p` is uncertain — exactly the expression of "the model does not know which side to trust".
 
-### 2.5 损坏感知共形
+### 2.5 Damage-aware conformal prediction
 
-用**校准集**（2025 月 `mo ∈ {3,4,5,8,9,10,11}`，与 holdout 不重叠）按层取不一致分数
-`s = |y − μ| / σ` 的分位数：
+Using a **calibration set** (2025 months `mo ∈ {3,4,5,8,9,10,11}`, disjoint from the holdout months), take per-stratum quantiles of the nonconformity score `s = |y − μ| / σ`:
 
-| 名义水平 | q_C（损坏层） | q_N（正常层） |
+| Nominal level | q_C (damaged stratum) | q_N (normal stratum) |
 |---|---|---|
 | 90% | 1.1341 | 1.4056 |
 | 95% | 1.6955 | 1.7433 |
 
-分层依据：`is_damaged = T14400命中 OR p > 0.5`。
+Stratification rule: `is_damaged = T14400 hit OR p > 0.5`.
 
-推理时区间 `[μ − q·σ, μ + q·σ]`，`q` 按该行所属层选取。
+At inference the interval is `[μ − q·σ, μ + q·σ]`, with `q` selected by the stratum the row belongs to.
 
 ---
 
-## 3. 关键结果
+## 3. Key results
 
-### 3.1 点预测（这是进入提交的方案）
+### 3.1 Point prediction (this is what went into the submission)
 
-| 方案 | mo=1 | mo=2 | mo=6 | mo=7 | 四个月 |
+| Approach | mo=1 | mo=2 | mo=6 | mo=7 | 4 months |
 |---|---|---|---|---|---|
-| LGB 基线 | 493.67 | 410.16 | 388.92 | 622.28 | 493.05 |
-| + clip[30,10800] 版本 | 474.17 | 395.08 | 369.23 | 563.79 | 460.87 |
-| **最终提交（硬修复 + LOBT，不 clip）** | **405.49** | **223.58** | **300.62** | **338.02** | **324.76** |
+| LGB baseline | 493.67 | 410.16 | 388.92 | 622.28 | 493.05 |
+| + clip[30,10800] variant | 474.17 | 395.08 | 369.23 | 563.79 | 460.87 |
+| **Final submission (hard repair + LOBT, no clip)** | **405.49** | **223.58** | **300.62** | **338.02** | **324.76** |
 
-**相对基线改善 168.29s（−34.1%）**；LIRF 层从 1483.94 → **654.77**。
+**168.29 s better than baseline (−34.1%)**; the LIRF stratum goes from 1483.94 → **654.77**.
 
-**不 clip 是关键**：命中行真实标签 88.2% 超过 10,800s，若按常规上限截断，
-这 63 行的 RMSE 会从 7,918.50 恶化到 33,313.07（4.2 倍），
-整体从 324.76 退化到 460.87。真榜 v22（360.86）同样未做截断——逐行核对确认
-其 43 行修复值与 `MVT − SCHED` **完全相等**（差值全为 0），最小 14,945s、最大 111,654s。
+**Not clipping is the key**: 88.2% of hit rows have true labels above 10,800 s. With conventional upper-bound truncation, RMSE on those 63 rows degrades from 7,918.50 to 33,313.07 (4.2×), and the overall score from 324.76 to 460.87. Leaderboard v22 (360.86) was likewise unclipped — a row-by-row check confirms its 43 repaired values are **exactly equal** to `MVT − SCHED` (all differences are 0), min 14,945 s, max 111,654 s.
 
-分机场 10/10 全部不劣于基线。
+All 10 airports are no worse than the baseline.
 
-### 3.2 不确定性量化
+### 3.2 Uncertainty quantification
 
-**σ 尾部收敛 10 个数量级**：
+**σ tail converges by 10 orders of magnitude**:
 
-| | NGBoost 原始 | 物理约束混合 |
+| | NGBoost raw | Physics-constrained mixture |
 |---|---|---|
 | h1 σ_max | 7.0832e+14 | **4.31e+04** |
-| h1 σ>1e4 行数 | 431 | **400** |
+| h1 rows with σ>1e4 | 431 | **400** |
 | h2 σ_max | 1.9292e+12 | **3.46e+04** |
-| h2 σ>1e4 行数 | 103 | **9** |
+| h2 rows with σ>1e4 | 103 | **9** |
 
-**σ 与残差的相关性（Spearman，σ_C=100 时最优）**：
+**σ vs residual correlation (Spearman, best at σ_C=100)**:
 
-| | NGBoost 原始 σ | 物理约束混合 σ |
+| | NGBoost raw σ | Physics-constrained mixture σ |
 |---|---|---|
 | h1 (Jan+Jul) | +0.4228 | **+0.4354** |
 | h2 (Feb+Jun) | +0.3774 | **+0.3966** |
 
-混合后**信号更强**，且长短尾分辨力从 2.29x / 2.49x 提升到 **8.48x / 9.00x**
-（σ>1800 段与 σ<600 段的中位比值）。
+After mixing the **signal is stronger**, and long-vs-short tail discrimination improves from 2.29× / 2.49× to **8.48× / 9.00×** (median ratio between the σ>1800 and σ<600 segments).
 
-**σ_C 敏感性**：
+**σ_C sensitivity**:
 
-| σ_C | h1 Spearman | h2 Spearman | h1 95%覆盖(损坏层) |
+| σ_C | h1 Spearman | h2 Spearman | h1 95% coverage (damaged stratum) |
 |---|---|---|---|
 | **100** | **+0.4354** | **+0.3966** | 0.9535 |
 | 300 | +0.4066 | +0.3347 | 0.9455 |
 | 600 | +0.2515 | +0.1840 | 0.9334 |
 
-σ_C 越大，σ 被 `p·σ_C²` 拉平，信号单调衰减。取 100。
+The larger `σ_C` is, the more σ is flattened by `p·σ_C²` and the signal decays monotonically. Use 100.
 
-### 3.3 共形覆盖率
+### 3.3 Conformal coverage
 
-校准集之外的两个 holdout 上，分层区间实际覆盖率：
+Actual coverage of the stratified intervals on the two holdout sets (disjoint from the calibration set):
 
-| | 名义 | h1 | 偏差 | h2 | 偏差 |
+| | Nominal | h1 | Deviation | h2 | Deviation |
 |---|---|---|---|---|---|
-| 损坏层 | 90% | 0.8712 | −0.0288 | 0.8977 | −0.0023 |
-| 正常层 | 90% | 0.9133 | +0.0133 | 0.9004 | +0.0004 |
-| 损坏层 | 95% | 0.9455 | −0.0045 | 0.9507 | +0.0007 |
-| 正常层 | 95% | 0.9558 | +0.0058 | 0.9493 | −0.0007 |
+| Damaged stratum | 90% | 0.8712 | −0.0288 | 0.8977 | −0.0023 |
+| Normal stratum | 90% | 0.9133 | +0.0133 | 0.9004 | +0.0004 |
+| Damaged stratum | 95% | 0.9455 | −0.0045 | 0.9507 | +0.0007 |
+| Normal stratum | 95% | 0.9558 | +0.0058 | 0.9493 | −0.0007 |
 
-**h2 四个格子偏差全部 ≤ 0.0023**，共形保证在未见数据上成立。
-h1 在 90% 损坏层欠覆盖 2.88pp，其余均在 1.5pp 内。
-
----
-
-## 4. 负面结果（同样重要）
-
-### 4.1 μ_total 混合点预测不可用
-
-把二阶矩混合的**点估计** `μ = p·μ_C + (1−p)·μ_N` 当作预测直接用：
-
-| 方案 | 四个月 RMSE |
-|---|---|
-| **μ_total 混合** | **788.01** |
-| LGB 基线 | 493.05 |
-| v22 硬规则（完整口径） | 342.40 |
-
-**分机场 0/10 不劣化于基线**，LIRF 从 1483.94 恶化到 **2564.7**。
-
-两个叠加原因：
-
-1. `μ_N` 来自 sklearn 决策树，不原生处理类别特征，本身比 LGB 基线差 35~60s；
-2. 概率稀释——`p` 的均值仅约 0.13，把本该完全替换的损坏行只替换了一小部分。
-   LIRF 的 BLOCK 顶替是**确定性机制**，硬规则（命中即替换）在该机场几乎全命中且方向正确，
-   而概率混合在数学上不可能做到"完全替换"。
-
-### 4.2 结论：UQ 不做点预测
-
-**物理约束二阶矩混合 σ 是有效的**（尾部收敛 10 个数量级、Spearman 达 +0.4354/+0.3966、
-共形覆盖在未见数据上偏差 ≤0.0023），但**它的用途仅限于不确定性量化与异常识别，
-不应用于点预测**。
-
-点预测的正确做法是**确定性的硬修复 + 物理窗口约束**（第 2.2–2.3 节），
-两者是互补而非替代关系。
+**All four h2 cells deviate by ≤ 0.0023** — the conformal guarantee holds on unseen data. h1 under-covers by 2.88 pp at the 90% damaged level; every other cell is within 1.5 pp.
 
 ---
 
-## 5. 产物清单
+## 4. Negative results (equally important)
 
-| 文件 | 说明 |
+### 4.1 The μ_total mixture is unusable as a point predictor
+
+Using the **point estimate** of the second-moment mixture, `μ = p·μ_C + (1−p)·μ_N`, directly as the prediction:
+
+| Approach | 4-month RMSE |
 |---|---|
-| `submissions/jubilant-puzzle_final.parquet` | **正式提交**，670,790 行（noclip E2） |
-| `submissions/jubilant-puzzle_final_clip_backup.parquet` | clip[30,10800] 备份（对照用） |
-| `supplementary/final_uncertainty.parquet` | 不确定性补充产物，8 列，**不进评分** |
-| `notebooks/diag/d0/holdout_noclip_e2.py` | holdout 四个月复算（324.76） |
-| `notebooks/diag/d0/gate_noclip.py` | 提交文件 Gate 校验（分类范围） |
-| `notebooks/diag/d0/moment_conformal.py` | 二阶矩混合 + 分层共形 |
-| `notebooks/diag/d0/supplementary_uncertainty.py` | final 四个月不确定性生成 |
+| **μ_total mixture** | **788.01** |
+| LGB baseline | 493.05 |
+| v22 hard rule (full scope) | 342.40 |
 
-### `supplementary/final_uncertainty.parquet` 列定义
+**0 of 10 airports** improve on the baseline; LIRF degrades from 1483.94 to **2564.7**.
 
-| 列 | 类型 | 说明 |
+Two compounding causes:
+
+1. `μ_N` comes from sklearn decision trees, which do not natively handle categorical features and are themselves 35–60 s worse than the LGB baseline;
+2. Probability dilution — mean `p` is only ≈ 0.13, so rows that should be replaced outright are only partially replaced. The `BLOCK` overwrite at LIRF is a **deterministic mechanism**; the hard rule (replace on hit) fires on almost every row there and is directionally correct, whereas a probabilistic mixture can never achieve "full replacement" by construction.
+
+### 4.2 Conclusion: uncertainty quantification does not produce point predictions
+
+**The physics-constrained second-moment mixture for σ works** (tail converges by 10 orders of magnitude, Spearman reaches +0.4354 / +0.3966, conformal coverage deviates by ≤ 0.0023 on unseen data), but **its use is limited to uncertainty quantification and anomaly detection, and it must not be used for point prediction**.
+
+The correct approach to point prediction is **deterministic hard repair + physical window constraints** (§2.2–2.3). The two are complementary, not substitutes.
+
+---
+
+## 5. Artifact inventory
+
+| File | Description |
+|---|---|
+| `submissions/jubilant-puzzle_final.parquet` | **Official submission**, 670,790 rows (noclip E2) |
+| `submissions/jubilant-puzzle_final_clip_backup.parquet` | clip[30,10800] backup (for comparison) |
+| `supplementary/final_uncertainty.parquet` | Uncertainty supplement, 8 columns, **not scored** |
+| `notebooks/diag/d0/holdout_noclip_e2.py` | Four-month holdout recomputation (324.76) |
+| `notebooks/diag/d0/gate_noclip.py` | Submission Gate checks (range validation) |
+| `notebooks/diag/d0/moment_conformal.py` | Second-moment mixture + stratified conformal |
+| `notebooks/diag/d0/supplementary_uncertainty.py` | Uncertainty generation for the final 4 months |
+
+### Column definitions for `supplementary/final_uncertainty.parquet`
+
+| Column | Type | Description |
 |---|---|---|
-| `MVT_ID_mvt` | int64 | 与提交文件逐行一致 |
-| `point_pred` | int64 | 复制自提交文件，未做任何改动 |
-| `sigma_total` | float64 | 混合 σ（σ_C=100，σ_N 截断 2000） |
-| `is_damaged` | bool | T14400 命中 OR p>0.5 |
-| `lo_90` / `hi_90` | float64 | 损坏层 90% 区间 |
-| `lo_95` / `hi_95` | float64 | 损坏层 95% 区间 |
+| `MVT_ID_mvt` | int64 | Row-for-row identical to the submission file |
+| `point_pred` | int64 | Copied from the submission file, unmodified |
+| `sigma_total` | float64 | Mixture σ (σ_C=100, σ_N capped at 2000) |
+| `is_damaged` | bool | T14400 hit OR p>0.5 |
+| `lo_90` / `hi_90` | float64 | 90% interval |
+| `lo_95` / `hi_95` | float64 | 95% interval |
 
-final 四个月统计：σ 中位 **209.1**、σ_max **2.64e4**、损坏行 **6,926**
-（T14400 命中 63 + p>0.5 的 6,863）。
-损坏层 95% 区间中位宽 442s，正常层 732s——损坏层区间更窄，符合分层设计意图。
+Four-month statistics: median σ **209.1**, σ_max **2.64e4**, damaged rows **6,926**
+(63 T14400 hits + 6,863 with p>0.5).
+Median 95% interval width is 442 s on the damaged stratum vs 732 s on the normal stratum — the damaged stratum is tighter, matching the intent of the stratified design.
 
 ---
 
-## 6. 数据口径备忘
+## 6. Data conventions worth remembering
 
-- 原始 parquet 时间戳为 `datetime64[us, UTC]`（**微秒**），须先 `.astype("datetime64[ns]")`
-  再取 `int // 10^9`，否则时间戳落在 1970 年
-- `BLOCK_TIME_UTC_mvt` 与 `TAXITIME_SEC_mvt` 在 final DEP 中 100% 为空，未触碰
-- 哨兵值为负数时间戳，需双向排查
-- 分层口径：short `0 < TX ≤ 1800` / long `1800 < TX ≤ 10800` / core `TX ≤ 10800` / full `TX > 0`
+- Raw parquet timestamps are `datetime64[us, UTC]` (**microseconds**); cast with `.astype("datetime64[ns]")` before taking `int // 10^9`, otherwise timestamps land in 1970
+- `BLOCK_TIME_UTC_mvt` and `TAXITIME_SEC_mvt` are 100% null in final DEP — never touched
+- Sentinel values are negative timestamps; search in both directions
+- Strata definitions: short `0 < TX ≤ 1800` / long `1800 < TX ≤ 10800` / core `TX ≤ 10800` / full `TX > 0`

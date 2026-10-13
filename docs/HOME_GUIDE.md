@@ -1,35 +1,35 @@
-# 回家指南(2026-09-20 出)
+# Homecoming Guide (issued 2026-09-20)
 
-**写给**:Fang(回家用)
-**目的**:你回家第一晚,**2 小时内出第一个 leaderboard 分数**
+**For**: Fang (for use at home)
+**Goal**: on your first night back home, **get your first leaderboard score within 2 hours**
 
 ---
 
-## ⏱️ 时间预算(回家第一晚)
+## ⏱️ Time Budget (first night back home)
 
-| 时间 | 任务 | 预计 RMSE |
+| Time | Task | Expected RMSE |
 |---|---|---|
-| 0:00 - 0:15 | 装 libomp + 装库 | - |
-| 0:15 - 0:30 | 检查环境,跑 sklearn baseline(确认 GPU/CPU 能跑) | 406 附近 |
-| 0:30 - 1:30 | 跑 XGBoost baseline(basic → all) | 280-350 |
-| 1:30 - 3:00 | 跑三模型 5-seed 融合 | 200-250 |
-| 3:00 - 3:30 | 推理 + 改名 + 上传 | 第一次提交 |
+| 0:00 - 0:15 | Install libomp + install libraries | - |
+| 0:15 - 0:30 | Check the environment, run the sklearn baseline (confirm GPU/CPU works) | around 406 |
+| 0:30 - 1:30 | Run the XGBoost baseline (basic → all) | 280-350 |
+| 1:30 - 3:00 | Run the 3-model 5-seed ensemble | 200-250 |
+| 3:00 - 3:30 | Inference + rename + upload | first submission |
 
 ---
 
-## 0. 环境准备(回家第一件事,15 分钟)
+## 0. Environment Setup (first thing when you get home, 15 minutes)
 
 ```bash
-# 1. 装 libomp(macOS 系统级,XGBoost/LightGBM 需要)
+# 1. Install libomp (macOS system-level, required by XGBoost/LightGBM)
 brew install libomp
 
-# 2. 验证 Python 依赖(我们之前 pip install 过)
+# 2. Verify Python dependencies (we pip install'ed them before)
 pip3 list | grep -E "xgboost|lightgbm|catboost|mlflow|optuna|minio"
 
-# 3. 如果没装,装一下
+# 3. If they are not installed, install them
 pip3 install --break-system-packages xgboost lightgbm catboost mlflow optuna minio
 
-# 4. 验证(应该都能 import)
+# 4. Verify (all of them should be importable)
 python3 -c "
 import xgboost, lightgbm, catboost, mlflow, optuna, minio
 print('all deps OK')
@@ -38,193 +38,193 @@ print('all deps OK')
 
 ---
 
-## 1. 第一次跑 baseline(回家 30 分钟后)
+## 1. First Baseline Run (30 minutes after you get home)
 
 ```bash
 cd ~/Documents/PRC_data_challenge
 
-# A. 最简 baseline(29 个基础特征,看起点)
+# A. Minimal baseline (29 basic features, to see the starting point)
 python -m src.train_xgb --data-dir data/raw --feature-set basic
-# 期望:winter_main RMSE = 350-450 秒(取决于训练时间)
-# 期望:spring_main RMSE = 300-400 秒
+# Expected: winter_main RMSE = 350-450 sec (depends on training time)
+# Expected: spring_main RMSE = 300-400 sec
 
-# B. 全特征 baseline(77 个特征)
+# B. Full-feature baseline (77 features)
 python -m src.train_xgb --data-dir data/raw --feature-set all
-# 期望:RMSE 比 basic 低 10-20%
+# Expected: RMSE 10-20% lower than basic
 ```
 
-如果 baseline 跑通了,**恭喜,你已经在 leaderboard 的水平上**(参考 2024 第 30 名只用了 sklearn HGBR 拿了 RMSE 3755/均值的 ~70% 位置,我们用真实数据 + 77 特征应该比这好)。
+If the baseline runs through, **congratulations, you are already at leaderboard level** (for reference, in 2024 the 30th place used only sklearn HGBR and got RMSE 3755, i.e. around the ~70% of mean position; with real data + 77 features we should do better than that).
 
 ---
 
-## 2. 第一次融合(回家 1.5 小时后)
+## 2. First Ensemble (1.5 hours after you get home)
 
 ```bash
-# 三模型 5-seed 融合(应该跑 30-60 分钟,需要 libomp)
+# 3-model 5-seed ensemble (should take 30-60 minutes, requires libomp)
 python -m src.train_ensemble \
     --data-dir data/raw \
     --feature-set all \
     --models xgb,lgb,cat \
     --n-seeds 5
 
-# 期望:blend RMSE = 200-250 秒
+# Expected: blend RMSE = 200-250 sec
 ```
 
-**关键**:
-- 这会生成 `models/ensemble_*.json` / `ensemble_*.txt` / `ensemble_*.cbm` + `ensemble_weights.json`
-- MLflow 也会记录所有实验,跑完用 `mlflow ui` 可视化
+**Key**:
+- This generates `models/ensemble_*.json` / `ensemble_*.txt` / `ensemble_*.cbm` + `ensemble_weights.json`
+- MLflow will also record all experiments; after the run, use `mlflow ui` to visualize them
 
 ---
 
-## 3. 推理 + 第一次提交(回家 2.5 小时后)
+## 3. Inference + First Submission (2.5 hours after you get home)
 
 ```bash
-# 推理 + 生成提交 parquet
+# Inference + generate the submission parquet
 python -m src.predict_ensemble \
     --output submissions/jubilant-puzzle_v1.parquet
 
-# 检查输出
+# Check the output
 ls -lh submissions/jubilant-puzzle_v1.parquet
 python3 -c "
 import pandas as pd
 df = pd.read_parquet('submissions/jubilant-puzzle_v1.parquet')
 print(df.head())
-print(f'行数: {len(df):,}')
-print(f'预测值范围: {df.TAXITIME_SEC_mvt.min():.0f} - {df.TAXITIME_SEC_mvt.max():.0f}')
+print(f'rows: {len(df):,}')
+print(f'prediction range: {df.TAXITIME_SEC_mvt.min():.0f} - {df.TAXITIME_SEC_mvt.max():.0f}')
 "
 
-# 配置 mc(第一次用需要)
-# ⚠️ 凭据已移到 .env 文件(被 .gitignore 忽略),不会泄露到 git
+# Configure mc (needed on first use)
+# ⚠️ Credentials have been moved to the .env file (ignored by .gitignore), so they will not leak into git
 set -a; source ../.env; set +a
 mc alias set osn https://s3.opensky-network.org "$OSN_ACCESS_KEY" "$OSN_SECRET_KEY"
 
-# 上传(注意 bucket 路径)
+# Upload (note the bucket path)
 mc cp submissions/jubilant-puzzle_v1.parquet \
     osn/prc-2026-jubilant-puzzle/
 
-# 验证上传成功
+# Verify the upload succeeded
 mc ls osn/prc-2026-jubilant-puzzle/
 ```
 
 ---
 
-## 4. 看 leaderboard
+## 4. Check the Leaderboard
 
 - **Vercel leaderboard**: https://prc-challenge-2026.vercel.app/
 - **OSN REST API**: https://datacomp.opensky-network.org/api/competitions/bb3693e1-26bc-4a9e-8619-4fe78b4eab0c/leaderboard
 
 ---
 
-## 🎯 数字预期(沙箱已验证 + 业内 benchmark)
+## 🎯 Numeric Expectations (sandbox-verified + industry benchmark)
 
-| 提交轮次 | 我们预期 RMSE | 对标 |
+| Submission round | Our expected RMSE | Benchmark |
 |---|---|---|
-| 第一次(纯基础特征 XGB) | **280-350** | 2024 第 30 名 HGBR 3700+(差数据) |
-| 第二次(77 特征 XGB) | 250-280 | 2025 第 3 名 CatBoost 220(更简单题) |
-| 第三次(三模型融合) | **200-250** | 2025 第 2 名 XGB+LGB+CatBoost 211 |
-| 第四次(调优后) | 150-200 | 2024 第 2 名 XGB+LGB 2217(差数据) |
+| First (basic features only, XGB) | **280-350** | 2024 30th place HGBR 3700+ (worse data) |
+| Second (77 features, XGB) | 250-280 | 2025 3rd place CatBoost 220 (easier problem) |
+| Third (3-model ensemble) | **200-250** | 2025 2nd place XGB+LGB+CatBoost 211 |
+| Fourth (after tuning) | 150-200 | 2024 2nd place XGB+LGB 2217 (worse data) |
 
-**如果你提交分数 < 300**:大概率进 leaderboard 前 10
-**如果你提交分数 < 200**:大概率进 leaderboard 前 3(奖金区)
-**如果你提交分数 < 150**:冲冠军
+**If your submission score < 300**: most likely you will reach the leaderboard top 10
+**If your submission score < 200**: most likely you will reach the leaderboard top 3 (prize zone)
+**If your submission score < 150**: go for the championship
 
 ---
 
-## 🆘 卡住了怎么办
+## 🆘 What To Do If You Get Stuck
 
-| 现象 | 怎么办 |
+| Symptom | What to do |
 |---|---|
-| XGBoost 报 "libomp not found" | `brew install libomp` 后重启终端 |
-| train_xgb 报 KeyError 'te_cols' | 已经修了,如果是其他 KeyError 截图给我 |
-| train_ensemble 跑得太慢(>2 小时) | 先 `--n-seeds 1` 跑通,再加 |
-| predict_ensemble 报 KeyError | 检查 `models/ensemble_*.json` 文件都生成了 |
-| 上传失败 | 检查 mc alias 配置,确认 bucket 名是 `prc-2026-jubilant-puzzle` |
-| 任何其他问题 | 截图 + 日志发给我 |
+| XGBoost reports "libomp not found" | run `brew install libomp`, then restart the terminal |
+| train_xgb reports KeyError 'te_cols' | already fixed; if it is a different KeyError, send me a screenshot |
+| train_ensemble runs too slowly (>2 hours) | first get it running with `--n-seeds 1`, then increase it |
+| predict_ensemble reports KeyError | check that all `models/ensemble_*.json` files were generated |
+| Upload fails | check the mc alias configuration, confirm the bucket name is `prc-2026-jubilant-puzzle` |
+| Any other problem | send me a screenshot + the logs |
 
 ---
 
-## 📂 关键文件位置
+## 📂 Key File Locations
 
 ```
 ~/Documents/PRC_data_challenge/
-├── data/raw/                            # 14 个 parquet 文件(330 MB)
+├── data/raw/                            # 14 parquet files (330 MB)
 ├── src/
-│   ├── train_xgb.py                     # 单模型训练(入口)
-│   ├── train_ensemble.py                # 三模型融合(入口)
-│   ├── tune.py                          # Optuna 调参(入口)
-│   └── predict_ensemble.py              # 推理 + 生成提交
-├── models/                              # 训练后的模型(运行时生成)
+│   ├── train_xgb.py                     # single-model training (entry point)
+│   ├── train_ensemble.py                # 3-model ensemble (entry point)
+│   ├── tune.py                          # Optuna tuning (entry point)
+│   └── predict_ensemble.py              # inference + generate submission
+├── models/                              # trained models (generated at runtime)
 ├── submissions/
-│   └── jubilant-puzzle_v1.parquet       # 提交文件(运行时生成)
-├── notebooks/eda/                       # EDA 图(已生成)
+│   └── jubilant-puzzle_v1.parquet       # submission file (generated at runtime)
+├── notebooks/eda/                       # EDA charts (already generated)
 └── docs/
-    ├── DATA_READY_SUMMARY.md            # 数据到位总结
-    ├── REAL_DATA_READINESS_CHECK.md     # 数据到位即用清单
-    ├── MINIO_DOWNLOAD_GUIDE.md          # 下载教程
-    └── 2025-2nd-3rd-places-analysis.md   # 2025 调研报告
+    ├── DATA_READY_SUMMARY.md            # data-arrival summary
+    ├── REAL_DATA_READINESS_CHECK.md     # data-arrival ready-to-use checklist
+    ├── MINIO_DOWNLOAD_GUIDE.md          # download tutorial
+    └── 2025-2nd-3rd-places-analysis.md   # 2025 research report
 ```
 
 ---
 
-## 🎁 彩蛋:直接看几张 EDA 图
+## 🎁 Easter Egg: directly view a few EDA charts
 
-回家后想先看数据长什么样:
+If you want to see what the data looks like first after getting home:
 
 ```bash
-open notebooks/eda/taxi_out_distribution.png   # 总分布
-open notebooks/eda/by_airport.png              # 各机场分布
-open notebooks/eda/by_airport_hour.png         # 机场 × 小时热力图
-open notebooks/eda/missing_values.png          # 缺失值热力图
+open notebooks/eda/taxi_out_distribution.png   # overall distribution
+open notebooks/eda/by_airport.png              # per-airport distribution
+open notebooks/eda/by_airport_hour.png         # airport × hour heatmap
+open notebooks/eda/missing_values.png          # missing values heatmap
 ```
 
 ---
 
-**最后一句话:今天我们已经把所有能做的都做了。**
+**Last word: today we have already done everything that can be done.**
 
-**你回家第一件事就是上面 Step 1(装 libomp),然后按时间预算走。**
+**The first thing to do when you get home is Step 1 above (install libomp), then follow the time budget.**
 
-**我陪着你。** 任何问题随时找我。
+**I am with you.** Reach out to me anytime with any question.
 
-**祝我们一起拿名次!** 🛫🏆
+**Let's hope we both get a placing!** 🛫🏆
 
 ---
 
-## 📊 沙箱真实数据预期(sklearn HGBR,2026-09-20 实测)
+## 📊 Sandbox Real-Data Expectations (sklearn HGBR, measured 2026-09-20)
 
-### 总 RMSE 预期(沙箱测得)
+### Overall RMSE Expectation (measured in the sandbox)
 
 ```
-HGBR + 5% 采样 + 29 基础特征:344.1 秒(基线 419,提升 18%)
-HGBR + 5% 采样 + 77 全特征:约 280-310(估算,因 30% 采样跑太慢)
+HGBR + 5% sampling + 29 basic features: 344.1 sec (baseline 419, 18% improvement)
+HGBR + 5% sampling + 77 full features: about 280-310 (estimated, because 30% sampling runs too slowly)
 ```
 
-### 各机场 RMSE 排名(从难到易,沙箱实测)
+### RMSE Ranking by Airport (from hardest to easiest, measured in the sandbox)
 
-| 排名 | 机场 | RMSE | vs 基线 | 难度 |
+| Rank | Airport | RMSE | vs baseline | Difficulty |
 |---|---|---|---|---|
-| 🔴 1 | **LFPG(巴黎)** | **444.8** | 5.4% | **最难** |
-| 🔴 2 | **LIRF(罗马)** | 443.9 | 11.5% | 第二难 |
-| 3 | EDDM(慕尼黑) | 375.6 | 6.6% | |
-| 4 | EGLL(伦敦) | 357.5 | 8.4% | |
-| 5 | LTFM(伊斯坦布尔) | 355.1 | 10.6% | |
-| 6 | EDDF(法兰克福) | 319.4 | 14.4% | |
-| 7 | LSZH(苏黎世) | 296.2 | 8.4% | |
-| 8 | LEBL(巴塞罗那) | 268.3 | 17.0% | |
-| 9 | LEMD(马德里) | 264.5 | 13.3% | |
-| 🟢 10 | EHAM(阿姆斯特丹) | 255.0 | 19.9% | **最容易** |
+| 🔴 1 | **LFPG (Paris)** | **444.8** | 5.4% | **hardest** |
+| 🔴 2 | **LIRF (Rome)** | 443.9 | 11.5% | second hardest |
+| 3 | EDDM (Munich) | 375.6 | 6.6% | |
+| 4 | EGLL (London) | 357.5 | 8.4% | |
+| 5 | LTFM (Istanbul) | 355.1 | 10.6% | |
+| 6 | EDDF (Frankfurt) | 319.4 | 14.4% | |
+| 7 | LSZH (Zurich) | 296.2 | 8.4% | |
+| 8 | LEBL (Barcelona) | 268.3 | 17.0% | |
+| 9 | LEMD (Madrid) | 264.5 | 13.3% | |
+| 🟢 10 | EHAM (Amsterdam) | 255.0 | 19.9% | **easiest** |
 
-### 🎯 关键洞察(给家里 Mac 调参用)
+### 🎯 Key Insights (for tuning on the Mac at home)
 
-1. **LFPG + LIRF 是难点** —— 这两个机场 RMSE > 440,长尾严重(LIRF std=488)
-2. **EHAM 最容易** —— 提升最大(19.9%)
-3. **EGLL 均值最高(1364s) 但 RMSE 不是最高** —— 均值≠难预测,要看 std
-4. **优先动作**:加机场级 lag/lead 特征(其实我们已经做了),针对 LFPG/LIRF 单独调参
+1. **LFPG + LIRF are the difficult ones** — these two airports have RMSE > 440, with severe long tails (LIRF std=488)
+2. **EHAM is the easiest** — the largest improvement (19.9%)
+3. **EGLL has the highest mean (1364s) but not the highest RMSE** — mean ≠ hard to predict, you have to look at std
+4. **Priority action**: add airport-level lag/lead features (we have actually already done this), and tune LFPG/LIRF separately
 
-### 一键环境脚本
+### One-click environment script
 
 ```bash
 bash scripts/setup_mac.sh
 ```
 
-自动装 libomp + 所有 Python 依赖 + 验证 + 检查数据完整性。**回家第一件事**。
+Automatically installs libomp + all Python dependencies + verification + checks data integrity. **The first thing to do when you get home**.
 

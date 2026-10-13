@@ -1,24 +1,24 @@
 """
-XGBoost baseline 训练脚本
-==========================
+XGBoost baseline training script
+===============================
 
-功能:
-1. 加载训练数据
-2. 跑基础特征工程
-3. 在 winter / summer / kfold 三个验证集上评估
-4. 用 MLflow 记录所有实验(参数 + 指标 + 模型 artifact)
-5. 训练最终模型(全量 12 个月)并保存到 models/
+Functionality:
+1. Load training data
+2. Run basic feature engineering
+3. Evaluate on winter / summer / kfold three validation sets
+4. Record all experiments with MLflow (params + metrics + model artifact)
+5. Train the final model (full 12 months) and save to models/
 
-为什么是 XGBoost 而不是 LightGBM:
-- macOS 上 LightGBM 需要 libomp(系统库),安装麻烦
-- XGBoost 在 macOS 上 pip install 即可,不需要任何系统依赖
-- 树模型性能几乎一致,API 非常相近
+Why XGBoost instead of LightGBM:
+- On macOS, LightGBM needs libomp (a system library), which is painful to install
+- XGBoost works on macOS with just pip install, no system dependencies needed
+- Tree model performance is nearly identical, APIs are very similar
 
-运行:
+Run:
     python -m src.train_xgb --data-dir data/raw
 
-可视化 MLflow:
-    mlflow ui  # 然后浏览器打开 http://localhost:5000
+Visualize MLflow:
+    mlflow ui  # then open http://localhost:5000 in the browser
 """
 
 from __future__ import annotations
@@ -39,27 +39,27 @@ from src.validation import evaluate, get_validation_splits
 
 
 # ---------------------------------------------------------------------------
-# 默认超参(中等规模数据集,这是个保守起点)
+# Default hyperparameters (medium-sized dataset, this is a conservative starting point)
 # ---------------------------------------------------------------------------
 
 DEFAULT_PARAMS = {
-    "objective": "reg:squarederror",  # 对应 RMSE
+    "objective": "reg:squarederror",  # corresponds to RMSE
     "eval_metric": "rmse",
     "learning_rate": 0.05,
-    "max_depth": 8,  # 跟 LightGBM 的 num_leaves=127 粗略对应
+    "max_depth": 8,  # roughly corresponds to LightGBM's num_leaves=127
     "min_child_weight": 5,
     "subsample": 0.85,
     "colsample_bytree": 0.85,
     "reg_lambda": 1.0,
-    "tree_method": "hist",  # CPU 上最快的算法
-    "nthread": -1,  # 用所有 CPU 核心
+    "tree_method": "hist",  # fastest algorithm on CPU
+    "nthread": -1,  # use all CPU cores
     "verbosity": 0,
     "seed": 42,
 }
 
 
 # ---------------------------------------------------------------------------
-# 训练 + 验证函数
+# Train + validate function
 # ---------------------------------------------------------------------------
 
 def train_one_split(
@@ -72,11 +72,11 @@ def train_one_split(
     early_stopping_rounds: int = 100,
     sample_weight: np.ndarray | None = None,
 ) -> tuple[xgb.Booster, dict]:
-    """训练一个 XGBoost 模型,用验证集早停。返回 booster 和验证指标。
+    """Train one XGBoost model, using early stopping on the validation set. Returns booster and validation metrics.
 
-    v3.7:支持 sample_weight(长尾加权)。None = 等权(默认)。
+    v3.7: supports sample_weight (long-tail weighting). None = equal weights (default).
     """
-    # XGBoost 需要把所有 category 列转成数值编码(lightgbm 原生支持 category,xgb 不行)
+    # XGBoost requires all category columns to be converted to numeric encoding (lightgbm natively supports category, xgb does not)
     X_tr = _encode_categoricals(X_train, fit=True)
     X_va = _encode_categoricals(X_val, fit=False)
 
@@ -100,21 +100,21 @@ def train_one_split(
 
 
 # ---------------------------------------------------------------------------
-# 类别列编码(XGBoost 不支持原生 category)
+# Categorical column encoding (XGBoost does not support native category)
 # ---------------------------------------------------------------------------
 
-# 模块级缓存,避免在每个 split 都重新 fit
+# Module-level cache, avoid re-fitting on every split
 _CAT_MAPPINGS: dict[str, dict] = {}
 
 
 def _encode_categoricals(X: pd.DataFrame, fit: bool = False) -> pd.DataFrame:
-    """把 category 列用整数编码。fit=True 时学习映射,fit=False 时用已有映射。
+    """Encode category columns as integers. When fit=True learn the mapping, when fit=False reuse the existing mapping.
 
-    ⚠️ 注意:训练时 fit,推理时不能 fit,否则会出现"推理时类别编码跟训练不一致"的问题。
-    v0.1 修复:同时把 cat 映射存到 _CAT_MAPPINGS_PATH 文件,跨进程保持一致。
+    WARNING: fit at training time, do NOT fit at inference time, otherwise you get "category encoding at inference is inconsistent with training".
+    v0.1 fix: also store the cat mappings to the _CAT_MAPPINGS_PATH file, keeping them consistent across processes.
     """
     global _CAT_MAPPINGS
-    # 如果映射空(跨进程),尝试从持久化文件加载
+    # If the mapping is empty (cross-process), try loading from the persisted file
     if not _CAT_MAPPINGS:
         if _CAT_MAPPINGS_PATH is not None and _CAT_MAPPINGS_PATH.exists():
             _CAT_MAPPINGS = json.loads(_CAT_MAPPINGS_PATH.read_text())
@@ -122,32 +122,32 @@ def _encode_categoricals(X: pd.DataFrame, fit: bool = False) -> pd.DataFrame:
     X = X.copy()
     for col in X.select_dtypes(include="category").columns:
         if fit:
-            # 学习映射,NaN 用 -1 表示
+            # Learn the mapping, NaN is represented by -1
             cats = X[col].cat.categories.tolist()
             _CAT_MAPPINGS[col] = {c: i for i, c in enumerate(cats)}
             _CAT_MAPPINGS[col]["__nan__"] = -1
-            # 持久化(如果有设 save_path)
+            # Persist (if save_path is set)
             if _CAT_MAPPINGS_PATH is not None:
                 _CAT_MAPPINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
                 _CAT_MAPPINGS_PATH.write_text(json.dumps(_CAT_MAPPINGS))
 
         mapping = _CAT_MAPPINGS.get(col, {})
-        X[col] = X[col].astype(str)  # 先转 str,避免 categorical setitem 报错
+        X[col] = X[col].astype(str)  # convert to str first, avoid categorical setitem error
         X[col] = X[col].map(mapping).fillna(-1).astype("int32")
 
     return X
 
 
-_CAT_MAPPINGS_PATH: Path | None = None  # v0.1:跨进程持久化 cat 映射
+_CAT_MAPPINGS_PATH: Path | None = None  # v0.1: persist cat mappings across processes
 
 
 def _clear_cat_cache() -> None:
-    """清除缓存,在跑新实验前调用。"""
+    """Clear the cache, called before running a new experiment."""
     _CAT_MAPPINGS.clear()
 
 
 def _select_feat_cols_from_df(df: pd.DataFrame, feature_set: str) -> list[str]:
-    """v3.5:统一 feature_set → 列名映射(同时给 cache 加载和新训练用)。"""
+    """v3.5: unified feature_set -> column name mapping (used by both cache loading and new training)."""
     if feature_set == "basic":
         return [c for c in BASELINE_FEATURE_COLS if c in df.columns]
     elif feature_set == "aggregate":
@@ -159,15 +159,15 @@ def _select_feat_cols_from_df(df: pd.DataFrame, feature_set: str) -> list[str]:
                     if c.endswith("m") and ("cnt_" in c or "mean_" in c or "p90_" in c)]
         return [c for c in BASELINE_FEATURE_COLS if c in df.columns] + agg_cols
     elif feature_set == "no_laglead":
-        # v3.5:Phase 1 — 只保留 basic + cnt_*(没 mean/p90,避免 target leak)
+        # v3.5: Phase 1 - keep only basic + cnt_* (no mean/p90, avoid target leak)
         keep_agg_cols = [c for c in df.columns if c.endswith("m") and "cnt_" in c]
         return [c for c in BASELINE_FEATURE_COLS if c in df.columns] + keep_agg_cols
     else:
-        raise ValueError(f"未知 feature_set: {feature_set}")
+        raise ValueError(f"unknown feature_set: {feature_set}")
 
 
 # ---------------------------------------------------------------------------
-# 跑实验
+# Run experiment
 # ---------------------------------------------------------------------------
 
 def run_experiment(
@@ -176,32 +176,32 @@ def run_experiment(
     params: dict | None = None,
     tracking_uri: str = "mlruns",
     feature_set: str = "basic",  # "basic" | "aggregate" | "all" | "no_laglead"
-    cache_path: str | None = None,  # 缓存 features parquet,跳过 lag/lead 重算
+    cache_path: str | None = None,  # cache features parquet, skip lag/lead recomputation
     tail_quantile: float = 0.99,
     tail_weight: float = 2.0,
-    model_version: str = "v0",  # v0:版本号
-    stage: str = "val",  # "val": holdout 验证模型(剔除某些月);"final": 12 月全量训练
-    holdout_months: list[int] | None = None,  # 仅 stage="val" 时生效:从训练集中剔除
-    feat_cols_override: list[str] | None = None,  # v0:显式指定特征列(跳过按 feature_set 推断)
+    model_version: str = "v0",  # v0: version number
+    stage: str = "val",  # "val": holdout validation model (drop certain months); "final": full 12-month training
+    holdout_months: list[int] | None = None,  # only effective when stage="val": months removed from the training set
+    feat_cols_override: list[str] | None = None,  # v0: explicitly specify feature columns (skip feature_set inference)
 ) -> dict:
-    """跑一次完整实验:加载 → 特征 → 多切分验证 → MLflow 记录。
+    """Run one full experiment: load -> features -> multi-split validation -> MLflow logging.
 
-    参数:
-        feature_set: 用哪组特征
-            - "basic": 只用基础特征(无聚合),baseline 用这个
-            - "aggregate": 只用聚合拥堵特征
-            - "all": 基础 + 聚合(含 mean/p90 leak 风险,不要在生产用)
-            - "no_laglead": 基础 + cnt_dep_*(删 mean/p90)
-        tail_quantile: 长尾阈值(默认 0.99 = top 1%)
-        tail_weight: 长尾样本权重(默认 2.0)
-        model_version: 版本号(如 v0 / v7)
-        stage: "val"=剔除 holdout_months 训练;"final"=全量训练
-        holdout_months: stage="val" 时,从训练剔除的月份列表(默认 [1, 7])
+    Parameters:
+        feature_set: which feature group to use
+            - "basic": only basic features (no aggregation), baseline uses this
+            - "aggregate": only aggregated congestion features
+            - "all": basic + aggregate (contains mean/p90 leak risk, do not use in production)
+            - "no_laglead": basic + cnt_dep_* (mean/p90 removed)
+        tail_quantile: long-tail threshold (default 0.99 = top 1%)
+        tail_weight: long-tail sample weight (default 2.0)
+        model_version: version number (e.g. v0 / v7)
+        stage: "val" = train with holdout_months removed; "final" = full training
+        holdout_months: list of months removed from training when stage="val" (default [1, 7])
     """
     params = {**DEFAULT_PARAMS, **(params or {})}
     _clear_cat_cache()
 
-    # MLflow 设置
+    # MLflow setup
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(experiment_name)
 
@@ -215,24 +215,24 @@ def run_experiment(
         if holdout_months is not None:
             mlflow.log_param("holdout_months", ",".join(map(str, holdout_months)))
 
-        # 1. 加载 + 特征
+        # 1. Load + features
         print("=" * 70)
-        print("1. 加载训练数据...")
+        print("1. Loading training data...")
 
-        # v0.1:设置 cat 映射持久化路径(和模型一起保存)— 跨进程推理时复用
+        # v0.1: set the cat mapping persistence path (saved together with the model) - reused for cross-process inference
         global _CAT_MAPPINGS_PATH
         models_dir = Path("models")
         models_dir.mkdir(exist_ok=True)
         seed = params.get("seed", 42)
         _CAT_MAPPINGS_PATH = models_dir / "feature_lists" / f"xgb_{model_version}_{feature_set}_seed{seed}_{stage}_cat_mappings.json"
-        # 清空旧 cat 映射(让 fit 重新学)
+        # Remove old cat mappings (let fit learn them again)
         if _CAT_MAPPINGS_PATH.exists():
             _CAT_MAPPINGS_PATH.unlink()
 
         if cache_path and Path(cache_path).exists():
-            print(f"  使用缓存: {cache_path}")
+            print(f"  Using cache: {cache_path}")
             df = pd.read_parquet(cache_path)
-            # v3.5:cache 加载时也按 feature_set 过滤(避免 mean/p90 漏到 no_laglead 实验)
+            # v3.5: also filter by feature_set when loading from cache (avoid mean/p90 leaking into no_laglead experiments)
             if feat_cols_override is not None:
                 feat_cols = [c for c in feat_cols_override if c in df.columns]
             else:
@@ -247,7 +247,7 @@ def run_experiment(
                 from src.features_aggregate import add_aggregate_features
                 df = build_features(df)
                 df = add_aggregate_features(df)
-                # 只用聚合特征
+                # only use aggregate features
                 feat_cols = [c for c in df.columns
                              if c.endswith("m") and ("cnt_" in c or "mean_" in c or "p90_" in c)]
             elif feature_set == "all":
@@ -256,27 +256,27 @@ def run_experiment(
                             if c.endswith("m") and ("cnt_" in c or "mean_" in c or "p90_" in c)]
                 feat_cols = [c for c in BASELINE_FEATURE_COLS if c in df.columns] + agg_cols
             elif feature_set == "no_laglead":
-                # v3.5:Phase 1 — 只保留 basic + cnt_*(没有 target-derived lag/lead)
+                # v3.5: Phase 1 - keep only basic + cnt_* (no target-derived lag/lead)
                 df = build_features_v2(df, include_aggregate=True, include_lead=True)
                 keep_agg_cols = [c for c in df.columns
                                  if c.endswith("m") and "cnt_" in c]
                 feat_cols = [c for c in BASELINE_FEATURE_COLS if c in df.columns] + keep_agg_cols
-                print(f"  [no_laglead] 保留 {len(keep_agg_cols)} 个 cnt 列,删除所有 mean/p90")
+                print(f"  [no_laglead] keeping {len(keep_agg_cols)} cnt columns, dropping all mean/p90")
             elif feat_cols_override is not None:
-                # v0:用户自定义特征集(如 basic30 / cnt42),feature_set 仅做命名标签
-                # 默认走 no_laglead 路径确保 cnt 列存在,然后用 override 筛选
+                # v0: user-defined feature set (e.g. basic30 / cnt42), feature_set is only a naming label
+                # By default take the no_laglead path to ensure cnt columns exist, then filter with the override
                 df = build_features_v2(df, include_aggregate=True, include_lead=True)
                 feat_cols = [c for c in feat_cols_override if c in df.columns]
-                print(f"  [feat_cols_override] 使用 {len(feat_cols)} 列")
+                print(f"  [feat_cols_override] using {len(feat_cols)} columns")
             else:
-                raise ValueError(f"未知 feature_set: {feature_set}")
+                raise ValueError(f"unknown feature_set: {feature_set}")
 
-            # 保存到缓存
+            # Save to cache
             if cache_path:
-                print(f"  保存缓存: {cache_path}")
+                print(f"  Saving cache: {cache_path}")
                 df.to_parquet(cache_path, index=False)
 
-        # v0:stage="val" 时,从训练剔除 holdout_months(默认 [1, 7])
+        # v0: when stage="val", remove holdout_months from training (default [1, 7])
         if stage == "val":
             if holdout_months is None:
                 holdout_months = [1, 7]
@@ -284,39 +284,39 @@ def run_experiment(
             sched = df["SCHED_TIME_UTC_mvt"]
             month_mask = sched.dt.month.isin(holdout_months)
             df_train_only = df[~month_mask].reset_index(drop=True)
-            print(f"\n  [stage=val] 从训练剔除 holdout 月份 {holdout_months}")
-            print(f"    训练: {len(df_train_only):,} (剔除前 {n_before:,})")
-            print(f"    holdout 月份的样本数: {month_mask.sum():,}")
+            print(f"\n  [stage=val] removing holdout months from training: {holdout_months}")
+            print(f"    train: {len(df_train_only):,} (before removal {n_before:,})")
+            print(f"    samples in holdout months: {month_mask.sum():,}")
             df = df_train_only
 
-        # 丢掉有缺失标签的行
+        # Drop rows with missing labels
         df = df.dropna(subset=["TAXITIME_SEC_mvt"]).reset_index(drop=True)
-        # v2 异常值过滤(从 EDA 发现:有负数 -12s,有极端值 131167s=36 小时)
-        # > 0 过滤掉负数,< 10800(3 小时)过滤极端值,覆盖 99.99% 真实数据
+        # v2 outlier filtering (found from EDA: negatives like -12s, extreme value 131167s = 36 hours)
+        # > 0 filters out negatives, < 10800 (3 hours) filters extremes, covering 99.99% of real data
         df = df[(df["TAXITIME_SEC_mvt"] > 0) & (df["TAXITIME_SEC_mvt"] < 10800)].reset_index(drop=True)
-        print(f"过滤后训练样本: {len(df):,}")
+        print(f"training samples after filtering: {len(df):,}")
         mlflow.log_param("n_train_samples", len(df))
 
-        # 2. 准备 X, y
-        print(f"\n使用的特征({len(feat_cols)} 个): {feat_cols}")
+        # 2. Prepare X, y
+        print(f"\nfeatures used ({len(feat_cols)}): {feat_cols}")
 
         X = df[feat_cols]
         y = df["TAXITIME_SEC_mvt"]
 
-        # v3.7:长尾加权 —— 给 top 1% 长尾样本 tail_weight 权重
-        # 原理:RMSE 被长尾大误差主导,加权重让模型更重视长尾预测
+        # v3.7: long-tail weighting - give top 1% long-tail samples a tail_weight weight
+        # Rationale: RMSE is dominated by large long-tail errors, weighting pushes the model to care more about the tail
         if tail_weight != 1.0:
             threshold = y.quantile(tail_quantile)
             sample_weight = np.where(y > threshold, tail_weight, 1.0).astype("float32")
             n_tail = (y > threshold).sum()
-            print(f"\n[v3.7 长尾加权] 阈值 p{tail_quantile*100:.0f}={threshold:.0f}s, "
-                  f"{n_tail:,} 行 ({n_tail/len(y)*100:.1f}%) 权重={tail_weight}, "
-                  f"其余权重=1.0")
+            print(f"\n[v3.7 long-tail weighting] threshold p{tail_quantile*100:.0f}={threshold:.0f}s, "
+                  f"{n_tail:,} rows ({n_tail/len(y)*100:.1f}%) weight={tail_weight}, "
+                  f"remaining weight=1.0")
         else:
             sample_weight = None
 
-        # 3. 多切分验证
-        print("\n2. 跑多切分验证...")
+        # 3. Multi-split validation
+        print("\n2. Running multi-split validation...")
         splits = get_validation_splits(df)
 
         all_metrics = {}
@@ -324,22 +324,22 @@ def run_experiment(
             ("winter_main", splits["winter"]),
             ("summer_aux", splits["summer"]),
         ]:
-            print(f"\n--- 切分: {split_name} ({split.val_period}) ---")
+            print(f"\n--- split: {split_name} ({split.val_period}) ---")
             X_tr, y_tr = X[split.train_mask], y[split.train_mask]
             X_va, y_va = X[split.val_mask], y[split.val_mask]
-            # v3.7:sample_weight 也按 train_mask 切(只对 train 部分加权)
+            # v3.7: sample_weight is also split by train_mask (weight only the train part)
             sw_tr = sample_weight[split.train_mask] if sample_weight is not None else None
-            print(f"  训练: {len(X_tr):,} 行, 验证: {len(X_va):,} 行")
+            print(f"  train: {len(X_tr):,} rows, val: {len(X_va):,} rows")
 
             booster, metrics = train_one_split(X_tr, y_tr, X_va, y_va, params, sample_weight=sw_tr)
-            print(f"  验证指标: {metrics}")
+            print(f"  validation metrics: {metrics}")
 
             for k, v in metrics.items():
                 mlflow.log_metric(f"{split_name}_{k}", v)
             all_metrics[split_name] = metrics
 
-        # 4. K 折时序 CV(只看平均 RMSE)
-        print(f"\n--- K 折时序 CV ({len(splits['kfold'])} 折) ---")
+        # 4. K-fold time series CV (only look at average RMSE)
+        print(f"\n--- K-fold time series CV ({len(splits['kfold'])} folds) ---")
         cv_rmses = []
         for i, split in enumerate(splits["kfold"], 1):
             X_tr, y_tr = X[split.train_mask], y[split.train_mask]
@@ -357,16 +357,16 @@ def run_experiment(
         mlflow.log_metric("kfold_std_rmse", cv_std)
         all_metrics["kfold_mean_rmse"] = cv_mean
         all_metrics["kfold_std_rmse"] = cv_std
-        print(f"\nK 折平均 RMSE: {cv_mean:.2f} ± {cv_std:.2f}")
+        print(f"\nK-fold mean RMSE: {cv_mean:.2f} +/- {cv_std:.2f}")
 
-        # 5. 训练最终模型(全量 12 个月,不用验证集早停)
-        # 用 K 折平均 best_iter 作为参考
+        # 5. Train the final model (full 12 months, no validation early stopping)
+        # Use the K-fold mean best_iter as a reference
         mean_best_iter = int(np.mean([
             m.get("best_iter", 500)
             for m in all_metrics.values()
             if isinstance(m, dict) and "best_iter" in m
         ]))
-        print(f"\n3. 训练最终模型(全量数据,迭代 {mean_best_iter} 轮)...")
+        print(f"\n3. Training final model (full data, {mean_best_iter} iterations)...")
         X_enc = _encode_categoricals(X, fit=True)
         dfull = xgb.DMatrix(X_enc, label=y, weight=sample_weight)
         final_booster = xgb.train(
@@ -376,20 +376,20 @@ def run_experiment(
             verbose_eval=200,
         )
 
-        # 6. 保存模型 + 记录 feature importance
+        # 6. Save model + record feature importance
         models_dir = Path("models")
         models_dir.mkdir(exist_ok=True)
-        # v0:版本化文件名(stage0: 验证模型;final: 12 月训练)— 强制禁止覆盖 baseline_xgb.json
-        # 模型名格式:models/xgb_{version}_{feature_set}_seed{seed}_{stage}.json
+        # v0: versioned file name (stage0: validation model; final: 12-month training) - forcibly forbid overwriting baseline_xgb.json
+        # Model name format: models/xgb_{version}_{feature_set}_seed{seed}_{stage}.json
         seed = params.get("seed", 42)
         model_name = f"xgb_{model_version}_{feature_set}_seed{seed}_{stage}.json"
         model_path = models_dir / model_name
         final_booster.save_model(str(model_path))
-        # v0:模型↔特征列绑定
+        # v0: bind model <-> feature columns
         feat_list_dir = models_dir / "feature_lists"
         feat_list_dir.mkdir(exist_ok=True, parents=True)
         feat_list_path = feat_list_dir / f"{model_name.replace('.json', '.json')}"
-        # 上面的写法有 bug,修正:直接写 features.json 文件名
+        # The above approach has a bug, fix: directly write the features.json file name
         feat_list_file = feat_list_dir / f"{model_name.replace('.json', '')}_features.json"
         feat_list_file.write_text(json.dumps({
             "model_name": model_name,
@@ -400,12 +400,12 @@ def run_experiment(
             "n_features": len(feat_cols),
             "features": list(feat_cols),
         }, indent=2))
-        print(f"  模型保存: {model_path}")
-        print(f"  特征列清单: {feat_list_file}")
+        print(f"  model saved: {model_path}")
+        print(f"  feature column list: {feat_list_file}")
         mlflow.log_artifact(str(model_path), artifact_path="model")
         mlflow.log_artifact(str(feat_list_file), artifact_path="features_meta")
 
-        # 特征重要性
+        # Feature importance
         importance = final_booster.get_score(importance_type="gain")
         importance_df = pd.DataFrame([
             {"feature": k, "importance_gain": v}
@@ -415,15 +415,15 @@ def run_experiment(
         importance_df.to_csv(importance_path, index=False)
         mlflow.log_artifact(str(importance_path), artifact_path="feature_importance")
 
-        print(f"\nTop 10 重要特征:\n{importance_df.head(10).to_string(index=False)}")
+        print(f"\nTop 10 important features:\n{importance_df.head(10).to_string(index=False)}")
 
-        # 7. 记录到 MLflow 的"tag",方便筛选实验
+        # 7. Record into MLflow "tag", to make experiment filtering easier
         mlflow.set_tag("stage", "baseline")
         mlflow.set_tag("features", "basic_no_aggregate")
         mlflow.set_tag("model", "xgboost")
 
-        # 输出 run id
-        print(f"\n✅ 实验完成,MLflow run_id = {run.info.run_id}")
+        # Output run id
+        print(f"\n✅ experiment complete, MLflow run_id = {run.info.run_id}")
 
         return {
             "run_id": run.info.run_id,
@@ -433,61 +433,61 @@ def run_experiment(
 
 
 # ---------------------------------------------------------------------------
-# CLI 入口
+# CLI entry point
 # ---------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="PRC 2026 XGBoost baseline")
-    parser.add_argument("--data-dir", default="data/raw", help="训练数据目录")
-    parser.add_argument("--experiment-name", default="prc-2026-xgb-baseline", help="MLflow 实验名")
-    parser.add_argument("--tracking-uri", default="mlruns", help="MLflow 后端 URI")
-    parser.add_argument("--learning-rate", type=float, default=None, help="覆盖默认学习率")
-    parser.add_argument("--max-depth", type=int, default=None, help="覆盖默认 max_depth")
+    parser.add_argument("--data-dir", default="data/raw", help="training data directory")
+    parser.add_argument("--experiment-name", default="prc-2026-xgb-baseline", help="MLflow experiment name")
+    parser.add_argument("--tracking-uri", default="mlruns", help="MLflow backend URI")
+    parser.add_argument("--learning-rate", type=float, default=None, help="override the default learning rate")
+    parser.add_argument("--max-depth", type=int, default=None, help="override the default max_depth")
     parser.add_argument(
         "--feature-set",
         default="basic",
-        help="特征集标签(仅用于命名)。取值:basic / basic30 / aggregate / all / no_laglead / cnt42 等。"
-             "实际过滤规则由 --feat-cols 控制(默认 basic=BASELINE_FEATURE_COLS)",
+        help="feature set label (only used for naming). Values: basic / basic30 / aggregate / all / no_laglead / cnt42 etc. "
+             "The actual filtering rule is controlled by --feat-cols (default basic=BASELINE_FEATURE_COLS)",
     )
     parser.add_argument(
         "--feat-cols",
         default=None,
-        help="v0:自定义特征列清单(JSON 列表文件)。如未提供,按 feature_set 推断",
+        help="v0: custom feature column list (JSON list file). If not provided, inferred from feature_set",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="随机种子(默认 42,用户指定 seed0 时传 0)",
+        help="random seed (default 42, pass 0 when the user specifies seed0)",
     )
     parser.add_argument(
         "--cache",
         default=None,
-        help="features 缓存 parquet 路径(跳过 lag/lead 重算)",
+        help="features cache parquet path (skip lag/lead recomputation)",
     )
     parser.add_argument(
         "--tail-quantile", type=float, default=0.99,
-        help="v3.7:长尾加权阈值(默认 0.99=top 1%)",
+        help="v3.7: long-tail weighting threshold (default 0.99 = top 1%)",
     )
     parser.add_argument(
         "--tail-weight", type=float, default=2.0,
-        help="v3.7:长尾样本权重(默认 2.0,1.0=不加权)",
+        help="v3.7: long-tail sample weight (default 2.0, 1.0 = no weighting)",
     )
     parser.add_argument(
         "--model-version", type=str, default="v0",
-        help="v0:模型版本号(影响文件名,如 v0 / v7)",
+        help="v0: model version number (affects file name, e.g. v0 / v7)",
     )
     parser.add_argument(
         "--stage", type=str, default="val", choices=["val", "final"],
-        help="val:剔除 holdout 月份训练;final:12 月全量训练",
+        help="val: train with holdout months removed; final: full 12-month training",
     )
     parser.add_argument(
         "--holdout-months", type=int, nargs="+", default=None,
-        help="stage=val 时剔除的月份(默认 [1, 7])",
+        help="months removed when stage=val (default [1, 7])",
     )
     args = parser.parse_args()
 
-    # 覆盖超参(可选)
+    # Override hyperparameters (optional)
     overrides = {}
     if args.learning_rate is not None:
         overrides["learning_rate"] = args.learning_rate
@@ -495,7 +495,7 @@ def main():
         overrides["max_depth"] = args.max_depth
     overrides["seed"] = args.seed
 
-    # 加载 feat-cols(如提供)
+    # Load feat-cols (if provided)
     feat_cols_override = None
     if args.feat_cols is not None and Path(args.feat_cols).exists():
         feat_cols_override = json.loads(Path(args.feat_cols).read_text())
@@ -514,7 +514,7 @@ def main():
         holdout_months=args.holdout_months,
         feat_cols_override=feat_cols_override,
     )
-    print(f"\n📊 最终结果:\n{json.dumps(result, indent=2, default=str)}")
+    print(f"\n📊 final result:\n{json.dumps(result, indent=2, default=str)}")
 
 
 if __name__ == "__main__":

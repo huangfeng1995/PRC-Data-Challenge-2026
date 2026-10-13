@@ -1,18 +1,18 @@
 """
-推理 + 生成提交 parquet (LightGBM 版本)
-======================================
+Inference + submission parquet generation (LightGBM version)
+============================================================
 
-⚠️ 注意:这个文件是 LightGBM 推理版本,只用于 train_lgb.py 训练出来的模型。
-   实际推荐使用 predict_xgb.py(XGBoost 版本,无 libomp 依赖)。
+Note: this file is the LightGBM inference version, only for models trained by train_lgb.py.
+   In practice predict_xgb.py (XGBoost version, no libomp dependency) is recommended.
 
-功能:
-1. 加载训练好的 LightGBM 模型
-2. 对 ranking.parquet(2026-01 + 2026-07)做特征工程
-3. 预测 TAXITIME_SEC_mvt
-4. 对齐到 submitting.parquet 模板的 MVT_ID_mvt,生成可提交的 parquet
+What it does:
+1. Load the trained LightGBM model
+2. Do feature engineering on ranking.parquet (2026-01 + 2026-07)
+3. Predict TAXITIME_SEC_mvt
+4. Align to the MVT_ID_mvt of the submitting.parquet template and produce a submittable parquet
 
-⚠️ 重要:对 ranking 数据做特征工程时,只能用"可实时获取"的字段,
-   不能用 AOBT_3_flt / BLOCK_TIME_UTC_mvt(它们包含泄漏信息,且 ranking 里被屏蔽了)。
+Important: when doing feature engineering on the ranking data, only "real-time available" fields can be used,
+   AOBT_3_flt / BLOCK_TIME_UTC_mvt must not be used (they contain leakage information and are masked in ranking).
 """
 
 from __future__ import annotations
@@ -35,39 +35,39 @@ def predict_and_submit(
     clip_min: int = 30,
     clip_max: int = 7200,
 ) -> pd.DataFrame:
-    """跑推理 + 生成提交 parquet。
+    """Run inference + generate the submission parquet.
 
-    参数:
-        model_path: 训练好的模型路径
-        data_dir: 数据目录(包含 ranking.parquet 和 submitting.parquet)
-        output_path: 提交文件输出路径
-        clip_min/max: 预测值裁剪范围(秒)
+    Args:
+        model_path: path to the trained model
+        data_dir: data directory (containing ranking.parquet and submitting.parquet)
+        output_path: output path of the submission file
+        clip_min/max: clipping range of the predictions (seconds)
     """
-    # 1. 加载模型
-    print(f"加载模型: {model_path}")
+    # 1. Load the model
+    print(f"Loading model: {model_path}")
     booster = lgb.Booster(model_file=model_path)
 
-    # 2. 加载 ranking 数据 + 跑特征
-    print("加载 ranking 数据...")
+    # 2. Load ranking data + run feature engineering
+    print("Loading ranking data...")
     df_rank = load_ranking(data_dir)
     df_rank_feat = build_features(df_rank)
 
-    # 3. 选择特征(只保留训练时用过的列)
+    # 3. Select features (keep only the columns used during training)
     feat_cols = [c for c in BASELINE_FEATURE_COLS if c in df_rank_feat.columns]
     X = df_rank_feat[feat_cols]
 
-    # 类别列对齐:训练时见过的 category,推理时也可能见到新的,设为 NaN
-    # LightGBM 原生会处理 unknown category,不用手动对齐
+    # Categorical column alignment: categories seen during training may be new at inference time, set them to NaN
+    # LightGBM natively handles unknown categories, no manual alignment needed
 
-    # 4. 预测
-    print("预测...")
+    # 4. Predict
+    print("Predicting...")
     y_pred = booster.predict(X)
 
-    # 5. 裁剪到合理范围
+    # 5. Clip to a reasonable range
     y_pred = np.clip(y_pred, clip_min, clip_max)
 
-    # 6. 对齐到提交模板
-    print(f"对齐到提交模板...")
+    # 6. Align to the submission template
+    print(f"Aligning to the submission template...")
     template = load_submission_template(data_dir)
 
     pred_df = pd.DataFrame({
@@ -75,37 +75,37 @@ def predict_and_submit(
         "TAXITIME_SEC_mvt": y_pred,
     })
 
-    # 用模板的 MVT_ID 顺序,左连接预测值
+    # Use the MVT_ID order of the template and left-join the predictions
     submission = template[["MVT_ID_mvt"]].merge(
         pred_df, on="MVT_ID_mvt", how="left"
     )
 
-    # 检查是否有缺失
+    # Check whether there are missing values
     n_missing = submission["TAXITIME_SEC_mvt"].isna().sum()
     if n_missing > 0:
-        print(f"⚠️ 有 {n_missing} 个 MVT_ID 没匹配到预测值,用全局中位数填充")
+        print(f"{n_missing} MVT_ID values had no prediction matched, filling with the global median")
         median_pred = float(np.nanmedian(y_pred))
         submission["TAXITIME_SEC_mvt"] = submission["TAXITIME_SEC_mvt"].fillna(median_pred)
 
-    # 检查类型
+    # Check the dtype
     submission["TAXITIME_SEC_mvt"] = submission["TAXITIME_SEC_mvt"].astype("float64")
 
-    # 7. 保存
+    # 7. Save
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     submission.to_parquet(output_path, index=False)
 
-    print(f"\n✅ 提交文件已生成: {output_path}")
-    print(f"  总行数: {len(submission):,}")
-    print(f"  预测值范围: [{submission['TAXITIME_SEC_mvt'].min():.1f}, "
-          f"{submission['TAXITIME_SEC_mvt'].max():.1f}] 秒")
-    print(f"  预测值中位数: {submission['TAXITIME_SEC_mvt'].median():.1f} 秒")
+    print(f"\n✅ Submission file generated: {output_path}")
+    print(f"  Total rows: {len(submission):,}")
+    print(f"  Prediction range: [{submission['TAXITIME_SEC_mvt'].min():.1f}, "
+          f"{submission['TAXITIME_SEC_mvt'].max():.1f}] seconds")
+    print(f"  Prediction median: {submission['TAXITIME_SEC_mvt'].median():.1f} seconds")
 
     return submission
 
 
 def main():
-    parser = argparse.ArgumentParser(description="PRC 2026 推理 + 生成提交")
+    parser = argparse.ArgumentParser(description="PRC 2026 inference + submission generation")
     parser.add_argument("--model", default="models/baseline_lgb.txt")
     parser.add_argument("--data-dir", default="data/raw")
     parser.add_argument("--output", default="submissions/baseline_v1.parquet")

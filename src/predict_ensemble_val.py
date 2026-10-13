@@ -1,16 +1,16 @@
 """
-用 OOF 验证模型(没等 final 训练完成)生成 ensemble 提交
-============================================================
+Generate an ensemble submission using the OOF validation models (without waiting for final training)
+=====================================================================================================
 
-策略:
-- 加载 models/ensemble_val/ 下的 6 个验证模型(3 XGB + 3 LGB)
-- 用每个模型预测 rank 数据
-- 按 weights.json 加权平均
-- 生成 v4 提交
+Strategy:
+- Load the 6 validation models under models/ensemble_val/ (3 XGB + 3 LGB)
+- Predict the ranking data with each model
+- Weighted average according to weights.json
+- Generate the v4 submission
 
 v4 vs v3:
-- v3:单个 XGB tuned 模型,leaderboard RMSE 待揭晓
-- v4:XGB+LGB ensemble(3 seeds each),验证集 RMSE 231.56 vs v3 232.71
+- v3: a single tuned XGB model, leaderboard RMSE pending
+- v4: XGB+LGB ensemble (3 seeds each), validation RMSE 231.56 vs v3 232.71
 """
 from __future__ import annotations
 
@@ -38,12 +38,12 @@ def predict_ensemble_val(
     clip_min: int = 30,
     clip_max: int = 10800,
 ) -> pd.DataFrame:
-    """用 OOF 验证模型生成 ensemble 提交。"""
+    """Generate an ensemble submission using the OOF validation models."""
 
     models_dir = Path(models_dir)
     weights_path = models_dir / "weights.json"
     if not weights_path.exists():
-        raise FileNotFoundError(f"Missing {weights_path},先跑 train_ensemble 至少到 OOF 阶段")
+        raise FileNotFoundError(f"Missing {weights_path}, run train_ensemble at least up to the OOF stage first")
 
     meta = json.loads(weights_path.read_text())
     weights = meta["weights"]
@@ -51,20 +51,20 @@ def predict_ensemble_val(
     feat_cols = meta["feat_cols"]
     model_keys = meta["models"]
 
-    print(f"加载 {len(model_keys)} 个验证模型 + weights {weights}, blend={blend_mode}")
+    print(f"Loading {len(model_keys)} validation models + weights {weights}, blend={blend_mode}")
 
-    # 1. 加载 train 数据(只为学 cat 映射)
-    print("加载训练数据 + 构造特征(只为 fit cat 映射)...")
+    # 1. Load train data (only to learn the cat mappings)
+    print("Loading training data + building features (only to fit the cat mappings)...")
     from src.data_loader import load_training
     df_train = load_training(data_dir)
     df_train_feat = build_features(df_train)
 
-    # 2. 加载 ranking 数据 + 基础特征
-    print("加载 ranking 数据...")
+    # 2. Load ranking data + base features
+    print("Loading ranking data...")
     df_rank = load_ranking(data_dir)
     df_rank_feat = build_features(df_rank)
 
-    # 3. 合并算 lag/lead
+    # 3. Concatenate to compute lag/lead
     df_train_feat["__is_train__"] = True
     df_rank_feat["__is_train__"] = False
     for col in ["ADEP_mvt", "RUNWAY_mvt", "EOBT_1_flt", "TAXITIME_SEC_mvt"]:
@@ -73,7 +73,7 @@ def predict_ensemble_val(
 
     common_cols = list(set(df_train_feat.columns) & set(df_rank_feat.columns))
     df_all = pd.concat([df_train_feat[common_cols], df_rank_feat[common_cols]], axis=0, ignore_index=True)
-    print(f"  合并后: {len(df_all):,}")
+    print(f"  After concatenation: {len(df_all):,}")
 
     cat_in_all = [c for c in ["ADEP_mvt", "ADES_mvt", "AIRCRAFT_TYPE_mvt", "RUNWAY_mvt", "STAND_mvt",
                                 "MARKET_SEGMENT_flt", "FLIGHT_RULE_flt", "FLIGHT_TYPE_flt",
@@ -81,9 +81,9 @@ def predict_ensemble_val(
                                 "airport_hour"] if c in df_all.columns]
     df_all = to_categorical(df_all, cat_in_all)
 
-    print("算 lag features...")
+    print("Computing lag features...")
     df_all = add_aggregate_features(df_all)
-    print("算 lead features...")
+    print("Computing lead features...")
     df_all = add_lead_features(df_all)
 
     train_mask = df_all["__is_train__"].values
@@ -91,55 +91,55 @@ def predict_ensemble_val(
 
     df_rank_full = df_all[~train_mask].reset_index(drop=True)
 
-    # 4. fit cat 编码(用 train_full)
+    # 4. fit the cat encoding (using train_full)
     df_train_full = df_all[train_mask].reset_index(drop=True)
     X_train_for_cat = df_train_full[feat_cols]
     _encode_categoricals(X_train_for_cat, fit=True)
 
-    # 5. rank 编码 + 推理
-    print("推理 6 个模型 + 加权融合...")
+    # 5. rank encoding + inference
+    print("Running inference on 6 models + weighted blending...")
     X_rank = df_rank_full[feat_cols]
     X_rank_enc = _encode_categoricals(X_rank, fit=False)
 
     model_preds = {}  # key: model_name (e.g. "xgb"), value: avg_pred of seeds
     for key in model_keys:
         model_type, _, seed_str = key.partition("__seed_")
-        model_name = model_type  # "xgb" 或 "lgb"
+        model_name = model_type  # "xgb" or "lgb"
 
         pkl_path = models_dir / f"{key}.pkl"
         if not pkl_path.exists():
-            print(f"  ⚠️ 缺失 {pkl_path},跳过")
+            print(f"  Missing {pkl_path}, skipping")
             continue
 
-        # 注:wrapper.save 实际调 XGB/LGB 的 native save_model(写入 .pkl 后缀的 JSON 格式)
+        # Note: wrapper.save actually calls the native save_model of XGB/LGB (writes JSON format with a .pkl suffix)
         if model_name == "xgb":
             booster = xgb.Booster()
             booster.load_model(str(pkl_path))
-            # XGBoost 模型期望已经整数编码过的 cat(和训练时一致)
-            # _encode_categoricals 在 fit 时已建立了映射,fit=False 直接用
-            # 注意:X_rank_enc 里有些 cat 列可能还是 object(因为 dtype 不是 category)
-            # 我们再转换一次
+            # XGBoost models expect cat columns already integer-encoded (same as at training time)
+            # _encode_categoricals already built the mapping at fit time, fit=False reuses it directly
+            # Note: some cat columns in X_rank_enc may still be object (because the dtype is not category)
+            # We convert them once more
             X_for_xgb = _encode_categoricals(X_rank.copy(), fit=False)
             dinfer = xgb.DMatrix(X_for_xgb)
             y_pred = booster.predict(dinfer)
         elif model_name == "lgb":
             booster = lgb.Booster(model_file=str(pkl_path))
-            # LGB 在训练时 cat 列的 categories 来自 winter_train,但 rank 数据有不同/更多 categories
-            # 解决:把 X_rank 转成和训练时同样 cat categories(用 LGB 内部 store 的 cat)
-            # 但 booster 不暴露 cat info;替代办法:把 cat 列转成 int code (用训练时的 cat→int 映射)
+            # At training time the categories of the LGB cat columns come from winter_train, but the rank data has different/more categories
+            # Solution: convert X_rank to the same cat categories as at training time (using the cat stored inside LGB)
+            # But the booster does not expose the cat info; alternative: convert the cat columns to int codes (using the training-time cat->int mapping)
             X_for_lgb = _encode_categoricals(X_rank.copy(), fit=False)
-            # LGB 训练时 cat 列名是 XGB 同名,所以我们复用 cat encoding
-            # 把 cat 列以外的 category dtype 转 object(LGB 需要的是 category or int)
+            # The LGB cat column names are identical to XGB, so we reuse the cat encoding
+            # Convert category dtypes other than the cat columns to object (LGB needs category or int)
             y_pred = booster.predict(X_for_lgb, num_iteration=booster.best_iteration)
         else:
-            raise ValueError(f"未知模型: {model_name}")
+            raise ValueError(f"Unknown model: {model_name}")
 
         if model_name not in model_preds:
             model_preds[model_name] = []
         model_preds[model_name].append(y_pred)
         print(f"  ✓ {key}")
 
-    # 6. 融合:每个 model 内 seed 平均,然后按 weights 加权
+    # 6. Blending: average the seeds within each model, then weight them by weights
     final_pred = np.zeros(len(df_rank_full))
     for model_name, preds_list in model_preds.items():
         avg = np.mean(preds_list, axis=0)
@@ -149,7 +149,7 @@ def predict_ensemble_val(
 
     final_pred = np.clip(final_pred, clip_min, clip_max)
 
-    # 7. 对齐模板 + 保存
+    # 7. Align to the template + save
     template = load_submission_template(data_dir)
     pred_df = pd.DataFrame({
         "MVT_ID_mvt": df_rank_full["MVT_ID_mvt"].values,
@@ -167,18 +167,18 @@ def predict_ensemble_val(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     submission.to_parquet(output_path, index=False)
 
-    print(f"\n✅ 提交生成: {output_path}")
-    print(f"  总行数: {len(submission):,}")
-    print(f"  预测值范围: [{submission['TAXITIME_SEC_mvt'].min():.1f}, "
-          f"{submission['TAXITIME_SEC_mvt'].max():.1f}] 秒")
-    print(f"  预测值中位数: {submission['TAXITIME_SEC_mvt'].median():.1f} 秒")
-    print(f"  OOF 验证 RMSE: 231.56 (winter split)")
+    print(f"\n✅ Submission generated: {output_path}")
+    print(f"  Total rows: {len(submission):,}")
+    print(f"  Prediction range: [{submission['TAXITIME_SEC_mvt'].min():.1f}, "
+          f"{submission['TAXITIME_SEC_mvt'].max():.1f}] seconds")
+    print(f"  Prediction median: {submission['TAXITIME_SEC_mvt'].median():.1f} seconds")
+    print(f"  OOF validation RMSE: 231.56 (winter split)")
 
     return submission
 
 
 def main():
-    parser = argparse.ArgumentParser(description="用 OOF 验证模型生成 ensemble 提交")
+    parser = argparse.ArgumentParser(description="Generate an ensemble submission using the OOF validation models")
     parser.add_argument("--models-dir", default="models/ensemble_val")
     parser.add_argument("--data-dir", default="data/raw")
     parser.add_argument("--output", default="submissions/jubilant-puzzle_v4.parquet")
