@@ -1,13 +1,13 @@
 """
-v23_ablation.py — 拆解 v23 真榜退化 (392.58 vs v22 360.86) 的两个混淆因素
+v23_ablation.py — decompose the two confounders behind the v23 leaderboard degradation (392.58 vs v22 360.86)
 
-v23 (P50) 与 v15/v22 (L2) 的差异不止目标函数:
-  (A) 目标函数: quantile(alpha=0.5)  vs  regression(L2)
-  (B) 轮数:     CAP=2000 (撞 cap)   vs  3000 (撞 cap)
-  (C) 训练标签: 未清洗 (含 y<=0 / y>10800) vs 清洗 (0 < y <= 10800)
+v23 (P50) differs from v15/v22 (L2) in more than just the objective:
+  (A) objective:  quantile(alpha=0.5)  vs  regression(L2)
+  (B) rounds:     CAP=2000 (hit cap)   vs  3000 (hit cap)
+  (C) train labels: uncleaned (includes y<=0 / y>10800) vs cleaned (0 < y <= 10800)
 
-在**完全相同的 ES 划分**上评估四个组合, 用 ES full / core RMSE 判定主因。
-ES = 全年按 MVT 排序最后 10% (与 v23 训练脚本一致)。
+Four combinations are evaluated on **exactly the same ES split**, judged by ES full / core RMSE.
+ES = the last 10% of the year sorted by MVT (same as the v23 training script).
 """
 from __future__ import annotations
 import sys, json, time, pickle, warnings
@@ -34,17 +34,17 @@ SEED = 42
 _t0 = time.time()
 def lap(m=""): print(f"[{time.time()-_t0:7.1f}s] {m}", flush=True)
 
-lap("加载全年特征缓存")
+lap("Loading full-year feature cache")
 d = pickle.load(open(D0 / "_p50_full_X.pkl", "rb"))
 X, y, mvt = d["X"], d["y"], d["mvt"]
-lap(f"  X={X.shape}  y 中位={np.median(y):.0f}")
+lap(f"  X={X.shape}  y median={np.median(y):.0f}")
 
 n_all = len(y)
 n_le0 = int((y <= 0).sum())
 n_gt = int((y > 10800).sum())
-lap(f"  未清洗标签: y<=0 {n_le0:,}  y>10800 {n_gt:,}  合计剔 {n_le0+n_gt:,} ({100*(n_le0+n_gt)/n_all:.3f}%)")
+lap(f"  uncleaned labels: y<=0 {n_le0:,}  y>10800 {n_gt:,}  total dropped {n_le0+n_gt:,} ({100*(n_le0+n_gt)/n_all:.3f}%)")
 
-# ES 划分: 与 v23 脚本一致
+# ES split: same as the v23 script
 order = np.argsort(mvt, kind="stable")
 cut = int(n_all * 0.9)
 fit_idx, es_idx = order[:cut], order[cut:]
@@ -52,15 +52,15 @@ lap(f"fit {len(fit_idx):,} / ES {len(es_idx):,}")
 
 y_es = y[es_idx]
 core = (y_es > 0) & (y_es <= 10800)
-lap(f"ES core {int(core.sum()):,} / 全量 {len(y_es):,}")
-lap(f"ES 真值: >10800 有 {int((y_es>10800).sum())} 行, 其对 full SSE 贡献 "
-    f"{100*((y_es[~core]-y_es[~core].mean())**2).sum()/max(1e-9,((y_es-y_es.mean())**2).sum()):.1f}% (粗估)")
+lap(f"ES core {int(core.sum()):,} / full {len(y_es):,}")
+lap(f"ES ground truth: >10800 has {int((y_es>10800).sum())} rows, their contribution to full SSE "
+    f"{100*((y_es[~core]-y_es[~core].mean())**2).sum()/max(1e-9,((y_es-y_es.mean())**2).sum()):.1f}% (rough estimate)")
 
 def evaluate(p, name):
     p = np.clip(p, 30.0, 10800.0)
     full = float(np.sqrt(np.mean((p - y_es) ** 2)))
     c = float(np.sqrt(np.mean((p[core] - y_es[core]) ** 2)))
-    # 分档
+    # bins
     bins = [(0, 600), (600, 1800), (1800, 3600), (3600, 10800), (10800, 10**9)]
     seg = {}
     for lo, hi in bins:
@@ -96,25 +96,25 @@ def train(obj, rounds, clean, name, use_early_stop=True):
     return res
 
 results = {}
-lap("\n=== 组 1: 未清洗标签 (v23 口径) ===")
+lap("\n=== Group 1: uncleaned labels (v23 spec) ===")
 results["P50_r2000_dirty"] = train("quantile", 2000, None, "P50 r2000 dirty (== v23)")
 results["L2_r2000_dirty"]  = train("regression", 2000, None, "L2  r2000 dirty")
 
-lap("\n=== 组 2: 清洗标签 (v15 口径) ===")
+lap("\n=== Group 2: cleaned labels (v15 spec) ===")
 clean_mask = (y > 0) & (y <= 10800)
 results["L2_r3000_clean"]  = train("regression", 3000, clean_mask, "L2  r3000 clean (== v15)")
 results["P50_r3000_clean"] = train("quantile", 3000, clean_mask, "P50 r3000 clean")
 
-lap("\n=== 组 3: 隔离轮数 (清洗标签, 2000 轮) ===")
+lap("\n=== Group 3: isolate the round count (cleaned labels, 2000 rounds) ===")
 results["L2_r2000_clean"]  = train("regression", 2000, clean_mask, "L2  r2000 clean")
 results["P50_r2000_clean"] = train("quantile", 2000, clean_mask, "P50 r2000 clean")
 
-lap("\n=== 组 4: 拉满轮数 (清洗标签, 6000 轮) ===")
+lap("\n=== Group 4: max out the round count (cleaned labels, 6000 rounds) ===")
 results["L2_r6000_clean"]  = train("regression", 6000, clean_mask, "L2  r6000 clean")
 results["P50_r6000_clean"] = train("quantile", 6000, clean_mask, "P50 r6000 clean")
 
 print("\n" + "=" * 104)
-print(f"{'组合':<32} {'full':>9} {'core':>9} {'Δfull vs v15口径':>18}")
+print(f"{'combo':<32} {'full':>9} {'core':>9} {'D full vs v15 spec':>18}")
 print("=" * 104)
 base = results["L2_r3000_clean"]["full"]
 for k, v in results.items():

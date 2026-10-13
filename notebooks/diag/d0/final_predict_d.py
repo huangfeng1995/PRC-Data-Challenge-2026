@@ -1,26 +1,26 @@
 """
-阶段2: 在 final_ranking (2026 Jan/Feb/Jun/Jul) 上重建特征并生成提交
+Stage 2: rebuild features on final_ranking (2026 Jan/Feb/Jun/Jul) and generate submission
 ==============================================================
-方案 D 口径 (阶段1 已验证: 分机场 10/10 不劣化):
-  - LIRF 行        : 期望混合 mu = p*(MVT-SCHED) + (1-p)*mu_N  (SCHED 落 LOBT 窗外 -> p=0)
-  - 非 LIRF 行     : LGB 基线 3seed 平均, 不混合
-  - 全部 LOBT 有效行: 投影到 [MVT-LOBT-3606, MVT-LOBT+3606]; LOBT 缺失跳过
+Scheme D spec (verified in stage 1: no degradation at 10/10 airports):
+  - LIRF rows        : expected mixture mu = p*(MVT-SCHED) + (1-p)*mu_N  (SCHED outside LOBT window -> p=0)
+  - non-LIRF rows    : LGB baseline 3-seed average, no mixing
+  - all LOBT-valid rows: project to [MVT-LOBT-3606, MVT-LOBT+3606]; skip when LOBT is missing
   - clip [30, 10800]
 
-特征重建:
-  - 用与 2025 完全相同的 build_features 管线, 在 final_ranking DEP 上重建 FEATS71
-  - 所有 LUT (高基数编码 / t_unimp / cell 统计) 只用 2025 训练折, 禁用 2026 信息
-  - 基于 final_ranking 的 MVT 重算所有 MVT 依赖特征 (不���用旧 ranking 缓存)
-  - LOBT/SCHED/EOBT 等 _flt 列取 final_ranking
-  - train/serve 一致性断言: 列名/顺序/dtype 完全相同
+Feature rebuild:
+  - use exactly the same build_features pipeline as 2025, rebuild FEATS71 on final_ranking DEP
+  - all LUTs (high-cardinality encoding / t_unimp / cell stats) use only the 2025 training folds, no 2026 information
+  - recompute all MVT-dependent features from final_ranking MVT (do not reuse the old ranking cache)
+  - LOBT/SCHED/EOBT and other _flt columns are taken from final_ranking
+  - train/serve consistency assertion: identical column names / order / dtype
 
-模型:
-  - LGB 基线: p0_models/p0_lgb_seed{42,123,2024}.txt (2025 训练折, 71 特征)
-  - 拷贝分类器/正常回归: cp_mixture_models/{clf,reg}.pkl
+Models:
+  - LGB baseline: p0_models/p0_lgb_seed{42,123,2024}.txt (2025 training folds, 71 features)
+  - copy classifier / normal regressor: cp_mixture_models/{clf,reg}.pkl
 
-输出: submissions/jubilant-puzzle_final.parquet (MVT_ID_mvt, TAXITIME_SEC_mvt)
+Output: submissions/jubilant-puzzle_final.parquet (MVT_ID_mvt, TAXITIME_SEC_mvt)
 
-红线: 不改 label、不用外部数据、不写死机场(LIRF 既有规则除外)、不自动上传
+Hard constraints: no label changes, no external data, no hardcoded airports (except the existing LIRF rule), no auto upload
 """
 from __future__ import annotations
 import sys, json, time, os, pickle
@@ -147,10 +147,10 @@ def build_features(df_raw, ref_dep, lut, label):
 
 
 def encode_X(df):
-    """与 P0 训练完全一致 (p0_nine_model.train_lgb):
-    高基数列走 CAT_MAP 整数编码 (CAT_MAP 由 2025 训练折统计),
-    低基数 4 列保留 category dtype (训练时 categorical_feature=LOW_CARD_CATS)。
-    NaN 统一填 -999 (与 load_cache 一致)。"""
+    """Exactly consistent with P0 training (p0_nine_model.train_lgb):
+    high-cardinality columns use integer encoding from CAT_MAP (CAT_MAP is derived from the 2025 training folds),
+    the 4 low-cardinality columns keep category dtype (categorical_feature=LOW_CARD_CATS during training).
+    NaN is uniformly filled with -999 (same as load_cache)."""
     X = df[FEATS71].copy()
     for c in HIGH_CARD_CATS:
         if c in X.columns:
@@ -159,21 +159,21 @@ def encode_X(df):
     for c in LOW_CARD_CATS:
         if c in X.columns:
             X[c] = X[c].astype("category")
-    # 其余数值列的 NaN → -999
+    # NaN in the remaining numeric columns -> -999
     num_cols = [c for c in X.columns if c not in LOW_CARD_CATS]
     for c in num_cols:
         if X[c].isna().any():
             X[c] = X[c].fillna(-999.0)
     assert list(X.columns) == FEATS71
-    # LOW_CARD_CATS 是 category dtype, NaN 合法 (与训练一致); 只断言数值列无 NaN
+    # LOW_CARD_CATS are category dtype, NaN is legal (same as training); only assert no NaN in numeric columns
     bad = [c for c in num_cols if X[c].isna().any()]
-    assert not bad, f"数值列仍有 NaN: {bad}"
+    assert not bad, f"numeric columns still have NaN: {bad}"
     return X
 
 
 def encode_X_cp(df):
-    """拷贝分类器 / 正常回归的训练编码 (copy_mixture_lobt 复用 ngb_probe_reduced.load_cache):
-    所有 category 列直接取 cat.codes → float32, NaN → -999。"""
+    """Training encoding for the copy classifier / normal regressor (copy_mixture_lobt reuses ngb_probe_reduced.load_cache):
+    every category column takes cat.codes directly -> float32, NaN -> -999."""
     X = df[FEATS71].copy()
     cats = [c for c in X.columns if str(X[c].dtype) == "category"]
     for c in cats:
@@ -182,13 +182,13 @@ def encode_X_cp(df):
     if nan_cols:
         X[nan_cols] = X[nan_cols].fillna(-999.0)
     assert list(X.columns) == FEATS71
-    assert not X.isna().any().any(), "编码后仍有 NaN"
+    assert not X.isna().any().any(), "NaN still present after encoding"
     return X
 
 
 def main():
-    # ---------- [1] 训练折 LUT (仅 2025-02..12, 禁用 2026) ----------
-    lap("[1] 构建 LUT (仅 2025 fit 月 2..12)")
+    # ---------- [1] Training-fold LUT (2025-02..12 only, 2026 forbidden) ----------
+    lap("[1] Building LUT (fit on 2025 months 2..12 only)")
     train_months = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12]
     tr = []
     for m in train_months:
@@ -201,40 +201,40 @@ def main():
                          (df_tr_raw["TAXITIME_SEC_mvt"] > 0) &
                          (df_tr_raw["TAXITIME_SEC_mvt"] <= 10800)].copy()
     lut = L.build_t_unimp_lut(df_clean)
-    lap(f"  训练 DEP (2-12, TX∈(0,10800]) = {len(df_clean):,}, global_q30={lut['global_q30']:.0f}s")
+    lap(f"  train DEP (2-12, TX in (0,10800]) = {len(df_clean):,}, global_q30={lut['global_q30']:.0f}s")
 
-    # ---------- [2] 读 final_ranking ----------
-    lap("[2] 读取 final_ranking.parquet (2026 Jan/Feb/Jun/Jul)")
+    # ---------- [2] Read final_ranking ----------
+    lap("[2] Reading final_ranking.parquet (2026 Jan/Feb/Jun/Jul)")
     fin = pd.read_parquet("data/raw/final_ranking.parquet")
     assert "TAXITIME_SEC_mvt" in fin.columns
     n_all = len(fin)
     fin_dep_raw = fin[fin["PHASE_mvt"] == "DEP"].copy().reset_index(drop=True)
-    lap(f"  全量 {n_all:,} → DEP {len(fin_dep_raw):,}")
-    # 不碰 label: final DEP 的 TAXITIME / BLOCK 必须全空
-    assert fin_dep_raw["TAXITIME_SEC_mvt"].isna().all(), "final DEP 含非空 TAXITIME!"
-    assert fin_dep_raw["BLOCK_TIME_UTC_mvt"].isna().all(), "final DEP 含非空 BLOCK!"
+    lap(f"  all rows {n_all:,} → DEP {len(fin_dep_raw):,}")
+    # do not touch label: TAXITIME / BLOCK of final DEP must be all null
+    assert fin_dep_raw["TAXITIME_SEC_mvt"].isna().all(), "final DEP contains non-null TAXITIME!"
+    assert fin_dep_raw["BLOCK_TIME_UTC_mvt"].isna().all(), "final DEP contains non-null BLOCK!"
 
-    # ---------- [3] 重建特征 ----------
-    lap("[3] 重建 FEATS71 (基于 final MVT, LUT 仅用 2025)")
+    # ---------- [3] Rebuild features ----------
+    lap("[3] Rebuilding FEATS71 (based on final MVT, LUT from 2025 only)")
     fin_full = build_features(fin_dep_raw, df_tr_raw, lut, label="final")
     fin_dep = fin_full[fin_full["PHASE_mvt"] == "DEP"].copy().reset_index(drop=True)
     lap(f"  fin_dep = {len(fin_dep):,}")
 
-    # train/serve 一致性断言
+    # train/serve consistency assertion
     blob = pickle.load(open(D0 / "_qinv_feats.pkl", "rb"))
     tr71 = [c for c in blob["X"].columns if not c.startswith("q_")]
-    assert tr71 == FEATS71, "FEATS71 与训练不一致"
-    lap(f"  ✓ FEATS71 列名+顺序与训练一致 ({len(FEATS71)} 列)")
+    assert tr71 == FEATS71, "FEATS71 is inconsistent with training"
+    lap(f"  ✓ FEATS71 column names+order match training ({len(FEATS71)} columns)")
 
-    # ---------- [4] 编码 ----------
-    lap("[4] 整数编码 (两套: P0 基线 / 拷贝模型)")
-    X = encode_X(fin_dep)          # P0 LGB 基线
-    Xcp = encode_X_cp(fin_dep)     # 拷贝分类器 + 正常回归
+    # ---------- [4] Encoding ----------
+    lap("[4] Integer encoding (two sets: P0 baseline / copy models)")
+    X = encode_X(fin_dep)          # P0 LGB baseline
+    Xcp = encode_X_cp(fin_dep)     # copy classifier + normal regressor
     assert list(X.columns) == FEATS71 and list(Xcp.columns) == FEATS71
     lap(f"  X (P0) {X.shape}   X_cp {Xcp.shape}")
 
-    # ---------- [5] 推理 ----------
-    lap("[5] 推理: LGB 基线 3seed + 拷贝分类器 + 正常回归")
+    # ---------- [5] Inference ----------
+    lap("[5] Inference: LGB baseline 3-seed + copy classifier + normal regressor")
     base_seeds = []
     for sd in SEEDS:
         b = lgb.Booster(model_file=str(P0_DIR / f"p0_lgb_seed{sd}.txt"))
@@ -246,10 +246,10 @@ def main():
     reg = pickle.load(open(CP_DIR / "reg.pkl", "rb"))
     p = np.clip(clf.predict(Xcp, num_iteration=clf.best_iteration), 0, 1)
     mu_N = reg.predict(Xcp, num_iteration=reg.best_iteration)
-    lap(f"  p 均值={p.mean():.4f}  中位={np.median(p):.4f}  p>0.5={int((p>0.5).sum()):,}")
+    lap(f"  p mean={p.mean():.4f}  median={np.median(p):.4f}  p>0.5={int((p>0.5).sum()):,}")
 
-    # ---------- [6] D 口径合成 ----------
-    lap("[6] D 口径合成")
+    # ---------- [6] Scheme D composition ----------
+    lap("[6] Scheme D composition")
     mvt = to_sec(fin_dep["MVT_TIME_UTC_mvt"])
     sch = to_sec(fin_dep["SCHED_TIME_UTC_mvt"])
     lobt = to_sec(fin_dep["LOBT_flt"])
@@ -267,56 +267,56 @@ def main():
 
     Dp = np.where(is_lirf, mix, base)
     Dp = np.clip(Dp, CLIP_LO, CLIP_HI)
-    # LOBT 投影在 clip 之后做, 故投影后必须再 clip 一次保证值域合法
+    # LOBT projection is applied after clip, so it must be clipped once more to keep values in range
     m_ok = lobt_ok
     before = Dp[m_ok].copy()
     Dp[m_ok] = np.clip(before, lo_w[m_ok], hi_w[m_ok])
     n_proj_changed = int((np.abs(Dp[m_ok] - before) > 1e-9).sum())
     n_proj_reclip = int(((Dp < CLIP_LO) | (Dp > CLIP_HI)).sum())
     Dp = np.clip(Dp, CLIP_LO, CLIP_HI)
-    lap(f"  LOBT 有效 {int(m_ok.sum()):,} / {len(Dp):,}  (缺失跳过 {int((~m_ok).sum()):,})")
-    lap(f"  LOBT 投影改动 {n_proj_changed:,} 行  (投影后需再 clip {n_proj_reclip:,} 行)")
-    lap(f"  SCHED 落窗外 p=0: {int(sched_out.sum()):,}")
-    lap(f"  LIRF 行 {int(is_lirf.sum()):,}  (其中被替换为混合值 {int((is_lirf).sum()):,})")
+    lap(f"  LOBT valid {int(m_ok.sum()):,} / {len(Dp):,}  (missing skipped {int((~m_ok).sum()):,})")
+    lap(f"  LOBT projection changed {n_proj_changed:,} rows  (need re-clip after projection {n_proj_reclip:,} rows)")
+    lap(f"  SCHED outside window p=0: {int(sched_out.sum()):,}")
+    lap(f"  LIRF rows {int(is_lirf.sum()):,}  (of which replaced by the mixture {int((is_lirf).sum()):,})")
 
     np.savez(NPY, pred_D=Dp, pred_base=base, p=p, mu_N=mu_N, mu_C=mu_C,
              mvt=mvt, sch=sch, lobt=lobt, lobt_ok=lobt_ok, is_lirf=is_lirf,
              mvt_id=fin_dep["MVT_ID_mvt"].astype(float).to_numpy(),
              ap=ap)
 
-    # ---------- [7] 对齐 final_submitting 并输出 ----------
-    lap("[7] 对齐 final_submitting.parquet 并落盘")
+    # ---------- [7] Align with final_submitting and write out ----------
+    lap("[7] Aligning final_submitting.parquet and writing to disk")
     submitting = pd.read_parquet("data/raw/final_submitting.parquet")
     assert set(submitting.columns) == {"MVT_ID_mvt", "TAXITIME_SEC_mvt"}, submitting.columns.tolist()
-    lap(f"  final_submitting 行数 = {len(submitting):,}")
+    lap(f"  final_submitting rows = {len(submitting):,}")
 
     pred_map = pd.DataFrame({"MVT_ID_mvt": fin_dep["MVT_ID_mvt"].astype(float).values,
                              "TAXITIME_SEC_mvt": np.round(Dp, 0).astype(np.int64)})
-    assert pred_map["MVT_ID_mvt"].is_unique, "final DEP MVT_ID 有重复"
+    assert pred_map["MVT_ID_mvt"].is_unique, "final DEP MVT_ID has duplicates"
     out = submitting[["MVT_ID_mvt"]].merge(pred_map, on="MVT_ID_mvt", how="left")
-    assert len(out) == len(submitting), f"行数不匹配 {len(out)} vs {len(submitting)}"
+    assert len(out) == len(submitting), f"row count mismatch {len(out)} vs {len(submitting)}"
     assert out["TAXITIME_SEC_mvt"].notna().all(), \
         f"NaN {int(out['TAXITIME_SEC_mvt'].isna().sum())}"
     assert (out["TAXITIME_SEC_mvt"] >= CLIP_LO).all()
     assert (out["TAXITIME_SEC_mvt"] <= CLIP_HI).all()
     exp_ids = submitting["MVT_ID_mvt"].astype(float).values
-    assert np.all(exp_ids == out["MVT_ID_mvt"].astype(float).values), "MVT_ID 顺序不匹配"
-    assert set(exp_ids) == set(out["MVT_ID_mvt"].astype(float).values), "MVT_ID 集合不匹配"
-    lap(f"  ✓ 行数 {len(out):,} / MVT_ID 集合+顺序完全对齐 / 无 NaN / 范围合法")
+    assert np.all(exp_ids == out["MVT_ID_mvt"].astype(float).values), "MVT_ID order mismatch"
+    assert set(exp_ids) == set(out["MVT_ID_mvt"].astype(float).values), "MVT_ID set mismatch"
+    lap(f"  ✓ rows {len(out):,} / MVT_ID set+order fully aligned / no NaN / range valid")
 
     SUB_PATH.parent.mkdir(parents=True, exist_ok=True)
     out.to_parquet(SUB_PATH, index=False)
-    lap(f"  ✓ 落盘 {SUB_PATH}  ({SUB_PATH.stat().st_size:,} bytes)")
+    lap(f"  ✓ saved {SUB_PATH}  ({SUB_PATH.stat().st_size:,} bytes)")
 
-    # ---------- [8] 分布自检 ----------
-    lap("[8] 分布自检 + 分月")
+    # ---------- [8] Distribution self-check ----------
+    lap("[8] Distribution self-check + per-month breakdown")
     mo = pd.to_datetime(mvt, unit="s").dt.month.to_numpy()
 
     def q(s, p):
         return float(np.percentile(s, p))
 
     print("\n" + "=" * 74)
-    print("[分布自检] D 方案 final 预测")
+    print("[Distribution self-check] Scheme D final predictions")
     print("=" * 74)
     print(f"  n      = {len(Dp):,}")
     for nm, v in [("min", Dp.min()), ("p25", q(Dp, 25)), ("median", q(Dp, 50)),
@@ -326,19 +326,19 @@ def main():
     print(f"  >3600  : {int((Dp>3600).sum()):,}")
     print(f"  >1800  : {int((Dp>1800).sum()):,}")
     print(f"  ==30   : {int((Dp==30).sum()):,}")
-    # 基线对比
-    print(f"\n  基线 median={np.median(base):.0f}  D median={np.median(Dp):.0f} "
+    # baseline comparison
+    print(f"\n  base median={np.median(base):.0f}  D median={np.median(Dp):.0f} "
           f"(Δ{np.median(Dp)-np.median(base):+.0f})")
-    print(f"  基线 p95  ={q(base,95):.0f}  D p95  ={q(Dp,95):.0f} (Δ{q(Dp,95)-q(base,95):+.0f})")
+    print(f"  base p95  ={q(base,95):.0f}  D p95  ={q(Dp,95):.0f} (Δ{q(Dp,95)-q(base,95):+.0f})")
 
-    print("\n  分月行数与预测分布:")
+    print("\n  Per-month row counts and prediction distribution:")
     for mm in [1, 2, 6, 7]:
         m = mo == mm
         print(f"    mo={mm}: n={int(m.sum()):>7,}  median={np.median(Dp[m]):>7.0f} "
               f"p95={q(Dp[m],95):>8.0f}  max={Dp[m].max():>8.0f}  "
               f">3600={int((Dp[m]>3600).sum()):>6,}")
 
-    print("\n  分机场 (D vs 基线):")
+    print("\n  Per-airport (D vs baseline):")
     dfc = pd.DataFrame({"ap": ap, "D": Dp, "base": base})
     g = dfc.groupby("ap").agg(n=("D", "size"), med_D=("D", "median"),
                               med_b=("base", "median"), max_D=("D", "max"))
@@ -346,9 +346,9 @@ def main():
     print(g.to_string(float_format=lambda v: f"{v:,.0f}"))
 
     meta = {
-        "scheme": "D (LIRF 概率混合 + 全局 LOBT 窗口)",
+        "scheme": "D (LIRF probability mixture + global LOBT window)",
         "stage1_gate": {"D_not_worse_per_airport": "10/10 PASS",
-                        "delta_vs_C": 16.52, "note": "C(v22) 在 LIRF 上优于 D"},
+                        "delta_vs_C": 16.52, "note": "C(v22) is better than D on LIRF"},
         "n_final_dep": int(len(fin_dep)),
         "n_submitting": int(len(out)),
         "T_lobt": T_LOBT,
@@ -373,12 +373,12 @@ def main():
                          "n_gt_10800": int((Dp > 10800).sum())},
         "per_month_rows": {f"mo{mm}": int((mo == mm).sum()) for mm in [1, 2, 6, 7]},
         "submission_path": str(SUB_PATH),
-        "submission_status": "NOT uploaded (用户手动上传)",
+        "submission_status": "NOT uploaded (manual upload by the user)",
         "total_time_min": round((time.time() - _t0) / 60, 1),
     }
     META.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
     lap(f"\n→ {META}")
-    lap(f"总耗时 {(time.time() - _t0)/60:.1f} min")
+    lap(f"total time {(time.time() - _t0)/60:.1f} min")
 
 
 if __name__ == "__main__":

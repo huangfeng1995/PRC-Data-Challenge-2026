@@ -1,15 +1,15 @@
 """
-holdout 四个月复算 noclip E2 口径的 full RMSE (只读, 验证 ≈324.76)
+Recompute the full RMSE of the noclip E2 criterion over the four holdout months (read-only, verifies ≈324.76)
 ==================================================================
-口径 (与 submissions/jubilant-puzzle_final.parquet 完全一致):
-  - LIRF 且 (ADEP_flt 缺 且 MVT-SCHED>14400) → 替换为 MVT-SCHED (不 clip)
-  - 其余行 → LGB 基线
-  - 全部 LOBT 有效行投影 [MVT-LOBT±3606]
-  - E2: LIRF 也投影
-  - clip [30, 10800]  (E2 不额外放开; 修复行在投影前已 clip, 见下)
+Criterion (exactly the same as submissions/jubilant-puzzle_final.parquet):
+  - LIRF with (ADEP_flt missing AND MVT-SCHED>14400) -> replaced by MVT-SCHED (no clip)
+  - All other rows -> LGB baseline
+  - All rows with valid LOBT projected into [MVT-LOBT±3606]
+  - E2: LIRF is also projected
+  - clip [30, 10800]  (E2 does not relax further; repaired rows were already clipped before projection, see below)
 
-注: final 的 noclip 版是 build(1e9), 即不对修复行之外的值设上限;
-    本脚本与之严格同口径。
+Note: the noclip version in final is build(1e9), i.e. no upper bound is set on values other than the repaired rows;
+      this script follows exactly the same criterion.
 """
 from __future__ import annotations
 import json, pickle
@@ -52,9 +52,9 @@ def main():
 
     def build(clip_hi):
         P = base.copy()
-        P[hit] = mu_C[hit]          # 硬替换, 不 clip
+        P[hit] = mu_C[hit]          # hard replacement, no clip
         P = np.clip(P, CLIP_LO, clip_hi)
-        # E2: 全部 LOBT 有效行都投影 (含 LIRF)
+        # E2: project all rows with valid LOBT (including LIRF)
         P[lok_h] = np.clip(P[lok_h], (mvt_h - lobt_h)[lok_h] - T_LOBT,
                            (mvt_h - lobt_h)[lok_h] + T_LOBT)
         return np.clip(P, CLIP_LO, clip_hi)
@@ -65,16 +65,16 @@ def main():
         return float(np.sqrt(np.mean((P[m] - yy[m]) ** 2)))
 
     variants = {
-        "noclip_E2 (正式提交口径)": build(1e9),
-        "clip10800_E2 (备份口径)": build(10800.0),
-        "LGB基线": base,
+        "noclip_E2 (official submission criterion)": build(1e9),
+        "clip10800_E2 (backup criterion)": build(10800.0),
+        "LGB baseline": base,
     }
     res, print_tbl = {}, {}
     print("=" * 74)
-    print("[holdout 四个月] noclip E2 口径复算 (n=%d)" % len(yy))
+    print("[holdout four months] recompute noclip E2 criterion (n=%d)" % len(yy))
     print("=" * 74)
-    print(f"{'口径':<26}" + "".join(f"{'mo='+str(m):>10}" for m in HOLD)
-          + f"{'四个月':>11}{'vs基线':>10}")
+    print(f"{'criterion':<26}" + "".join(f"{'mo='+str(m):>10}" for m in HOLD)
+          + f"{'4 months':>11}{'vs base':>10}")
     print("-" * 74)
     b4 = None
     for k, P in variants.items():
@@ -88,14 +88,14 @@ def main():
         res[k]["delta_vs_LGB"] = round(r4 - b4, 2)
         print_tbl[k] = r4
 
-    P = variants["noclip_E2 (正式提交口径)"]
-    print(f"\n  [分层] LIRF n={int(is_lirf.sum()):,}")
+    P = variants["noclip_E2 (official submission criterion)"]
+    print(f"\n  [stratified] LIRF n={int(is_lirf.sum()):,}")
     for k in variants:
         print(f"    {k:<26} LIRF RMSE={rm(variants[k], is_lirf):>9.2f}")
-    print(f"  修复行 n={int(hit.sum())}: "
-          f"预测==MVT-SCHED 全等={bool(np.all(np.abs(P[hit]-mu_C[hit])<0.5))}  "
+    print(f"  repaired rows n={int(hit.sum())}: "
+          f"pred==MVT-SCHED all equal={bool(np.all(np.abs(P[hit]-mu_C[hit])<0.5))}  "
           f"max={P[hit].max():.0f}")
-    print(f"  非修复行 >10800 = {int(((~hit)&(P>10800)).sum())}")
+    print(f"  non-repaired rows >10800 = {int(((~hit)&(P>10800)).sum())}")
 
     res["n"] = int(len(yy))
     res["n_fix"] = int(hit.sum())

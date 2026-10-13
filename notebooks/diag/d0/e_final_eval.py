@@ -1,14 +1,14 @@
 """
-最终口径验证: C_full (LIRF T=14400 完整口径) + E1/E2 LOBT 投影对照
+Final criterion validation: C_full (LIRF T=14400 full spec) + E1/E2 LOBT projection comparison
 ================================================================
-口径:
-  - LIRF 且 (ADEP_flt 缺失 且 MVT-SCHED>14400) 的行 → 替换为 MVT-SCHED
-  - 其余行 → LGB 基线预测
-  - LOBT 窗口: 非 LIRF 有效行投影 [MVT-LOBT±3606]
-  - E1: LIRF 不投影;  E2: LIRF 也投影
+Criterion:
+  - rows where LIRF and (ADEP_flt missing and MVT-SCHED>14400) -> replaced by MVT-SCHED
+  - all other rows -> LGB baseline prediction
+  - LOBT window: non-LIRF valid rows are projected to [MVT-LOBT±3606]
+  - E1: LIRF not projected;  E2: LIRF also projected
   - clip[30,10800]
 
-复用已落盘模型 (p0 基线预测 + clf/reg), 不重训。
+Reuses already-persisted models (p0 baseline predictions + clf/reg), no retraining.
 """
 from __future__ import annotations
 import sys, json, time, pickle
@@ -44,7 +44,7 @@ def rmse(P, yt, m=None):
 
 
 def main():
-    lap("加载缓存")
+    lap("Loading cache")
     X, y, mo, mvt_s, ap = load_cache()
     ts = pickle.load(open(TS, "rb"))
     mvt_h_all, sch_all = ts["mvt_s"], ts["sch_s"]
@@ -57,9 +57,9 @@ def main():
     mvt, sch = mvt_h_all[i_hold], sch_all[i_hold]
     lobt, lobt_ok = lobt_all[i_hold], lobt_ok_all[i_hold]
     adepflt_null = adepflt_null_all[i_hold]
-    lap(f"  holdout 四个月 n={len(i_hold):,}")
+    lap(f"  holdout 4 months n={len(i_hold):,}")
 
-    # LGB 基线 (已落盘)
+    # LGB baseline (already persisted)
     lgb_h1 = np.load(D0 / "_ngb_lgb_h1.npy")
     lgb_h2 = np.load(D0 / "_ngb_lgb_h2.npy")
     m_h1 = np.isin(moh, [1, 7])
@@ -72,18 +72,18 @@ def main():
     ctr = mvt - lobt
     lo_w, hi_w = ctr - T_LOBT, ctr + T_LOBT
 
-    # T=14400 两种口径
+    # the two T=14400 criteria
     hit_simple = is_lirf & (mu_C > LIRF_T)
     hit_full = is_lirf & adepflt_null & (mu_C > LIRF_T)
-    lap(f"  LIRF n={int(is_lirf.sum()):,}  简化口径命中 {int(hit_simple.sum()):,}  "
-        f"完整口径命中 {int(hit_full.sum()):,}")
+    lap(f"  LIRF n={int(is_lirf.sum()):,}  simplified spec hits {int(hit_simple.sum()):,}  "
+        f"full spec hits {int(hit_full.sum()):,}")
 
     def build(use_full: bool, lirf_project: bool):
         hit = hit_full if use_full else hit_simple
         P = base.copy()
         P[hit] = mu_C[hit]
         P = np.clip(P, CLIP_LO, CLIP_HI)
-        # LOBT 投影: 非 LIRF 有效行 必投; LIRF 视开关
+        # LOBT projection: non-LIRF valid rows are always projected; LIRF depends on the switch
         m_proj = lobt_ok & (~is_lirf if not lirf_project else lobt_ok)
         before = P[m_proj].copy()
         P[m_proj] = np.clip(before, lo_w[m_proj], hi_w[m_proj])
@@ -92,23 +92,23 @@ def main():
         P = np.clip(P, CLIP_LO, CLIP_HI)
         return P, hit, m_proj, n_changed, n_reclip
 
-    # ---- 方案集 ----
+    # ---- scheme set ----
     A = base.copy()
     P_cs = build(False, False)[0]
     P_e1, hit_f, m_proj_e1, nch_e1, nrc_e1 = build(True, False)
     P_e2, _, m_proj_e2, nch_e2, nrc_e2 = build(True, True)
     combos = {
-        "C_simple_简化口径": P_cs,
-        "C_full_E1_LIRF不投": P_e1,
-        "C_full_E2_LIRF也投": P_e2,
+        "C_simple": P_cs,
+        "C_full_E1_no_proj": P_e1,
+        "C_full_E2_proj": P_e2,
     }
 
-    # ---- 分月四个月 RMSE ----
+    # ---- per-month RMSE over the 4 months ----
     print("\n" + "=" * 84)
-    print("[分月 full RMSE]")
+    print("[Per-month full RMSE]")
     print("=" * 84)
-    print(f"{'方案':<22}" + "".join(f"{'mo='+str(mm):>10}" for mm in HOLD)
-          + f"{'四个月':>11}{'Δ vs A':>10}")
+    print(f"{'scheme':<22}" + "".join(f"{'mo='+str(mm):>10}" for mm in HOLD)
+          + f"{'4months':>11}{'D vs A':>10}")
     print("-" * 84)
     base4 = np.sqrt(np.mean((A - yh) ** 2))
     res = {}
@@ -120,48 +120,48 @@ def main():
         res[k]["all4"] = round(float(r4), 2)
         res[k]["delta_vs_A"] = round(float(r4 - base4), 2)
 
-    # ---- LIRF 单独 RMSE ----
+    # ---- LIRF-only RMSE ----
     print("\n" + "=" * 84)
-    print("[LIRF 单独 RMSE]")
+    print("[LIRF-only RMSE]")
     print("=" * 84)
     m = is_lirf
     rA = rmse(A, yh, m)
     print(f"  LIRF n={int(m.sum()):,}")
     for k, P in combos.items():
         print(f"    {k:<22} {rmse(P, yh, m):>9.2f}   (vs A {rmse(P,yh,m)-rA:+.2f})")
-    print(f"    {'A 基线':<22} {rA:>9.2f}")
+    print(f"    {'A baseline':<22} {rA:>9.2f}")
 
-    # ---- E1 vs E2 差异 ----
+    # ---- E1 vs E2 difference ----
     print("\n" + "=" * 84)
-    print("[E1 vs E2] LIRF 是否加 LOBT 投影")
+    print("[E1 vs E2] whether LIRF also gets LOBT projection")
     print("=" * 84)
     d_e1_lirf = rmse(P_e1, yh, m) - rmse(P_e2, yh, m)
     d_e1_all = np.sqrt(np.mean((P_e1 - yh) ** 2)) - np.sqrt(np.mean((P_e2 - yh) ** 2))
     diff_rows = np.where(np.abs(P_e1 - P_e2) > 1e-9)[0]
     n_t14400_touched = int((np.isin(diff_rows, np.where(hit_full)[0])).sum())
     print(f"  LIRF RMSE:      E1={rmse(P_e1, yh, m):.2f}  E2={rmse(P_e2, yh, m):.2f}  "
-          f"Δ(E1-E2)={d_e1_lirf:+.2f}s")
-    print(f"  四个月 RMSE:    E1={np.sqrt(np.mean((P_e1-yh)**2)):.2f}  "
-          f"E2={np.sqrt(np.mean((P_e2-yh)**2)):.2f}  Δ={d_e1_all:+.2f}s")
-    print(f"  E1/E2 实际不同行数 = {len(diff_rows):,}")
-    print(f"  其中 T14400 修复行被 LOBT 二次修改 = {n_t14400_touched:,}")
-    lap(f"    (E1 非LIRF投影改动 {nch_e1:,} / E2 额外改 LIRF {nch_e2-nch_e1:,})")
+          f"D(E1-E2)={d_e1_lirf:+.2f}s")
+    print(f"  4-month RMSE:   E1={np.sqrt(np.mean((P_e1-yh)**2)):.2f}  "
+          f"E2={np.sqrt(np.mean((P_e2-yh)**2)):.2f}  D={d_e1_all:+.2f}s")
+    print(f"  E1/E2 actually different rows = {len(diff_rows):,}")
+    print(f"  of which T14400 repaired rows modified again by LOBT = {n_t14400_touched:,}")
+    lap(f"    (E1 non-LIRF projection changed {nch_e1:,} / E2 additionally changed LIRF {nch_e2-nch_e1:,})")
     winner = "E1" if d_e1_lirf <= 0 else "E2"
-    print(f"  → LIRF RMSE 更低者: {winner}  (Δ={d_e1_lirf:+.2f}s)")
+    print(f"  -> lower LIRF RMSE: {winner}  (D={d_e1_lirf:+.2f}s)")
 
-    # ---- 分机场 Δ ----
+    # ---- per-airport delta ----
     print("\n" + "=" * 84)
-    print("[分机场 full RMSE — 门槛: 全部不劣化]")
+    print("[Per-airport full RMSE -- gate: no degradation anywhere]")
     print("=" * 84)
     aps = pd.Series(ap_h).value_counts().index.tolist()
-    print(f"{'机场':<7}{'n':>9}{'A':>9}{'C_simple':>10}{'E1':>9}{'E2':>9}"
-          f"{'E1-A':>9}{'E2-A':>9}{'判定':>7}")
+    print(f"{'ap':<7}{'n':>9}{'A':>9}{'C_simple':>10}{'E1':>9}{'E2':>9}"
+          f"{'E1-A':>9}{'E2-A':>9}{'verdict':>7}")
     print("-" * 84)
     ap_tab = {}
     gate_ok = True
     for a in aps:
         mk = ap_h == a
-        rA_, rs = rmse(A, yh, mk), rmse(combos["C_simple_简化口径"], yh, mk)
+        rA_, rs = rmse(A, yh, mk), rmse(combos["C_simple"], yh, mk)
         r1, r2 = rmse(P_e1, yh, mk), rmse(P_e2, yh, mk)
         ok = r1 <= rA_ + 1e-6
         if not ok:
@@ -173,15 +173,15 @@ def main():
         print(f"{a:<7}{int(mk.sum()):>9,}{rA_:>9.1f}{rs:>10.1f}{r1:>9.1f}{r2:>9.1f}"
               f"{r1-rA_:>+9.2f}{r2-rA_:>+9.2f}{'  OK' if ok else '  FAIL':>7}")
     n_ok = sum(v["not_worse_than_A"] for v in ap_tab.values())
-    print(f"\n  E1 分机场不劣于 A: {n_ok}/{len(aps)}  → {'PASS' if gate_ok else 'FAIL'}")
+    print(f"\n  E1 per-airport not worse than A: {n_ok}/{len(aps)}  -> {'PASS' if gate_ok else 'FAIL'}")
 
-    # ---- 修复行质量 ----
+    # ---- repaired-row quality ----
     print("\n" + "=" * 84)
-    print("[T=14400 修复行取证]")
+    print("[T=14400 repaired-row evidence]")
     print("=" * 84)
-    print(f"{'口径':<22}{'命中':>7}{'真实y中位':>12}{'MVT-SCHED中位':>15}"
-          f"{'修复后RMSE':>12}{'基线RMSE':>11}")
-    for nm, hit in [("简化 (>14400)", hit_simple), ("完整 (缺&>14400)", hit_full)]:
+    print(f"{'spec':<22}{'hits':>7}{'true_y_med':>12}{'MVT-SCHED_med':>15}"
+          f"{'RMSE_after_fix':>12}{'RMSE_baseline':>11}")
+    for nm, hit in [("simplified (>14400)", hit_simple), ("full (null & >14400)", hit_full)]:
         if hit.sum() == 0:
             continue
         print(f"{nm:<22}{int(hit.sum()):>7,}{np.median(yh[hit]):>12.1f}"
@@ -203,8 +203,8 @@ def main():
                                           "n_total": len(aps)},
     }
     OUT.write_text(json.dumps(result, indent=2, ensure_ascii=False))
-    print(f"\n  选定: {winner}  →  {OUT}")
-    lap(f"总耗时 {(time.time()-_t0)/60:.1f} min")
+    print(f"\n  selected: {winner}  ->  {OUT}")
+    lap(f"total time {(time.time()-_t0)/60:.1f} min")
 
 
 if __name__ == "__main__":
