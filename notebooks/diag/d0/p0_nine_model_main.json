@@ -1,0 +1,145 @@
+{
+  "task": "p0_nine_model_main",
+  "split": "MAIN train 2025-02..12 / holdout 2025-01+07",
+  "seeds": [
+    42,
+    123,
+    2024
+  ],
+  "n_holdout": 344336,
+  "ensemble": {
+    "rmse_full": 567.61,
+    "rmse_core": 304.94,
+    "rmse_short": 229.6,
+    "rmse_long": 971.2
+  },
+  "per_month": {
+    "Jan": {
+      "full": 497.14,
+      "core": 308.69,
+      "n": 153658
+    },
+    "Jul": {
+      "full": 618.58,
+      "core": 301.87,
+      "n": 190678
+    }
+  },
+  "per_airport_core": {
+    "LTFM": {
+      "n": 46539,
+      "rmse_core": 303.00792783037195
+    },
+    "EHAM": {
+      "n": 40947,
+      "rmse_core": 254.97018767534647
+    },
+    "EGLL": {
+      "n": 40209,
+      "rmse_core": 349.61411306147926
+    },
+    "LFPG": {
+      "n": 39586,
+      "rmse_core": 328.2941274499462
+    },
+    "EDDF": {
+      "n": 36830,
+      "rmse_core": 246.16729212401194
+    },
+    "LEMD": {
+      "n": 35328,
+      "rmse_core": 206.15490033300708
+    },
+    "LEBL": {
+      "n": 28985,
+      "rmse_core": 245.0792576467531
+    },
+    "EDDM": {
+      "n": 27091,
+      "rmse_core": 240.97448374721998
+    },
+    "LIRF": {
+      "n": 26474,
+      "rmse_core": 528.7121455957912
+    },
+    "LSZH": {
+      "n": 22287,
+      "rmse_core": 254.97860089526745
+    }
+  },
+  "distribution_core": {
+    "std_ratio": 0.7585,
+    "pred_p99": 2068.8,
+    "true_p99": 2591.0,
+    "p99_ratio": 0.7985
+  },
+  "tail_amplitude_core": {
+    "(1800,3600]": {
+      "n": 14648,
+      "true_med": 2096.0,
+      "pred_med": 1604.4
+    },
+    "(3600,10800]": {
+      "n": 921,
+      "true_med": 4393.0,
+      "pred_med": 2429.8
+    },
+    ">10800": {
+      "n": 60,
+      "true_med": 18250.5,
+      "pred_med": 3998.0
+    }
+  },
+  "v15_anchor": {
+    "core": 308.96,
+    "full": 568.19
+  },
+  "v19_anchor_holdout": {
+    "core": 296.87,
+    "full": 561.16
+  },
+  "delta_vs_v15": {
+    "core": -4.02,
+    "full": -0.58
+  },
+  "delta_vs_v19": {
+    "core": 8.07,
+    "full": 6.45
+  },
+  "per_model_rmse_full": {
+    "lgb42": 562.15,
+    "lgb123": 560.95,
+    "lgb2024": 559.93,
+    "xgb42": 602.72,
+    "xgb123": 602.92,
+    "xgb2024": 600.61,
+    "cat42": 567.38,
+    "cat123": 566.94,
+    "cat2024": 567.62
+  },
+  "per_model_rmse_core": {
+    "lgb42": 298.04,
+    "lgb123": 297.04,
+    "lgb2024": 294.24,
+    "xgb42": 360.68,
+    "xgb123": 362.04,
+    "xgb2024": 358.63,
+    "cat42": 305.78,
+    "cat123": 305.37,
+    "cat2024": 305.72
+  },
+  "model_files": {
+    "lgb42": "notebooks/diag/d0/p0_models/p0_lgb_seed42.txt",
+    "lgb123": "notebooks/diag/d0/p0_models/p0_lgb_seed123.txt",
+    "lgb2024": "notebooks/diag/d0/p0_models/p0_lgb_seed2024.txt",
+    "xgb42": "models/v15_clean_retrain/xgb_seed42.json (复用 v15 同训练折 JSON)",
+    "xgb123": "models/v15_clean_retrain/xgb_seed123.json (复用 v15 同训练折 JSON)",
+    "xgb2024": "models/v15_clean_retrain/xgb_seed2024.json (复用 v15 同训练折 JSON)",
+    "cat42": "notebooks/diag/d0/p0_models/p0_cat_seed42.cbm",
+    "cat123": "notebooks/diag/d0/p0_models/p0_cat_seed123.cbm",
+    "cat2024": "notebooks/diag/d0/p0_models/p0_cat_seed2024.cbm"
+  },
+  "predictions_parquet": "notebooks/diag/d0/p0_holdout_predictions.parquet",
+  "submission_status": "NOT generated, NOT uploaded",
+  "note": "XGB 用 v15 已训 JSON booster 替代 (同训练折, 同 71 特征); 脚本 p0_nine_model.py 已修 save 调用以便未来重训"
+}
