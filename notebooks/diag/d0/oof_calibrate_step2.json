@@ -1,0 +1,67 @@
+{
+  "task": "oof_2nd_stage_calibrator_v2_v15_lgb",
+  "base_model": "v15 LGB-only 71 特征 × 3 seed (train 1-12 全量, holdout 1+7 有泄漏)",
+  "n_train_oof": 1740181,
+  "n_holdout": 344276,
+  "results": {
+    "base_v15_lgb": {
+      "label": "base_v15_lgb",
+      "rmse_full": 289.9051385213694,
+      "rmse_core": 289.9051385213694,
+      "rmse_short": 251.5381632717144,
+      "rmse_long": 722.9350219252453,
+      "rmse_core_note": "泄漏乐观值, 仅作校准器输入参考"
+    },
+    "v15_+_corrector": {
+      "label": "v15_+_corrector",
+      "rmse_full": 326.85734847323,
+      "rmse_core": 326.85734847323,
+      "rmse_short": 289.48958147118566,
+      "rmse_long": 770.128590505826
+    },
+    "corrector_per_seed_rmse": [
+      327.15,
+      327.066,
+      327.045
+    ]
+  },
+  "per_airport": {
+    "LIRF": {
+      "n": 26474,
+      "base": 447.8537093609078,
+      "corr": 550.1062002279856,
+      "delta": 102.25249086707777
+    },
+    "EGLL": {
+      "n": 40209,
+      "base": 366.3664027514533,
+      "corr": 417.4170501941145,
+      "delta": 51.050647442661216
+    },
+    "LTFM": {
+      "n": 46539,
+      "base": 306.3233967497608,
+      "corr": 344.92046404844183,
+      "delta": 38.597067298681054
+    },
+    "LFPG": {
+      "n": 39586,
+      "base": 302.1632237714655,
+      "corr": 340.09021453627673,
+      "delta": 37.92699076481125
+    },
+    "EHAM": {
+      "n": 40947,
+      "base": 233.23038213909726,
+      "corr": 252.574640123753,
+      "delta": 19.34425798465574
+    }
+  },
+  "decision": {
+    "delta_core_rmse": 36.952209951860596,
+    "seed_jitter": 0.045675537532529266,
+    "same_sign_airports": false,
+    "pass": false
+  },
+  "total_time_sec": 3994.7
+}

@@ -1,0 +1,119 @@
+{
+  "task": "oof_2nd_stage_calibrator_v1_lgb_only",
+  "config": {
+    "TWO_FOLD_ONLY": true,
+    "JUDGE_FOLDS": [
+      0,
+      2
+    ],
+    "ROUNDS_cap": 3000,
+    "SEEDS": [
+      42
+    ]
+  },
+  "n_total": 2084457,
+  "n_holdout": 344276,
+  "fold_models": {
+    "1": {
+      "months": [
+        1,
+        2
+      ],
+      "n_train": 1787127,
+      "n_pred": 297330,
+      "oof_rmse": 311.8107807636259,
+      "best_iters": [
+        2992
+      ],
+      "es_triggered": [
+        true
+      ],
+      "train_sec_per_seed": [
+        616.9
+      ],
+      "pred_sec": 59.5,
+      "fold_total_sec": 677.3
+    },
+    "3": {
+      "months": [
+        5,
+        6,
+        7
+      ],
+      "n_train": 1525603,
+      "n_pred": 558854,
+      "oof_rmse": 259.9725623549726,
+      "best_iters": [
+        2999
+      ],
+      "es_triggered": [
+        true
+      ],
+      "train_sec_per_seed": [
+        541.0
+      ],
+      "pred_sec": 114.0,
+      "fold_total_sec": 656.0
+    }
+  },
+  "global_offset_s": 101.5,
+  "results": {
+    "base_oof": {
+      "label": "base_oof_lgb",
+      "rmse_full": 299.35464154386193,
+      "rmse_core": 299.35464154386193,
+      "rmse_short": 208.33977728331618,
+      "rmse_long": 1032.0820400493292,
+      "seed_per_corr_std": 0.0
+    },
+    "with_corrector": {
+      "label": "oof_+_corrector",
+      "rmse_full": 308.77570546530086,
+      "rmse_core": 308.77570546530086,
+      "rmse_short": 225.39649181569976,
+      "rmse_long": 1017.6873929903227
+    },
+    "corrector_per_seed_rmse": [
+      308.776
+    ]
+  },
+  "per_airport": {
+    "LIRF": {
+      "n": 26474,
+      "base": 520.0920214410969,
+      "corr": 536.6795140734474,
+      "delta": 16.587492632350518
+    },
+    "EGLL": {
+      "n": 40209,
+      "base": 328.16058139958096,
+      "corr": 352.83255089349905,
+      "delta": 24.671969493918084
+    },
+    "LTFM": {
+      "n": 46539,
+      "base": 275.27118834914205,
+      "corr": 302.5946685576747,
+      "delta": 27.323480208532658
+    },
+    "LFPG": {
+      "n": 39586,
+      "base": 341.18618188016103,
+      "corr": 339.92383855372645,
+      "delta": -1.262343326434575
+    },
+    "EHAM": {
+      "n": 40947,
+      "base": 259.20247252337725,
+      "corr": 257.15137431477484,
+      "delta": -2.0510982086024114
+    }
+  },
+  "decision": {
+    "delta_core_rmse": 9.421063921438929,
+    "seed_jitter": 0.0,
+    "same_sign_airports": false,
+    "pass": false
+  },
+  "total_time_sec": 1604.3
+}
