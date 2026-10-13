@@ -123,3 +123,29 @@ Thumbs.db
 # 系统文件
 nohup.out
 core.*
+
+# 诊断缓存与大体积中间产物(不入库; 脚本与结果 JSON 保留)
+notebooks/diag/**/_*.npy
+notebooks/diag/**/_*.npz
+notebooks/diag/**/_*.parquet
+notebooks/diag/**/*.parquet
+notebooks/diag/**/v24_models/
+notebooks/diag/**/v24_preds/
+notebooks/diag/**/_ngb_h*_loc.npy
+notebooks/diag/**/_ngb_h*_scale.npy
+# LGB booster 权重文本(可由脚本复现)
+notebooks/diag/**/*.txt
+# 诊断期训练出的模型权重目录与旧产物备份(可复现/已弃用)
+notebooks/diag/**/multi_models/
+notebooks/diag/**/p50_full_models/
+notebooks/diag/**/backup_oof_old/
+
+# 重训模型目录(100MB+ 权重,可由脚本复现)
+models/lgb_full_v15/
+models/v15_clean_retrain/
+
+# 中间数据
+data/interim/
+
+# IDE HTML 分享包
+.trae-html-share-packages/

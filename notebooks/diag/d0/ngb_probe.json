@@ -1,0 +1,196 @@
+{
+  "fit_months": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "es_months": [
+    11,
+    12
+  ],
+  "n_fit": 1566156,
+  "n_fit_cleaned": 409,
+  "n_es": 174063,
+  "holdout": {
+    "h1": 344419,
+    "h2": 326874
+  },
+  "lgb_rounds": 3000,
+  "seed": 42,
+  "caveat": "sklearn 树不原生处理类别; NGBoost 用整数编码的 FEATS71, LGB 基线用原生 categorical dtype。此处 NGBoost 天然吃亏。",
+  "smoke": {
+    "n_fit": 200000,
+    "n_estimators": 20,
+    "loc_median": 908.5,
+    "scale_median": 801.315
+  },
+  "lgb": {
+    "h1": {
+      "full": 568.49,
+      "bins": [
+        {
+          "bin": "[0,600)",
+          "n": 42792,
+          "rmse": 254.33
+        },
+        {
+          "bin": "[600,1800)",
+          "n": 285832,
+          "rmse": 255.34
+        },
+        {
+          "bin": "[1800,3600)",
+          "n": 14733,
+          "rmse": 679.99
+        },
+        {
+          "bin": "[3600,10800]",
+          "n": 922,
+          "rmse": 2375.14
+        },
+        {
+          "bin": ">10800",
+          "n": 60,
+          "rmse": 36020.49
+        }
+      ],
+      "pred_p50": 1023.2,
+      "pred_max": 8800.6
+    },
+    "h2": {
+      "full": 398.4,
+      "bins": [
+        {
+          "bin": "[0,600)",
+          "n": 43030,
+          "rmse": 174.29
+        },
+        {
+          "bin": "[600,1800)",
+          "n": 271354,
+          "rmse": 175.12
+        },
+        {
+          "bin": "[1800,3600)",
+          "n": 11237,
+          "rmse": 583.25
+        },
+        {
+          "bin": "[3600,10800]",
+          "n": 1128,
+          "rmse": 1146.56
+        },
+        {
+          "bin": ">10800",
+          "n": 30,
+          "rmse": 35080.04
+        }
+      ],
+      "pred_p50": 928.9,
+      "pred_max": 9659.1
+    }
+  },
+  "ngb": {
+    "fit_seconds": 11638.1,
+    "n_estimators": 500,
+    "dist": "Normal",
+    "best_iter": 499,
+    "per_holdout": {
+      "h1": {
+        "n": 344419,
+        "full": 576.51,
+        "bins": [
+          {
+            "bin": "[0,600)",
+            "n": 42792,
+            "rmse": 246.11
+          },
+          {
+            "bin": "[600,1800)",
+            "n": 285832,
+            "rmse": 235.0
+          },
+          {
+            "bin": "[1800,3600)",
+            "n": 14733,
+            "rmse": 858.26
+          },
+          {
+            "bin": "[3600,10800]",
+            "n": 922,
+            "rmse": 2755.33
+          },
+          {
+            "bin": ">10800",
+            "n": 60,
+            "rmse": 36100.44
+          }
+        ],
+        "sigma_vs_absresid_spearman": 0.0012,
+        "sigma_vs_absresid_p": 0.4926,
+        "sigma_median_gt1800": 696.057,
+        "sigma_median_lt600": 1835.342,
+        "sigma_ratio": 0.379,
+        "sigma_max": 24517.7,
+        "n_sigma_gt_1e4": 209,
+        "loc_median": 990.8,
+        "scale_median": 1981.871,
+        "pred_max": 8997.5,
+        "predict_seconds": 47.9
+      },
+      "h2": {
+        "n": 326874,
+        "full": 450.62,
+        "bins": [
+          {
+            "bin": "[0,600)",
+            "n": 43030,
+            "rmse": 206.03
+          },
+          {
+            "bin": "[600,1800)",
+            "n": 271354,
+            "rmse": 204.82
+          },
+          {
+            "bin": "[1800,3600)",
+            "n": 11237,
+            "rmse": 821.48
+          },
+          {
+            "bin": "[3600,10800]",
+            "n": 1128,
+            "rmse": 2613.0
+          },
+          {
+            "bin": ">10800",
+            "n": 30,
+            "rmse": 35510.8
+          }
+        ],
+        "sigma_vs_absresid_spearman": 0.3925,
+        "sigma_vs_absresid_p": 0.0,
+        "sigma_median_gt1800": 425.67,
+        "sigma_median_lt600": 147.905,
+        "sigma_ratio": 2.878,
+        "sigma_max": 39167.0,
+        "n_sigma_gt_1e4": 110,
+        "loc_median": 941.8,
+        "scale_median": 192.028,
+        "pred_max": 9331.2,
+        "predict_seconds": 39.1
+      }
+    }
+  },
+  "delta": {
+    "d_h1": 8.02,
+    "d_h2": 52.22
+  }
+}

@@ -1,0 +1,381 @@
+{
+  "meta": {
+    "n_holdout_total": 344336,
+    "n_dep": 344336,
+    "baseline_ens_full": 567.61,
+    "baseline_ens_core": 274.87,
+    "thresholds_sec": [
+      10800,
+      14400,
+      21600
+    ],
+    "rule": "ADEP_flt 缺失 (哨兵/空) 且 MVT-SCHED > T",
+    "postprocess": "命中 → 预测改写为 MVT-SCHED; 未命中 → 保留 P0 ENS"
+  },
+  "baseline_per_ap_rmse": {
+    "EDDF": 246.17,
+    "EDDM": 240.97,
+    "EGLL": 352.73,
+    "EHAM": 264.95,
+    "LEBL": 245.08,
+    "LEMD": 206.15,
+    "LFPG": 604.58,
+    "LIRF": 1690.62,
+    "LSZH": 254.98,
+    "LTFM": 303.01
+  },
+  "lirf_experiments": {
+    "T=10800": {
+      "n_hit_lirf": 83,
+      "post_full": 403.15,
+      "post_core": 296.04,
+      "delta_full_vs_baseline": -164.46,
+      "delta_core_vs_baseline": 21.17,
+      "lirf_full_post": 886.5,
+      "lirf_full_baseline": 1690.62,
+      "lirf_delta_full": -804.12,
+      "jan": 409.39,
+      "jul": 398.05,
+      "improved_n": 52,
+      "misfire_n": 31,
+      "misfire_sample": [
+        {
+          "MVT_ID_mvt": 182641684.0,
+          "ADEP": "LIRF",
+          "MONTH": 1,
+          "TAXI_TRUE_s": 1190.0,
+          "TAXI_OLD_PRED": 2638.867431640625,
+          "TAXI_NEW_PRED": 12835.0,
+          "delta_abs": 10196.13
+        },
+        {
+          "MVT_ID_mvt": 192615662.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 650.0,
+          "TAXI_OLD_PRED": 2781.497802734375,
+          "TAXI_NEW_PRED": 14035.0,
+          "delta_abs": 11253.5
+        },
+        {
+          "MVT_ID_mvt": 192616028.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 896.0,
+          "TAXI_OLD_PRED": 6533.6689453125,
+          "TAXI_NEW_PRED": 13978.0,
+          "delta_abs": 7444.33
+        },
+        {
+          "MVT_ID_mvt": 192615504.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 780.0,
+          "TAXI_OLD_PRED": 5096.15771484375,
+          "TAXI_NEW_PRED": 10860.0,
+          "delta_abs": 5763.84
+        },
+        {
+          "MVT_ID_mvt": 192615498.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 910.0,
+          "TAXI_OLD_PRED": 5016.30615234375,
+          "TAXI_NEW_PRED": 11705.0,
+          "delta_abs": 6688.69
+        },
+        {
+          "MVT_ID_mvt": 192615867.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 772.0,
+          "TAXI_OLD_PRED": 2178.522216796875,
+          "TAXI_NEW_PRED": 11096.0,
+          "delta_abs": 8917.48
+        },
+        {
+          "MVT_ID_mvt": 192615551.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 905.0,
+          "TAXI_OLD_PRED": 4170.8671875,
+          "TAXI_NEW_PRED": 12122.0,
+          "delta_abs": 7951.13
+        },
+        {
+          "MVT_ID_mvt": 192616446.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 1510.0,
+          "TAXI_OLD_PRED": 2010.45556640625,
+          "TAXI_NEW_PRED": 11345.0,
+          "delta_abs": 9334.54
+        },
+        {
+          "MVT_ID_mvt": 192616462.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 1144.0,
+          "TAXI_OLD_PRED": 4356.1787109375,
+          "TAXI_NEW_PRED": 12182.0,
+          "delta_abs": 7825.82
+        },
+        {
+          "MVT_ID_mvt": 192620864.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 956.0,
+          "TAXI_OLD_PRED": 4494.39208984375,
+          "TAXI_NEW_PRED": 12898.0,
+          "delta_abs": 8403.61
+        }
+      ]
+    },
+    "T=14400": {
+      "n_hit_lirf": 45,
+      "post_full": 394.0,
+      "post_core": 279.99,
+      "delta_full_vs_baseline": -173.61,
+      "delta_core_vs_baseline": 5.12,
+      "lirf_full_post": 831.4,
+      "lirf_full_baseline": 1690.62,
+      "lirf_delta_full": -859.22,
+      "jan": 409.28,
+      "jul": 381.24,
+      "improved_n": 41,
+      "misfire_n": 4,
+      "misfire_sample": [
+        {
+          "MVT_ID_mvt": 192626949.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 842.0,
+          "TAXI_OLD_PRED": 5045.05908203125,
+          "TAXI_NEW_PRED": 15361.0,
+          "delta_abs": 10315.94
+        },
+        {
+          "MVT_ID_mvt": 192621312.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 1377.0,
+          "TAXI_OLD_PRED": 3823.43505859375,
+          "TAXI_NEW_PRED": 20878.0,
+          "delta_abs": 17054.56
+        },
+        {
+          "MVT_ID_mvt": 192624005.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 1077.0,
+          "TAXI_OLD_PRED": 2655.083740234375,
+          "TAXI_NEW_PRED": 15178.0,
+          "delta_abs": 12522.92
+        },
+        {
+          "MVT_ID_mvt": 192628379.0,
+          "ADEP": "LIRF",
+          "MONTH": 7,
+          "TAXI_TRUE_s": 723.0,
+          "TAXI_OLD_PRED": 2332.9482421875,
+          "TAXI_NEW_PRED": 15301.0,
+          "delta_abs": 12968.05
+        }
+      ]
+    },
+    "T=21600": {
+      "n_hit_lirf": 21,
+      "post_full": 403.22,
+      "post_core": 274.87,
+      "delta_full_vs_baseline": -164.39,
+      "delta_core_vs_baseline": 0.0,
+      "lirf_full_post": 886.9,
+      "lirf_full_baseline": 1690.62,
+      "lirf_delta_full": -803.72,
+      "jan": 411.32,
+      "jul": 396.57,
+      "improved_n": 21,
+      "misfire_n": 0,
+      "misfire_sample": []
+    }
+  },
+  "top10_experiments": {
+    "T=10800": {
+      "n_hit_total": 383,
+      "post_full": 679.97,
+      "post_core": 618.38,
+      "delta_full_vs_baseline": 112.36,
+      "delta_core_vs_baseline": 343.51,
+      "per_ap_rmse_post": {
+        "LIRF": 886.5,
+        "EGLL": 531.72,
+        "LFPG": 902.59,
+        "EDDF": 878.37,
+        "EDDM": 356.68,
+        "EHAM": 943.45,
+        "LEBL": 648.47,
+        "LEMD": 390.1,
+        "LSZH": 371.74,
+        "LTFM": 352.51
+      },
+      "per_ap_delta_vs_baseline": {
+        "LIRF": -804.12,
+        "EGLL": 178.99,
+        "LFPG": 298.01,
+        "EDDF": 632.2,
+        "EDDM": 115.71,
+        "EHAM": 678.5,
+        "LEBL": 403.39,
+        "LEMD": 183.95,
+        "LSZH": 116.76,
+        "LTFM": 49.5
+      },
+      "hit_per_ap": {
+        "LIRF": 83,
+        "EGLL": 41,
+        "LFPG": 51,
+        "EDDF": 47,
+        "EDDM": 8,
+        "EHAM": 62,
+        "LEBL": 48,
+        "LEMD": 23,
+        "LSZH": 10,
+        "LTFM": 10
+      },
+      "worsened_airports_gt1s": {
+        "EGLL": 178.99,
+        "LFPG": 298.01,
+        "EDDF": 632.2,
+        "EDDM": 115.71,
+        "EHAM": 678.5,
+        "LEBL": 403.39,
+        "LEMD": 183.95,
+        "LSZH": 116.76,
+        "LTFM": 49.5
+      }
+    },
+    "T=14400": {
+      "n_hit_total": 153,
+      "post_full": 621.75,
+      "post_core": 551.91,
+      "delta_full_vs_baseline": 54.14,
+      "delta_core_vs_baseline": 277.04,
+      "per_ap_rmse_post": {
+        "LIRF": 831.4,
+        "EGLL": 449.17,
+        "LFPG": 850.82,
+        "EDDF": 821.07,
+        "EDDM": 335.57,
+        "EHAM": 877.1,
+        "LEBL": 519.41,
+        "LEMD": 324.73,
+        "LSZH": 317.32,
+        "LTFM": 322.29
+      },
+      "per_ap_delta_vs_baseline": {
+        "LIRF": -859.22,
+        "EGLL": 96.44,
+        "LFPG": 246.24,
+        "EDDF": 574.9,
+        "EDDM": 94.6,
+        "EHAM": 612.15,
+        "LEBL": 274.33,
+        "LEMD": 118.58,
+        "LSZH": 62.34,
+        "LTFM": 19.28
+      },
+      "hit_per_ap": {
+        "LIRF": 45,
+        "EGLL": 10,
+        "LFPG": 20,
+        "EDDF": 18,
+        "EDDM": 5,
+        "EHAM": 25,
+        "LEBL": 15,
+        "LEMD": 9,
+        "LSZH": 3,
+        "LTFM": 3
+      },
+      "worsened_airports_gt1s": {
+        "EGLL": 96.44,
+        "LFPG": 246.24,
+        "EDDF": 574.9,
+        "EDDM": 94.6,
+        "EHAM": 612.15,
+        "LEBL": 274.33,
+        "LEMD": 118.58,
+        "LSZH": 62.34,
+        "LTFM": 19.28
+      }
+    },
+    "T=21600": {
+      "n_hit_total": 52,
+      "post_full": 580.63,
+      "post_core": 495.84,
+      "delta_full_vs_baseline": 13.02,
+      "delta_core_vs_baseline": 220.97,
+      "per_ap_rmse_post": {
+        "LIRF": 886.9,
+        "EGLL": 395.44,
+        "LFPG": 798.65,
+        "EDDF": 784.47,
+        "EDDM": 279.05,
+        "EHAM": 810.94,
+        "LEBL": 384.94,
+        "LEMD": 235.57,
+        "LSZH": 254.98,
+        "LTFM": 303.01
+      },
+      "per_ap_delta_vs_baseline": {
+        "LIRF": -803.72,
+        "EGLL": 42.71,
+        "LFPG": 194.07,
+        "EDDF": 538.3,
+        "EDDM": 38.08,
+        "EHAM": 545.99,
+        "LEBL": 139.86,
+        "LEMD": 29.42,
+        "LSZH": 0.0,
+        "LTFM": 0.0
+      },
+      "hit_per_ap": {
+        "LIRF": 21,
+        "EGLL": 2,
+        "LFPG": 7,
+        "EDDF": 10,
+        "EDDM": 1,
+        "EHAM": 8,
+        "LEBL": 2,
+        "LEMD": 1,
+        "LSZH": 0,
+        "LTFM": 0
+      },
+      "worsened_airports_gt1s": {
+        "EGLL": 42.71,
+        "LFPG": 194.07,
+        "EDDF": 538.3,
+        "EDDM": 38.08,
+        "EHAM": 545.99,
+        "LEBL": 139.86,
+        "LEMD": 29.42
+      }
+    }
+  },
+  "verdict": {
+    "best_lirf_T": "T=14400",
+    "best_lirf_delta_full": -173.61,
+    "best_lirf_misfire_n": 4,
+    "best_top10_T": "T=21600",
+    "best_top10_delta_full": 13.02,
+    "best_top10_worsened": {
+      "EGLL": 42.71,
+      "LFPG": 194.07,
+      "EDDF": 538.3,
+      "EDDM": 38.08,
+      "EHAM": 545.99,
+      "LEBL": 139.86,
+      "LEMD": 29.42
+    },
+    "recommend_promote_top10": false
+  }
+}

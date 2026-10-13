@@ -1,0 +1,391 @@
+{
+  "step0_ranking_aobt": {
+    "ranking_total": 689534,
+    "ranking_dep": 344841,
+    "aobt_non_null_count": 339551,
+    "aobt_na_count": 5290,
+    "aobt_na_pct": 1.534040325831325,
+    "verdict": "ranking AOBT 100% 字段可得, 直接 isna() 圈出即可, 不需要事先代理"
+  },
+  "step1_holdout_chars": {
+    "n_full_dep": 344336,
+    "n_aobt_na": 5321,
+    "n_aobt_valid": 339015,
+    "aobt_na_sse_pct": 68.82980346679688,
+    "aobt_na_tax_dist": {
+      "median": 989.0,
+      "p99": 11080.818359375,
+      "max": 88132.0,
+      "n_gt_1800": 489,
+      "n_gt_3600": 206,
+      "n_gt_10800": 56
+    },
+    "aobt_valid_tax_dist": {
+      "median": 921.0,
+      "p99": 2579.875
+    },
+    "top_airport_na_pct": [
+      {
+        "total": 39589,
+        "aobt_na": 876,
+        "pct": 2.212735860971482
+      },
+      {
+        "total": 22287,
+        "aobt_na": 476,
+        "pct": 2.135774218154081
+      },
+      {
+        "total": 40949,
+        "aobt_na": 808,
+        "pct": 1.9731861583921464
+      },
+      {
+        "total": 28985,
+        "aobt_na": 496,
+        "pct": 1.7112299465240641
+      },
+      {
+        "total": 36830,
+        "aobt_na": 599,
+        "pct": 1.6263915286451263
+      },
+      {
+        "total": 26528,
+        "aobt_na": 397,
+        "pct": 1.4965319662243668
+      },
+      {
+        "total": 46539,
+        "aobt_na": 657,
+        "pct": 1.411719203248888
+      },
+      {
+        "total": 40210,
+        "aobt_na": 466,
+        "pct": 1.1589156926137778
+      },
+      {
+        "total": 27091,
+        "aobt_na": 237,
+        "pct": 0.8748292790963789
+      },
+      {
+        "total": 35328,
+        "aobt_na": 309,
+        "pct": 0.8746603260869565
+      },
+      {
+        "total": 0,
+        "aobt_na": 0,
+        "pct": NaN
+      },
+      {
+        "total": 0,
+        "aobt_na": 0,
+        "pct": NaN
+      },
+      {
+        "total": 0,
+        "aobt_na": 0,
+        "pct": NaN
+      },
+      {
+        "total": 0,
+        "aobt_na": 0,
+        "pct": NaN
+      },
+      {
+        "total": 0,
+        "aobt_na": 0,
+        "pct": NaN
+      }
+    ],
+    "top_operator_na_pct": [
+      {
+        "total": 21,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 50,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 17,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 4,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 777,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 2,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 31,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 13,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 1,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 26,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 44,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 4,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 23167,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 16,
+        "aobt_na": 0,
+        "pct": 0.0
+      },
+      {
+        "total": 2,
+        "aobt_na": 0,
+        "pct": 0.0
+      }
+    ],
+    "top_type_na_pct": [
+      {
+        "total": 13,
+        "aobt_na": 13,
+        "pct": 100.0
+      },
+      {
+        "total": 1,
+        "aobt_na": 1,
+        "pct": 100.0
+      },
+      {
+        "total": 40,
+        "aobt_na": 40,
+        "pct": 100.0
+      },
+      {
+        "total": 10,
+        "aobt_na": 10,
+        "pct": 100.0
+      },
+      {
+        "total": 5,
+        "aobt_na": 5,
+        "pct": 100.0
+      },
+      {
+        "total": 6,
+        "aobt_na": 6,
+        "pct": 100.0
+      },
+      {
+        "total": 8,
+        "aobt_na": 8,
+        "pct": 100.0
+      },
+      {
+        "total": 1,
+        "aobt_na": 1,
+        "pct": 100.0
+      },
+      {
+        "total": 1,
+        "aobt_na": 1,
+        "pct": 100.0
+      },
+      {
+        "total": 19,
+        "aobt_na": 19,
+        "pct": 100.0
+      },
+      {
+        "total": 1,
+        "aobt_na": 1,
+        "pct": 100.0
+      },
+      {
+        "total": 15,
+        "aobt_na": 15,
+        "pct": 100.0
+      },
+      {
+        "total": 3,
+        "aobt_na": 3,
+        "pct": 100.0
+      },
+      {
+        "total": 9,
+        "aobt_na": 9,
+        "pct": 100.0
+      },
+      {
+        "total": 65,
+        "aobt_na": 64,
+        "pct": 98.46153846153847
+      }
+    ],
+    "top_ap_hour_na_pct": [
+      {
+        "total": 6.0,
+        "aobt_na": 2.0,
+        "pct": 33.33333333333333
+      },
+      {
+        "total": 8.0,
+        "aobt_na": 1.0,
+        "pct": 12.5
+      },
+      {
+        "total": 9.0,
+        "aobt_na": 1.0,
+        "pct": 11.11111111111111
+      },
+      {
+        "total": 10.0,
+        "aobt_na": 1.0,
+        "pct": 10.0
+      },
+      {
+        "total": 922.0,
+        "aobt_na": 41.0,
+        "pct": 4.4468546637744035
+      },
+      {
+        "total": 1076.0,
+        "aobt_na": 43.0,
+        "pct": 3.9962825278810405
+      },
+      {
+        "total": 466.0,
+        "aobt_na": 17.0,
+        "pct": 3.648068669527897
+      },
+      {
+        "total": 55.0,
+        "aobt_na": 2.0,
+        "pct": 3.6363636363636362
+      },
+      {
+        "total": 1678.0,
+        "aobt_na": 60.0,
+        "pct": 3.575685339690107
+      },
+      {
+        "total": 2576.0,
+        "aobt_na": 92.0,
+        "pct": 3.571428571428571
+      },
+      {
+        "total": 1423.0,
+        "aobt_na": 49.0,
+        "pct": 3.4434293745607873
+      },
+      {
+        "total": 1579.0,
+        "aobt_na": 53.0,
+        "pct": 3.356554781507283
+      },
+      {
+        "total": 1496.0,
+        "aobt_na": 50.0,
+        "pct": 3.342245989304813
+      },
+      {
+        "total": 1218.0,
+        "aobt_na": 40.0,
+        "pct": 3.284072249589491
+      },
+      {
+        "total": 752.0,
+        "aobt_na": 24.0,
+        "pct": 3.1914893617021276
+      }
+    ]
+  },
+  "rules_eval": {
+    "isna_direct": {
+      "TP": 5321,
+      "FP": 0,
+      "FN": 0,
+      "precision_pct": 100,
+      "recall_pct": 100,
+      "note": "ranking 真榜直接用 isna() 圈出"
+    },
+    "ADEP_geq_20pct": null,
+    "OPERATOR_geq_20pct": null,
+    "TYPE_geq_20pct": {
+      "n_rule": 197,
+      "TP": 196,
+      "FP": 1,
+      "precision": 99.49238578680203,
+      "recall": 3.6835181356887805
+    },
+    "union_geq_20pct": {
+      "n_rule": 197,
+      "TP": 196,
+      "FP": 1,
+      "precision": 99.49238578680203,
+      "recall": 3.6835181356887805
+    }
+  },
+  "step2_fallback_sim": {
+    "A_baseline_rmse": 560.0392456054688,
+    "B_aobtna_ap_hr_mean": {
+      "rmse_full": 585.2062377929688,
+      "rmse_aobtna": 3979.369140625,
+      "rmse_valid": 315.1156311035156,
+      "delta_rmse": 25.1669921875,
+      "delta_pct": 4.493790816443855,
+      "SSE_full_a": 107998896128.0,
+      "SSE_full_b": 117923504128.0,
+      "SSE_aobtna_drop": -9924614144.0,
+      "fallback_used_n": 5321,
+      "fallback_mean": 975.4062232931208,
+      "fallback_median": 965.1042949507389
+    },
+    "C_aobtna_global": 587.8446655273438,
+    "D_gt10k_only": 578.602783203125,
+    "E_aobtna_or_gt10k": 585.6890258789062,
+    "F_union_geq_20pct": 560.1478881835938,
+    "best_is": "B",
+    "verdict": "全样本 RMSE 改善: B +25.17, D +18.56, E +25.65, F +0.11"
+  },
+  "validity_on_ranking": {
+    "ranking_aobt_field_observable": true,
+    "ranking_aobt_missing_rate": 1.534040325831325,
+    "rule_can_be_applied": true,
+    "recommendation": "真榜: 直接对 ranking DEP where AOBT_3_flt.isna() 圈出, 替换为 (ADEP, sched_hour) 训练折条件均值 (T-Unimp 级 fallback). 见 skills/osn-leaderboard-upload.md 类似流程, 在推理后处理层做."
+  },
+  "red_lines": "不改 label / 不 clip 真值 / 不建单机场模型; 条件均值只用训练折"
+}

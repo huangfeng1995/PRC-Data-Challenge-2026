@@ -1,0 +1,1358 @@
+{
+  "base": {
+    "full": 567.61,
+    "core": 304.94,
+    "jan": 497.14,
+    "jul": 618.58,
+    "n": 344336,
+    "n_corrupt": 30420,
+    "n_nm_missing": 5321
+  },
+  "runs": [
+    {
+      "name": "LIRF_T10800",
+      "full": 403.15,
+      "core": 324.09,
+      "d_full": -164.46,
+      "d_core": 19.16,
+      "jan": 409.39,
+      "jul": 398.05,
+      "d_jan": -87.76,
+      "d_jul": -220.53,
+      "n_ap_improve": 1,
+      "n_ap_worse": 0,
+      "worst_airport": "EDDF",
+      "worst_delta": 0.0,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 246.17,
+          "base_full": 246.17,
+          "delta": 0.0
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 240.97,
+          "base_full": 240.97,
+          "delta": 0.0
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 352.73,
+          "base_full": 352.73,
+          "delta": 0.0
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 264.95,
+          "base_full": 264.95,
+          "delta": 0.0
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 245.08,
+          "base_full": 245.08,
+          "delta": 0.0
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 206.15,
+          "base_full": 206.15,
+          "delta": 0.0
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 604.58,
+          "base_full": 604.58,
+          "delta": 0.0
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 886.5,
+          "base_full": 1690.62,
+          "delta": -804.12
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 254.98,
+          "base_full": 254.98,
+          "delta": 0.0
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 303.01,
+          "base_full": 303.01,
+          "delta": 0.0
+        }
+      },
+      "T": 10800,
+      "scope": "LIRF",
+      "n_hit": 83,
+      "tp": 47,
+      "fp": 36,
+      "fn_vs_lirf_corrupt": 5034,
+      "n_lirf_corrupt": 5081,
+      "precision": 0.5663,
+      "recall_lirf_corrupt": 0.0093
+    },
+    {
+      "name": "LIRF_T14400",
+      "full": 394.0,
+      "core": 309.54,
+      "d_full": -173.61,
+      "d_core": 4.6,
+      "jan": 409.28,
+      "jul": 381.24,
+      "d_jan": -87.86,
+      "d_jul": -237.34,
+      "n_ap_improve": 1,
+      "n_ap_worse": 0,
+      "worst_airport": "EDDF",
+      "worst_delta": 0.0,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 246.17,
+          "base_full": 246.17,
+          "delta": 0.0
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 240.97,
+          "base_full": 240.97,
+          "delta": 0.0
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 352.73,
+          "base_full": 352.73,
+          "delta": 0.0
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 264.95,
+          "base_full": 264.95,
+          "delta": 0.0
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 245.08,
+          "base_full": 245.08,
+          "delta": 0.0
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 206.15,
+          "base_full": 206.15,
+          "delta": 0.0
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 604.58,
+          "base_full": 604.58,
+          "delta": 0.0
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 831.4,
+          "base_full": 1690.62,
+          "delta": -859.21
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 254.98,
+          "base_full": 254.98,
+          "delta": 0.0
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 303.01,
+          "base_full": 303.01,
+          "delta": 0.0
+        }
+      },
+      "T": 14400,
+      "scope": "LIRF",
+      "n_hit": 45,
+      "tp": 36,
+      "fp": 9,
+      "fn_vs_lirf_corrupt": 5045,
+      "n_lirf_corrupt": 5081,
+      "precision": 0.8,
+      "recall_lirf_corrupt": 0.0071
+    },
+    {
+      "name": "LIRF_T21600",
+      "full": 403.22,
+      "core": 304.94,
+      "d_full": -164.39,
+      "d_core": 0.0,
+      "jan": 411.32,
+      "jul": 396.57,
+      "d_jan": -85.82,
+      "d_jul": -222.01,
+      "n_ap_improve": 1,
+      "n_ap_worse": 0,
+      "worst_airport": "EDDF",
+      "worst_delta": 0.0,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 246.17,
+          "base_full": 246.17,
+          "delta": 0.0
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 240.97,
+          "base_full": 240.97,
+          "delta": 0.0
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 352.73,
+          "base_full": 352.73,
+          "delta": 0.0
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 264.95,
+          "base_full": 264.95,
+          "delta": 0.0
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 245.08,
+          "base_full": 245.08,
+          "delta": 0.0
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 206.15,
+          "base_full": 206.15,
+          "delta": 0.0
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 604.58,
+          "base_full": 604.58,
+          "delta": 0.0
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 886.9,
+          "base_full": 1690.62,
+          "delta": -803.72
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 254.98,
+          "base_full": 254.98,
+          "delta": 0.0
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 303.01,
+          "base_full": 303.01,
+          "delta": 0.0
+        }
+      },
+      "T": 21600,
+      "scope": "LIRF",
+      "n_hit": 21,
+      "tp": 16,
+      "fp": 5,
+      "fn_vs_lirf_corrupt": 5065,
+      "n_lirf_corrupt": 5081,
+      "precision": 0.7619,
+      "recall_lirf_corrupt": 0.0031
+    },
+    {
+      "name": "ALL_T10800",
+      "full": 679.97,
+      "core": 636.33,
+      "d_full": 112.36,
+      "d_core": 331.39,
+      "jan": 608.32,
+      "jul": 732.63,
+      "d_jan": 111.18,
+      "d_jul": 114.04,
+      "n_ap_improve": 1,
+      "n_ap_worse": 9,
+      "worst_airport": "EHAM",
+      "worst_delta": 678.5,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 878.37,
+          "base_full": 246.17,
+          "delta": 632.2
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 356.68,
+          "base_full": 240.97,
+          "delta": 115.7
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 531.72,
+          "base_full": 352.73,
+          "delta": 179.0
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 943.45,
+          "base_full": 264.95,
+          "delta": 678.5
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 648.47,
+          "base_full": 245.08,
+          "delta": 403.39
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 390.1,
+          "base_full": 206.15,
+          "delta": 183.94
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 902.59,
+          "base_full": 604.58,
+          "delta": 298.01
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 886.5,
+          "base_full": 1690.62,
+          "delta": -804.12
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 371.74,
+          "base_full": 254.98,
+          "delta": 116.76
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 352.51,
+          "base_full": 303.01,
+          "delta": 49.5
+        }
+      },
+      "T": 10800,
+      "scope": "ALL",
+      "n_hit": 383,
+      "tp": 47,
+      "fp": 336,
+      "fn": 30373,
+      "precision": 0.1227,
+      "recall": 0.0015
+    },
+    {
+      "name": "ALL_T14400",
+      "full": 621.75,
+      "core": 572.01,
+      "d_full": 54.14,
+      "d_core": 267.07,
+      "jan": 577.95,
+      "jul": 654.93,
+      "d_jan": 80.81,
+      "d_jul": 36.34,
+      "n_ap_improve": 1,
+      "n_ap_worse": 9,
+      "worst_airport": "EHAM",
+      "worst_delta": 612.15,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 821.07,
+          "base_full": 246.17,
+          "delta": 574.9
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 335.57,
+          "base_full": 240.97,
+          "delta": 94.59
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 449.17,
+          "base_full": 352.73,
+          "delta": 96.45
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 877.1,
+          "base_full": 264.95,
+          "delta": 612.15
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 519.41,
+          "base_full": 245.08,
+          "delta": 274.33
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 324.73,
+          "base_full": 206.15,
+          "delta": 118.57
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 850.82,
+          "base_full": 604.58,
+          "delta": 246.24
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 831.4,
+          "base_full": 1690.62,
+          "delta": -859.21
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 317.32,
+          "base_full": 254.98,
+          "delta": 62.34
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 322.29,
+          "base_full": 303.01,
+          "delta": 19.28
+        }
+      },
+      "T": 14400,
+      "scope": "ALL",
+      "n_hit": 153,
+      "tp": 36,
+      "fp": 117,
+      "fn": 30384,
+      "precision": 0.2353,
+      "recall": 0.0012
+    },
+    {
+      "name": "ALL_T21600",
+      "full": 580.63,
+      "core": 517.27,
+      "d_full": 13.02,
+      "d_core": 212.33,
+      "jan": 548.39,
+      "jul": 605.36,
+      "d_jan": 51.25,
+      "d_jul": -13.22,
+      "n_ap_improve": 1,
+      "n_ap_worse": 7,
+      "worst_airport": "EHAM",
+      "worst_delta": 545.99,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 784.47,
+          "base_full": 246.17,
+          "delta": 538.3
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 279.05,
+          "base_full": 240.97,
+          "delta": 38.08
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 395.44,
+          "base_full": 352.73,
+          "delta": 42.71
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 810.94,
+          "base_full": 264.95,
+          "delta": 545.99
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 384.94,
+          "base_full": 245.08,
+          "delta": 139.86
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 235.57,
+          "base_full": 206.15,
+          "delta": 29.41
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 798.65,
+          "base_full": 604.58,
+          "delta": 194.07
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 886.9,
+          "base_full": 1690.62,
+          "delta": -803.72
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 254.98,
+          "base_full": 254.98,
+          "delta": 0.0
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 303.01,
+          "base_full": 303.01,
+          "delta": 0.0
+        }
+      },
+      "T": 21600,
+      "scope": "ALL",
+      "n_hit": 52,
+      "tp": 16,
+      "fp": 36,
+      "fn": 30404,
+      "precision": 0.3077,
+      "recall": 0.0005
+    },
+    {
+      "name": "ALL_noNM_T10800",
+      "full": 1915.06,
+      "core": 1905.99,
+      "d_full": 1347.45,
+      "d_core": 1601.06,
+      "jan": 1931.68,
+      "jul": 1901.56,
+      "d_jan": 1434.54,
+      "d_jul": 1282.98,
+      "n_ap_improve": 1,
+      "n_ap_worse": 9,
+      "worst_airport": "EDDF",
+      "worst_delta": 3374.48,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 3620.65,
+          "base_full": 246.17,
+          "delta": 3374.48
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 1091.99,
+          "base_full": 240.97,
+          "delta": 851.02
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 1240.2,
+          "base_full": 352.73,
+          "delta": 887.47
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 2155.08,
+          "base_full": 264.95,
+          "delta": 1890.13
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 1617.7,
+          "base_full": 245.08,
+          "delta": 1372.62
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 1225.76,
+          "base_full": 206.15,
+          "delta": 1019.61
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 1724.85,
+          "base_full": 604.58,
+          "delta": 1120.27
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 1591.22,
+          "base_full": 1690.62,
+          "delta": -99.4
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 1012.66,
+          "base_full": 254.98,
+          "delta": 757.68
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 1848.14,
+          "base_full": 303.01,
+          "delta": 1545.13
+        }
+      },
+      "T": 10800,
+      "scope": "ALL_noNM",
+      "n_hit": 3108,
+      "tp": 49,
+      "fp": 3059,
+      "precision": 0.0158
+    },
+    {
+      "name": "ALL_noNM_T14400",
+      "full": 1745.03,
+      "core": 1734.37,
+      "d_full": 1177.42,
+      "d_core": 1429.43,
+      "jan": 1790.26,
+      "jul": 1707.71,
+      "d_jan": 1293.11,
+      "d_jul": 1089.13,
+      "n_ap_improve": 1,
+      "n_ap_worse": 9,
+      "worst_airport": "EDDF",
+      "worst_delta": 3304.1,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 3550.27,
+          "base_full": 246.17,
+          "delta": 3304.1
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 996.19,
+          "base_full": 240.97,
+          "delta": 755.22
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 983.87,
+          "base_full": 352.73,
+          "delta": 631.14
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 1964.9,
+          "base_full": 264.95,
+          "delta": 1699.95
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 1281.34,
+          "base_full": 245.08,
+          "delta": 1036.26
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 998.24,
+          "base_full": 206.15,
+          "delta": 792.08
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 1504.28,
+          "base_full": 604.58,
+          "delta": 899.7
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 1336.85,
+          "base_full": 1690.62,
+          "delta": -353.76
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 858.05,
+          "base_full": 254.98,
+          "delta": 603.08
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 1633.79,
+          "base_full": 303.01,
+          "delta": 1330.78
+        }
+      },
+      "T": 14400,
+      "scope": "ALL_noNM",
+      "n_hit": 1383,
+      "tp": 37,
+      "fp": 1346,
+      "precision": 0.0268
+    },
+    {
+      "name": "ALL_noNM_T21600",
+      "full": 1537.21,
+      "core": 1521.66,
+      "d_full": 969.6,
+      "d_core": 1216.73,
+      "jan": 1616.28,
+      "jul": 1470.4,
+      "d_jan": 1119.14,
+      "d_jul": 851.82,
+      "n_ap_improve": 1,
+      "n_ap_worse": 9,
+      "worst_airport": "EDDF",
+      "worst_delta": 3243.51,
+      "per_airport": {
+        "EDDF": {
+          "n": 36830,
+          "full": 3489.68,
+          "base_full": 246.17,
+          "delta": 3243.51
+        },
+        "EDDM": {
+          "n": 27091,
+          "full": 892.64,
+          "base_full": 240.97,
+          "delta": 651.67
+        },
+        "EGLL": {
+          "n": 40210,
+          "full": 690.54,
+          "base_full": 352.73,
+          "delta": 337.81
+        },
+        "EHAM": {
+          "n": 40949,
+          "full": 1773.73,
+          "base_full": 264.95,
+          "delta": 1508.78
+        },
+        "LEBL": {
+          "n": 28985,
+          "full": 893.41,
+          "base_full": 245.08,
+          "delta": 648.33
+        },
+        "LEMD": {
+          "n": 35328,
+          "full": 723.58,
+          "base_full": 206.15,
+          "delta": 517.42
+        },
+        "LFPG": {
+          "n": 39589,
+          "full": 1222.76,
+          "base_full": 604.58,
+          "delta": 618.18
+        },
+        "LIRF": {
+          "n": 26528,
+          "full": 1025.44,
+          "base_full": 1690.62,
+          "delta": -665.17
+        },
+        "LSZH": {
+          "n": 22287,
+          "full": 656.02,
+          "base_full": 254.98,
+          "delta": 401.04
+        },
+        "LTFM": {
+          "n": 46539,
+          "full": 1109.26,
+          "base_full": 303.01,
+          "delta": 806.25
+        }
+      },
+      "T": 21600,
+      "scope": "ALL_noNM",
+      "n_hit": 436,
+      "tp": 17,
+      "fp": 419,
+      "precision": 0.039
+    }
+  ],
+  "best": {
+    "name": "LIRF_T14400",
+    "full": 394.0,
+    "core": 309.54,
+    "d_full": -173.61,
+    "d_core": 4.6,
+    "jan": 409.28,
+    "jul": 381.24,
+    "d_jan": -87.86,
+    "d_jul": -237.34,
+    "n_ap_improve": 1,
+    "n_ap_worse": 0,
+    "worst_airport": "EDDF",
+    "worst_delta": 0.0,
+    "per_airport": {
+      "EDDF": {
+        "n": 36830,
+        "full": 246.17,
+        "base_full": 246.17,
+        "delta": 0.0
+      },
+      "EDDM": {
+        "n": 27091,
+        "full": 240.97,
+        "base_full": 240.97,
+        "delta": 0.0
+      },
+      "EGLL": {
+        "n": 40210,
+        "full": 352.73,
+        "base_full": 352.73,
+        "delta": 0.0
+      },
+      "EHAM": {
+        "n": 40949,
+        "full": 264.95,
+        "base_full": 264.95,
+        "delta": 0.0
+      },
+      "LEBL": {
+        "n": 28985,
+        "full": 245.08,
+        "base_full": 245.08,
+        "delta": 0.0
+      },
+      "LEMD": {
+        "n": 35328,
+        "full": 206.15,
+        "base_full": 206.15,
+        "delta": 0.0
+      },
+      "LFPG": {
+        "n": 39589,
+        "full": 604.58,
+        "base_full": 604.58,
+        "delta": 0.0
+      },
+      "LIRF": {
+        "n": 26528,
+        "full": 831.4,
+        "base_full": 1690.62,
+        "delta": -859.21
+      },
+      "LSZH": {
+        "n": 22287,
+        "full": 254.98,
+        "base_full": 254.98,
+        "delta": 0.0
+      },
+      "LTFM": {
+        "n": 46539,
+        "full": 303.01,
+        "base_full": 303.01,
+        "delta": 0.0
+      }
+    },
+    "T": 14400,
+    "scope": "LIRF",
+    "n_hit": 45,
+    "tp": 36,
+    "fp": 9,
+    "fn_vs_lirf_corrupt": 5045,
+    "n_lirf_corrupt": 5081,
+    "precision": 0.8,
+    "recall_lirf_corrupt": 0.0071
+  },
+  "best_detail": [
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 88132.0,
+      "ens": 3653.21484375,
+      "new": 84236.0,
+      "cand": 84236.0,
+      "corrupt": false,
+      "old_err": -84478.78515625,
+      "new_err": -3896.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 87361.0,
+      "ens": 2649.38037109375,
+      "new": 73260.0,
+      "cand": 73260.0,
+      "corrupt": false,
+      "old_err": -84711.61962890625,
+      "new_err": -14101.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 87186.0,
+      "ens": 4758.46923828125,
+      "new": 58563.0,
+      "cand": 58563.0,
+      "corrupt": false,
+      "old_err": -82427.53076171875,
+      "new_err": -28623.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 1,
+      "true": 87177.0,
+      "ens": 4210.45849609375,
+      "new": 60118.0,
+      "cand": 60118.0,
+      "corrupt": false,
+      "old_err": -82966.54150390625,
+      "new_err": -27059.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 87170.0,
+      "ens": 1888.2205810546875,
+      "new": 93535.0,
+      "cand": 93535.0,
+      "corrupt": false,
+      "old_err": -85281.77941894531,
+      "new_err": 6365.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 64437.0,
+      "ens": 3341.44970703125,
+      "new": 64438.0,
+      "cand": 64438.0,
+      "corrupt": true,
+      "old_err": -61095.55029296875,
+      "new_err": 1.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 1,
+      "true": 56633.0,
+      "ens": 4613.001953125,
+      "new": 56636.0,
+      "cand": 56636.0,
+      "corrupt": true,
+      "old_err": -52019.998046875,
+      "new_err": 3.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 46369.0,
+      "ens": 3288.028076171875,
+      "new": 46374.0,
+      "cand": 46374.0,
+      "corrupt": true,
+      "old_err": -43080.971923828125,
+      "new_err": 5.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 45791.0,
+      "ens": 2706.38623046875,
+      "new": 45785.0,
+      "cand": 45785.0,
+      "corrupt": true,
+      "old_err": -43084.61376953125,
+      "new_err": -6.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 45368.0,
+      "ens": 2599.98486328125,
+      "new": 45364.0,
+      "cand": 45364.0,
+      "corrupt": true,
+      "old_err": -42768.01513671875,
+      "new_err": -4.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 43863.0,
+      "ens": 2590.60693359375,
+      "new": 43861.0,
+      "cand": 43861.0,
+      "corrupt": true,
+      "old_err": -41272.39306640625,
+      "new_err": -2.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 1,
+      "true": 41766.0,
+      "ens": 4453.13720703125,
+      "new": 41763.0,
+      "cand": 41763.0,
+      "corrupt": true,
+      "old_err": -37312.86279296875,
+      "new_err": -3.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 40262.0,
+      "ens": 4783.619140625,
+      "new": 40261.0,
+      "cand": 40261.0,
+      "corrupt": true,
+      "old_err": -35478.380859375,
+      "new_err": -1.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 1,
+      "true": 39837.0,
+      "ens": 3546.682373046875,
+      "new": 39838.0,
+      "cand": 39838.0,
+      "corrupt": true,
+      "old_err": -36290.317626953125,
+      "new_err": 1.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 35520.0,
+      "ens": 4013.93505859375,
+      "new": 35520.0,
+      "cand": 35520.0,
+      "corrupt": true,
+      "old_err": -31506.06494140625,
+      "new_err": 0.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 35287.0,
+      "ens": 6481.255859375,
+      "new": 35283.0,
+      "cand": 35283.0,
+      "corrupt": true,
+      "old_err": -28805.744140625,
+      "new_err": -4.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 25383.0,
+      "ens": 4589.51220703125,
+      "new": 25381.0,
+      "cand": 25381.0,
+      "corrupt": true,
+      "old_err": -20793.48779296875,
+      "new_err": -2.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 24900.0,
+      "ens": 3821.54345703125,
+      "new": 24900.0,
+      "cand": 24900.0,
+      "corrupt": true,
+      "old_err": -21078.45654296875,
+      "new_err": 0.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 1,
+      "true": 24710.0,
+      "ens": 4365.26220703125,
+      "new": 24715.0,
+      "cand": 24715.0,
+      "corrupt": true,
+      "old_err": -20344.73779296875,
+      "new_err": 5.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 23472.0,
+      "ens": 4309.1826171875,
+      "new": 23466.0,
+      "cand": 23466.0,
+      "corrupt": true,
+      "old_err": -19162.8173828125,
+      "new_err": -6.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 23168.0,
+      "ens": 4034.877685546875,
+      "new": 23164.0,
+      "cand": 23164.0,
+      "corrupt": true,
+      "old_err": -19133.122314453125,
+      "new_err": -4.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 20576.0,
+      "ens": 3029.623046875,
+      "new": 20578.0,
+      "cand": 20578.0,
+      "corrupt": true,
+      "old_err": -17546.376953125,
+      "new_err": 2.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 1,
+      "true": 20225.0,
+      "ens": 4197.314453125,
+      "new": 20222.0,
+      "cand": 20222.0,
+      "corrupt": true,
+      "old_err": -16027.685546875,
+      "new_err": -3.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 19432.0,
+      "ens": 5656.81787109375,
+      "new": 19436.0,
+      "cand": 19436.0,
+      "corrupt": true,
+      "old_err": -13775.18212890625,
+      "new_err": 4.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 19315.0,
+      "ens": 2116.7265625,
+      "new": 19317.0,
+      "cand": 19317.0,
+      "corrupt": true,
+      "old_err": -17198.2734375,
+      "new_err": 2.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 18905.0,
+      "ens": 3499.355224609375,
+      "new": 18902.0,
+      "cand": 18902.0,
+      "corrupt": true,
+      "old_err": -15405.644775390625,
+      "new_err": -3.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 18431.0,
+      "ens": 2199.43994140625,
+      "new": 18425.0,
+      "cand": 18425.0,
+      "corrupt": true,
+      "old_err": -16231.56005859375,
+      "new_err": -6.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 18070.0,
+      "ens": 6476.3359375,
+      "new": 18065.0,
+      "cand": 18065.0,
+      "corrupt": true,
+      "old_err": -11593.6640625,
+      "new_err": -5.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 17813.0,
+      "ens": 3982.054443359375,
+      "new": 17816.0,
+      "cand": 17816.0,
+      "corrupt": true,
+      "old_err": -13830.945556640625,
+      "new_err": 3.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 17217.0,
+      "ens": 4892.31201171875,
+      "new": 17218.0,
+      "cand": 17218.0,
+      "corrupt": true,
+      "old_err": -12324.68798828125,
+      "new_err": 1.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 16674.0,
+      "ens": 1634.6669921875,
+      "new": 16677.0,
+      "cand": 16677.0,
+      "corrupt": true,
+      "old_err": -15039.3330078125,
+      "new_err": 3.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 16549.0,
+      "ens": 5356.98291015625,
+      "new": 16554.0,
+      "cand": 16554.0,
+      "corrupt": true,
+      "old_err": -11192.01708984375,
+      "new_err": 5.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 15716.0,
+      "ens": 3405.540771484375,
+      "new": 15718.0,
+      "cand": 15718.0,
+      "corrupt": true,
+      "old_err": -12310.459228515625,
+      "new_err": 2.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 15470.0,
+      "ens": 4163.1064453125,
+      "new": 15475.0,
+      "cand": 15475.0,
+      "corrupt": true,
+      "old_err": -11306.8935546875,
+      "new_err": 5.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 15238.0,
+      "ens": 3523.62451171875,
+      "new": 15239.0,
+      "cand": 15239.0,
+      "corrupt": true,
+      "old_err": -11714.37548828125,
+      "new_err": 1.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 15184.0,
+      "ens": 2945.841552734375,
+      "new": 15182.0,
+      "cand": 15182.0,
+      "corrupt": true,
+      "old_err": -12238.158447265625,
+      "new_err": -2.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 14939.0,
+      "ens": 7037.0673828125,
+      "new": 14939.0,
+      "cand": 14939.0,
+      "corrupt": true,
+      "old_err": -7901.9326171875,
+      "new_err": 0.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 14939.0,
+      "ens": 6355.06005859375,
+      "new": 14939.0,
+      "cand": 14939.0,
+      "corrupt": true,
+      "old_err": -8583.93994140625,
+      "new_err": 0.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 14890.0,
+      "ens": 1989.9151611328125,
+      "new": 14885.0,
+      "cand": 14885.0,
+      "corrupt": true,
+      "old_err": -12900.084838867188,
+      "new_err": -5.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 14822.0,
+      "ens": 2586.388427734375,
+      "new": 14821.0,
+      "cand": 14821.0,
+      "corrupt": true,
+      "old_err": -12235.611572265625,
+      "new_err": -1.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 14762.0,
+      "ens": 4532.17333984375,
+      "new": 14761.0,
+      "cand": 14761.0,
+      "corrupt": true,
+      "old_err": -10229.82666015625,
+      "new_err": -1.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 1377.0,
+      "ens": 3823.43505859375,
+      "new": 20878.0,
+      "cand": 20878.0,
+      "corrupt": false,
+      "old_err": 2446.43505859375,
+      "new_err": 19501.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 1077.0,
+      "ens": 2655.083740234375,
+      "new": 15178.0,
+      "cand": 15178.0,
+      "corrupt": false,
+      "old_err": 1578.083740234375,
+      "new_err": 14101.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 842.0,
+      "ens": 5045.05908203125,
+      "new": 15361.0,
+      "cand": 15361.0,
+      "corrupt": false,
+      "old_err": 4203.05908203125,
+      "new_err": 14519.0
+    },
+    {
+      "ap": "LIRF",
+      "month": 7,
+      "true": 723.0,
+      "ens": 2332.9482421875,
+      "new": 15301.0,
+      "cand": 15301.0,
+      "corrupt": false,
+      "old_err": 1609.9482421875,
+      "new_err": 14578.0
+    }
+  ]
+}

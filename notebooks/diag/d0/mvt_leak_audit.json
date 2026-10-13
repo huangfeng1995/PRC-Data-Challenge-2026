@@ -1,0 +1,209 @@
+{
+  "check1_mvt_eq_sched": {
+    "eq_ratio": 7e-05,
+    "delta_sec": {
+      "p1": 101.0,
+      "p5": 475.0,
+      "p25": 965.0,
+      "p50": 1501.0,
+      "p75": 2436.0,
+      "p95": 5684.0,
+      "p99": 11344.0,
+      "n": 344841,
+      "mean": 2124.98,
+      "frac_neg": 0.0067
+    }
+  },
+  "check2_mvt_vs_aobt": {
+    "delta_sec": {
+      "p1": 305.0,
+      "p5": 571.0,
+      "p25": 751.0,
+      "p50": 978.0,
+      "p75": 1205.0,
+      "p95": 1682.0,
+      "p99": 2341.0,
+      "n": 339551,
+      "mean": 1036.41,
+      "frac_neg": 0.0005
+    },
+    "frac_pos": 0.999479
+  },
+  "check2_mvt_vs_eobt": {
+    "delta_sec": {
+      "p1": 299.0,
+      "p5": 543.0,
+      "p25": 911.0,
+      "p50": 1257.0,
+      "p75": 1696.0,
+      "p95": 2757.0,
+      "p99": 3902.0,
+      "n": 339551,
+      "mean": 1397.34,
+      "frac_neg": 0.002
+    }
+  },
+  "check3_identity": {
+    "n_dep": 509990,
+    "max_abs_err_sec": 0.0,
+    "mean_abs_err_sec": 0.0,
+    "n_rows_err_gt_1ms": 0,
+    "identity_holds": true
+  },
+  "check3_identity_arr": {
+    "n_arr": 509804,
+    "max_abs_err_sec": 0.0,
+    "identity_holds": true
+  },
+  "check4_train_reconstruction": {
+    "mvt_minus_aobt_sec": {
+      "p1": 305.0,
+      "p5": 568.0,
+      "p25": 736.0,
+      "p50": 961.0,
+      "p75": 1201.0,
+      "p95": 1619.0,
+      "p99": 2256.26,
+      "n": 503038,
+      "mean": 1012.53,
+      "frac_neg": 0.0006
+    },
+    "taxitime_sec": {
+      "p1": 303.0,
+      "p5": 484.0,
+      "p25": 721.0,
+      "p50": 916.0,
+      "p75": 1193.0,
+      "p95": 1741.0,
+      "p99": 2509.0,
+      "n": 503038,
+      "mean": 1000.53,
+      "frac_neg": 0.0
+    },
+    "corr": 0.555947,
+    "recon_rmse_sec": 411.39,
+    "recon_err_sec": {
+      "p1": -1320.0,
+      "p5": -540.0,
+      "p25": -122.0,
+      "p50": 54.0,
+      "p75": 184.0,
+      "p95": 517.0,
+      "p99": 785.63,
+      "n": 503038,
+      "mean": 12.0,
+      "frac_neg": 0.4301
+    }
+  },
+  "check4_rank_mvt_minus_aobt": {
+    "p1": 305.0,
+    "p5": 571.0,
+    "p25": 751.0,
+    "p50": 978.0,
+    "p75": 1205.0,
+    "p95": 1682.0,
+    "p99": 2341.0,
+    "n": 339551,
+    "mean": 1036.41,
+    "frac_neg": 0.0005
+  },
+  "check5_nonnull": {
+    "MVT_TIME_UTC_mvt": {
+      "rank_dep": 1.0,
+      "rank_arr": 1.0,
+      "train_dep": 1.0,
+      "train_arr": 1.0
+    },
+    "BLOCK_TIME_UTC_mvt": {
+      "rank_dep": 0.0,
+      "rank_arr": 1.0,
+      "train_dep": 1.0,
+      "train_arr": 1.0
+    },
+    "SCHED_TIME_UTC_mvt": {
+      "rank_dep": 1.0,
+      "rank_arr": 1.0,
+      "train_dep": 1.0,
+      "train_arr": 1.0
+    },
+    "AOBT_3_flt": {
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926,
+      "train_dep": 0.9862,
+      "train_arr": 0.9926
+    },
+    "EOBT_1_flt": {
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926,
+      "train_dep": 0.9862,
+      "train_arr": 0.9926
+    },
+    "ARVT_3_flt": {
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926,
+      "train_dep": 0.9862,
+      "train_arr": 0.9926
+    },
+    "IOBT_flt": {
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926,
+      "train_dep": 0.9862,
+      "train_arr": 0.9926
+    }
+  },
+  "check5_arr_semantics": {
+    "p1": 115.0,
+    "p5": 175.0,
+    "p25": 326.0,
+    "p50": 478.0,
+    "p75": 662.0,
+    "p95": 1129.0,
+    "p99": 1560.0,
+    "n": 344693,
+    "mean": 537.05,
+    "frac_neg": 0.0001
+  },
+  "check4b_aobt_vs_block": {
+    "AOBT_3_flt": {
+      "eq_ratio": 0.006375,
+      "median_diff_sec": -54.0,
+      "abs_p95_sec": 715.0
+    },
+    "EOBT_1_flt": {
+      "eq_ratio": 0.004624,
+      "median_diff_sec": -297.0,
+      "abs_p95_sec": 1505.0
+    },
+    "SCHED_TIME": {
+      "eq_ratio": 0.00369,
+      "median_diff_sec": -456.0,
+      "abs_p95_sec": 4170.25
+    }
+  },
+  "check4b_leak_defense": {
+    "mechanism": "ranking DEP 把 BLOCK_TIME_UTC_mvt 整列抽空(0.00%), 保留 MVT(100%)",
+    "anchor": "TAXITIME = MVT - BLOCK (训练集精确成立)",
+    "aobt_is_block": false,
+    "implication": "AOBT + MVT 不能精确还原答案; 但 MVT 本身仍是预测时点之后的信息"
+  },
+  "verdict": {
+    "code": "a_real_future_takeoff_not_direct_answer",
+    "reason": "MVT 是【真实的未来起飞时刻】(与 SCHED 仅 0.007% 相等; 99.95% 晚于 AOBT; 中位 (MVT-AOBT)=978s, 与训练集同口径 p50=961s 一致) -> 属于预测时点之后的未来信息, 【绝不能当特征】。但它【不构成直接答案泄漏】: 精确恒等式是 TAXITIME=MVT-BLOCK, 而 ranking DEP 已把 BLOCK_TIME_UTC_mvt 整列抽空(0.00%), 且 AOBT_3_flt 与 BLOCK 并非同一字段(相等仅 0.63%, |差|p95≈966s), 因此 (MVT-AOBT) 只能近似: corr=0.5559, RMSE=411.4s, 甚至劣于当前模型 core≈300s。",
+    "eq_sched_ratio": 7e-05,
+    "frac_mvt_gt_aobt": 0.999479,
+    "mvt_minus_aobt_median_sec": 978.0,
+    "recon_corr": 0.555947,
+    "recon_rmse_sec": 411.39
+  },
+  "headline": {
+    "ranking_dep_mvt_nonnull_pct": 100.0,
+    "ranking_dep_block_nonnull_pct": 0.0,
+    "ranking_dep_aobt_nonnull_pct": 98.47,
+    "mvt_eq_sched_pct": 0.007,
+    "mvt_minus_aobt_median_sec": 978.0,
+    "train_identity_max_err_sec": 0.0,
+    "recon_corr": 0.555947,
+    "recon_rmse_sec": 411.39,
+    "verdict_code": "a_real_future_takeoff_not_direct_answer"
+  }
+}

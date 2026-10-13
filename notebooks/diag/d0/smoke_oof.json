@@ -1,0 +1,30 @@
+{
+  "smoke_train_time_sec": 15.74,
+  "smoke_pred_time_sec": 0.23,
+  "best_iter": 305,
+  "rounds_cap": 1500,
+  "rounds_used_frac": 0.203,
+  "smoke_train_rows": 80000,
+  "full_train_rows_per_fold": 1930000,
+  "row_factor": 24.1,
+  "estimated_single_fold_full_sec": 77,
+  "estimated_5fold_1seed_total_sec": 386,
+  "estimated_5fold_1seed_total_min": 6.4,
+  "n_features": 71,
+  "high_card_cols_dtype": {
+    "ADEP_mvt": "int32",
+    "ADES_mvt": "int32",
+    "RUNWAY_mvt": "int32",
+    "STAND_mvt": "int32",
+    "airport_hour": "int32",
+    "AIRCRAFT_TYPE_mvt": "int32",
+    "AIRCRAFT_OPERATOR_flt": "int32"
+  },
+  "low_card_cols_dtype": {
+    "MARKET_SEGMENT_flt": "category",
+    "FLIGHT_RULE_flt": "category",
+    "FLIGHT_TYPE_flt": "category",
+    "WK_TBL_CAT_flt": "category"
+  },
+  "smoke_rmse": 403.4539960811838
+}

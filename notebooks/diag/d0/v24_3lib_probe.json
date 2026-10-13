@@ -1,0 +1,122 @@
+{
+  "lgb": {
+    "best_iter": 10423,
+    "hit_cap": false,
+    "seed": 42,
+    "model": "calib_lgb_seed42.json",
+    "reload": "OK"
+  },
+  "xgb": {
+    "best_iter": 5605,
+    "hit_cap": false,
+    "seed": 42,
+    "model": "calib_xgb_seed42.json",
+    "model_bytes": 604675846,
+    "reload": "OK",
+    "n_rounds_after_reload": 5705
+  },
+  "cat": {
+    "best_iter": 10205,
+    "hit_cap": false,
+    "seed": 42,
+    "model": "calib_cat_seed42.json",
+    "model_bytes": 335987024,
+    "reload": "OK",
+    "n_trees_after_reload": 10205
+  },
+  "probe": {
+    "per_model": {
+      "lgb": {
+        "full": 571.52,
+        "jan": 494.88,
+        "jul": 626.5
+      },
+      "xgb": {
+        "full": 639.33,
+        "jan": 551.78,
+        "jul": 702.0
+      },
+      "cat": {
+        "full": 572.01,
+        "jan": 490.68,
+        "jul": 629.96
+      },
+      "ens3": {
+        "full": 580.51,
+        "jan": 499.61,
+        "jul": 638.29
+      }
+    },
+    "per_airport": {
+      "EDDF": {
+        "n": 36830,
+        "lgb": 254.06,
+        "ens3": 292.1,
+        "delta": 38.04
+      },
+      "EDDM": {
+        "n": 27091,
+        "lgb": 246.09,
+        "ens3": 240.86,
+        "delta": -5.23
+      },
+      "EGLL": {
+        "n": 40210,
+        "lgb": 403.79,
+        "ens3": 368.88,
+        "delta": -34.91
+      },
+      "EHAM": {
+        "n": 40949,
+        "lgb": 259.5,
+        "ens3": 302.71,
+        "delta": 43.21
+      },
+      "LEBL": {
+        "n": 28986,
+        "lgb": 253.09,
+        "ens3": 248.53,
+        "delta": -4.56
+      },
+      "LEMD": {
+        "n": 35328,
+        "lgb": 214.25,
+        "ens3": 228.4,
+        "delta": 14.15
+      },
+      "LFPG": {
+        "n": 39612,
+        "lgb": 610.48,
+        "ens3": 627.51,
+        "delta": 17.03
+      },
+      "LIRF": {
+        "n": 26528,
+        "lgb": 1679.04,
+        "ens3": 1684.59,
+        "delta": 5.55
+      },
+      "LSZH": {
+        "n": 22346,
+        "lgb": 250.19,
+        "ens3": 293.32,
+        "delta": 43.13
+      },
+      "LTFM": {
+        "n": 46539,
+        "lgb": 319.17,
+        "ens3": 349.76,
+        "delta": 30.59
+      }
+    },
+    "delta_ens3_minus_lgb": {
+      "full": 8.99,
+      "jan": 4.73,
+      "jul": 11.79
+    },
+    "airport_same_sign": false,
+    "airport_n_worse": 7,
+    "airport_n_better": 3,
+    "verdict": "ENS3_REJECT"
+  }
+}

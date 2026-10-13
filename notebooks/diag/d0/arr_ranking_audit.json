@@ -1,0 +1,133 @@
+{
+  "task": "arr_ranking_audit",
+  "feats71_arr_usage": {
+    "n_feats71": 71,
+    "features_reading_arr_rows": [
+      "arr_mvt_cnt_airport_10m",
+      "arr_mvt_cnt_airport_15m"
+    ],
+    "in_feats71": [],
+    "any_arr_row_feature_in_71": false,
+    "lookalike_but_dep_own": {
+      "eobt_ahead_cnt_5": "G5 未来计划窗: 统计本 DEP 之后 5min 内同机场其他 DEP 的 EOBT 计划推出时刻。注意: 这是 DEP 的 EOBT, 不是 ARR。",
+      "eobt_ahead_cnt_15": "同上, 15min 窗",
+      "eobt_ahead_cnt_30": "同上, 30min 窗"
+    },
+    "conclusion": "FEATS71 中无任何特征读取 ARR 行字段"
+  },
+  "prior_E_group_review": {
+    "features": [
+      "arr_mvt_cnt_airport_10m",
+      "arr_mvt_cnt_airport_15m"
+    ],
+    "count": 2,
+    "user_said_4": "历史 G5_ABCE 的 E 组实为 2 个 (10m/15m), 不是 4 个",
+    "impl": "src/features_queue.py :: add_arr_mvt_cnt()",
+    "time_basis": "ARR 行的 MVT_TIME_UTC_mvt = 实际落地时刻 (真实世界), 非计划时刻",
+    "prior_verdict": "docs/diag/holdout_v1p5_significance_diagnosis.md: ❌ 否决, 高 gain 零泛化; 线上可构造性已确认, 否决理由是泛化能力",
+    "prior_gain": {
+      "arr_mvt_cnt_airport_10m": "221M",
+      "arr_mvt_cnt_airport_15m": "74.9M"
+    },
+    "difference_vs_this_round": "本轮用【计划到港时刻】而非实际落地时刻, 口径不同, 需重新验证"
+  },
+  "ranking": {
+    "n_rows": 689534,
+    "n_dep": 344841,
+    "n_arr": 344693,
+    "arr_share_pct": 49.99,
+    "missing_checked_cols": [
+      "SIB_TIME_UTC_mvt",
+      "TIME_AOBT_mvt",
+      "TIME_TAXIIN_mvt"
+    ],
+    "time_col_nonnull_rate": {
+      "MVT_TIME_UTC_mvt": {
+        "dep": 1.0,
+        "arr": 1.0
+      },
+      "BLOCK_TIME_UTC_mvt": {
+        "dep": 0.0,
+        "arr": 1.0
+      },
+      "SCHED_TIME_UTC_mvt": {
+        "dep": 1.0,
+        "arr": 1.0
+      },
+      "AOBT_3_flt": {
+        "dep": 0.9847,
+        "arr": 0.9926
+      },
+      "EOBT_1_flt": {
+        "dep": 0.9847,
+        "arr": 0.9926
+      },
+      "IOBT_flt": {
+        "dep": 0.9847,
+        "arr": 0.9926
+      },
+      "ARVT_3_flt": {
+        "dep": 0.9847,
+        "arr": 0.9926
+      },
+      "LOBT_flt": {
+        "dep": 0.9847,
+        "arr": 0.9926
+      }
+    },
+    "block_time_dep_pct": 0,
+    "block_time_arr_pct": 100.0,
+    "mvt_time_dep_pct": 100.0,
+    "mvt_time_arr_pct": 100.0
+  },
+  "train_vs_rank": {
+    "MVT_TIME_UTC_mvt": {
+      "train_dep": 1.0,
+      "train_arr": 1.0,
+      "rank_dep": 1.0,
+      "rank_arr": 1.0
+    },
+    "BLOCK_TIME_UTC_mvt": {
+      "train_dep": 1.0,
+      "train_arr": 1.0,
+      "rank_dep": 0.0,
+      "rank_arr": 1.0
+    },
+    "SCHED_TIME_UTC_mvt": {
+      "train_dep": 1.0,
+      "train_arr": 1.0,
+      "rank_dep": 1.0,
+      "rank_arr": 1.0
+    },
+    "AOBT_3_flt": {
+      "train_dep": 0.9794,
+      "train_arr": 0.9922,
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926
+    },
+    "EOBT_1_flt": {
+      "train_dep": 0.9794,
+      "train_arr": 0.9922,
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926
+    },
+    "IOBT_flt": {
+      "train_dep": 0.9794,
+      "train_arr": 0.9922,
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926
+    },
+    "ARVT_3_flt": {
+      "train_dep": 0.9794,
+      "train_arr": 0.9922,
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926
+    },
+    "LOBT_flt": {
+      "train_dep": 0.9794,
+      "train_arr": 0.9922,
+      "rank_dep": 0.9847,
+      "rank_arr": 0.9926
+    }
+  }
+}

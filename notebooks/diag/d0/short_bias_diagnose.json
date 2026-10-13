@@ -1,0 +1,669 @@
+{
+  "step1_bins": [
+    {
+      "bin": "[30, 300)",
+      "lo": 30,
+      "hi": 300,
+      "n": 3615,
+      "pred_mean": 495.43963623046875,
+      "true_mean": 228.53443908691406,
+      "bias": 266.9051513671875,
+      "rmse_bin": 342.61712646484375
+    },
+    {
+      "bin": "[300, 600)",
+      "lo": 300,
+      "hi": 600,
+      "n": 39065,
+      "pred_mean": 681.823486328125,
+      "true_mean": 499.9411315917969,
+      "bias": 181.88232421875,
+      "rmse_bin": 244.9010772705078
+    },
+    {
+      "bin": "[600, 900)",
+      "lo": 600,
+      "hi": 900,
+      "n": 118212,
+      "pred_mean": 909.4505615234375,
+      "true_mean": 756.746337890625,
+      "bias": 152.70420837402344,
+      "rmse_bin": 236.93112182617188
+    },
+    {
+      "bin": "[900, 1200)",
+      "lo": 900,
+      "hi": 1200,
+      "n": 98477,
+      "pred_mean": 1145.32373046875,
+      "true_mean": 1035.6571044921875,
+      "bias": 109.66673278808594,
+      "rmse_bin": 242.58628845214844
+    },
+    {
+      "bin": "[1200, 1500)",
+      "lo": 1200,
+      "hi": 1500,
+      "n": 49252,
+      "pred_mean": 1376.4732666015625,
+      "true_mean": 1326.8138427734375,
+      "bias": 49.659664154052734,
+      "rmse_bin": 266.2741394042969
+    },
+    {
+      "bin": "[1500, 1800)",
+      "lo": 1500,
+      "hi": 1800,
+      "n": 19891,
+      "pred_mean": 1585.119384765625,
+      "true_mean": 1624.3621826171875,
+      "bias": -39.24280548095703,
+      "rmse_bin": 321.12249755859375
+    }
+  ],
+  "step1_summary": {
+    "bias_overall": -117.52740478515625,
+    "rmse_overall": 251.53829956054688,
+    "n_short": 328707,
+    "judgment": "向均值回归型 (首档 bias=+267s 渐降到末档 -39s, 首-末差=+306s, 回归证据显著)",
+    "if_bias_canceled_rmse": 222.3934016983272,
+    "rmse_drop": 29.14489756142268,
+    "rmse_short_debiased_estimate": 222.39337158203125,
+    "rmse_core_debiased_estimate": 289.9052290237065,
+    "n_core": 344276,
+    "rmse_core": 289.9052290237065,
+    "rmse_core_if_short_debiased_half": 366.82997310058005
+  },
+  "step2": {
+    "n_short_total": 328707,
+    "n_sig_combinations_by_dim": {
+      "ADEP_RUNWAY": {
+        "n_groups": 39,
+        "n_sig_rows_pct": 99.4393182986672
+      },
+      "ADEP_STAND": {
+        "n_groups": 343,
+        "n_sig_rows_pct": 41.27444806468983
+      },
+      "AIRCRAFT_TYPE": {
+        "n_groups": 51,
+        "n_sig_rows_pct": 97.52484735646031
+      },
+      "OPERATOR": {
+        "n_groups": 98,
+        "n_sig_rows_pct": 94.10690980112987
+      }
+    },
+    "top_combinations_(ADEP,RUNWAY)": [
+      {
+        "ADEP_mvt": "EGLL",
+        "RUNWAY_mvt": "09R",
+        "n": 5531,
+        "bias_mean": -282.75640869140625,
+        "rmse": 379.4093017578125,
+        "abs_bias": 282.75640869140625
+      },
+      {
+        "ADEP_mvt": "EGLL",
+        "RUNWAY_mvt": "27R",
+        "n": 15025,
+        "bias_mean": -241.0848388671875,
+        "rmse": 342.79656982421875,
+        "abs_bias": 241.0848388671875
+      },
+      {
+        "ADEP_mvt": "EGLL",
+        "RUNWAY_mvt": "27L",
+        "n": 14846,
+        "bias_mean": -226.4481658935547,
+        "rmse": 329.9701843261719,
+        "abs_bias": 226.4481658935547
+      },
+      {
+        "ADEP_mvt": "LIRF",
+        "RUNWAY_mvt": "16R",
+        "n": 1922,
+        "bias_mean": -217.40521240234375,
+        "rmse": 370.131591796875,
+        "abs_bias": 217.40521240234375
+      },
+      {
+        "ADEP_mvt": "LTFM",
+        "RUNWAY_mvt": "17R",
+        "n": 3521,
+        "bias_mean": -214.96434020996094,
+        "rmse": 355.81585693359375,
+        "abs_bias": 214.96434020996094
+      },
+      {
+        "ADEP_mvt": "LTFM",
+        "RUNWAY_mvt": "34L",
+        "n": 1007,
+        "bias_mean": -194.1708984375,
+        "rmse": 343.8951416015625,
+        "abs_bias": 194.1708984375
+      },
+      {
+        "ADEP_mvt": "LTFM",
+        "RUNWAY_mvt": "18",
+        "n": 5994,
+        "bias_mean": -176.64474487304688,
+        "rmse": 285.955322265625,
+        "abs_bias": 176.64474487304688
+      },
+      {
+        "ADEP_mvt": "LFPG",
+        "RUNWAY_mvt": "09R",
+        "n": 4244,
+        "bias_mean": -170.2742156982422,
+        "rmse": 293.9302673339844,
+        "abs_bias": 170.2742156982422
+      },
+      {
+        "ADEP_mvt": "LFPG",
+        "RUNWAY_mvt": "08L",
+        "n": 6877,
+        "bias_mean": -162.9664764404297,
+        "rmse": 289.974609375,
+        "abs_bias": 162.9664764404297
+      },
+      {
+        "ADEP_mvt": "LTFM",
+        "RUNWAY_mvt": "35L",
+        "n": 12996,
+        "bias_mean": -153.44921875,
+        "rmse": 308.38922119140625,
+        "abs_bias": 153.44921875
+      },
+      {
+        "ADEP_mvt": "LIRF",
+        "RUNWAY_mvt": "25",
+        "n": 20730,
+        "bias_mean": -146.9188690185547,
+        "rmse": 315.0462951660156,
+        "abs_bias": 146.9188690185547
+      },
+      {
+        "ADEP_mvt": "LFPG",
+        "RUNWAY_mvt": "26R",
+        "n": 15163,
+        "bias_mean": -139.73927307128906,
+        "rmse": 256.5763854980469,
+        "abs_bias": 139.73927307128906
+      },
+      {
+        "ADEP_mvt": "LTFM",
+        "RUNWAY_mvt": "36",
+        "n": 20285,
+        "bias_mean": -133.8148193359375,
+        "rmse": 258.3564453125,
+        "abs_bias": 133.8148193359375
+      },
+      {
+        "ADEP_mvt": "LSZH",
+        "RUNWAY_mvt": "16",
+        "n": 1982,
+        "bias_mean": -127.77122497558594,
+        "rmse": 264.7420349121094,
+        "abs_bias": 127.77122497558594
+      },
+      {
+        "ADEP_mvt": "EDDF",
+        "RUNWAY_mvt": "07C",
+        "n": 3135,
+        "bias_mean": -110.54337310791016,
+        "rmse": 227.98313903808594,
+        "abs_bias": 110.54337310791016
+      },
+      {
+        "ADEP_mvt": "EHAM",
+        "RUNWAY_mvt": "22",
+        "n": 765,
+        "bias_mean": -110.12452697753906,
+        "rmse": 194.8054962158203,
+        "abs_bias": 110.12452697753906
+      },
+      {
+        "ADEP_mvt": "LFPG",
+        "RUNWAY_mvt": "27L",
+        "n": 7348,
+        "bias_mean": -110.07647705078125,
+        "rmse": 236.04464721679688,
+        "abs_bias": 110.07647705078125
+      },
+      {
+        "ADEP_mvt": "EDDF",
+        "RUNWAY_mvt": "25C",
+        "n": 9740,
+        "bias_mean": -107.284423828125,
+        "rmse": 218.2837371826172,
+        "abs_bias": 107.284423828125
+      },
+      {
+        "ADEP_mvt": "EHAM",
+        "RUNWAY_mvt": "04",
+        "n": 396,
+        "bias_mean": -107.07804870605469,
+        "rmse": 182.0892791748047,
+        "abs_bias": 107.07804870605469
+      },
+      {
+        "ADEP_mvt": "LEMD",
+        "RUNWAY_mvt": "14R",
+        "n": 3631,
+        "bias_mean": -104.65492248535156,
+        "rmse": 215.2081756591797,
+        "abs_bias": 104.65492248535156
+      }
+    ],
+    "t_unimp_q10": [
+      {
+        "t_unimp_q": 9,
+        "n": 32799,
+        "bias_mean": -206.64930725097656,
+        "rmse": 329.13140869140625,
+        "abs_bias": 206.64930725097656
+      },
+      {
+        "t_unimp_q": 8,
+        "n": 32549,
+        "bias_mean": -143.18467712402344,
+        "rmse": 280.8763427734375,
+        "abs_bias": 143.18467712402344
+      },
+      {
+        "t_unimp_q": 7,
+        "n": 33154,
+        "bias_mean": -134.51637268066406,
+        "rmse": 264.8064880371094,
+        "abs_bias": 134.51637268066406
+      },
+      {
+        "t_unimp_q": 5,
+        "n": 32812,
+        "bias_mean": -117.40254974365234,
+        "rmse": 258.8942565917969,
+        "abs_bias": 117.40254974365234
+      },
+      {
+        "t_unimp_q": 6,
+        "n": 32566,
+        "bias_mean": -114.71257781982422,
+        "rmse": 252.26895141601562,
+        "abs_bias": 114.71257781982422
+      },
+      {
+        "t_unimp_q": 4,
+        "n": 33098,
+        "bias_mean": -108.95445251464844,
+        "rmse": 244.07540893554688,
+        "abs_bias": 108.95445251464844
+      },
+      {
+        "t_unimp_q": 2,
+        "n": 32902,
+        "bias_mean": -99.4266128540039,
+        "rmse": 229.15821838378906,
+        "abs_bias": 99.4266128540039
+      },
+      {
+        "t_unimp_q": 3,
+        "n": 33078,
+        "bias_mean": -94.40531921386719,
+        "rmse": 225.2356719970703,
+        "abs_bias": 94.40531921386719
+      },
+      {
+        "t_unimp_q": 1,
+        "n": 32726,
+        "bias_mean": -82.83541870117188,
+        "rmse": 212.8400115966797,
+        "abs_bias": 82.83541870117188
+      },
+      {
+        "t_unimp_q": 0,
+        "n": 33023,
+        "bias_mean": -73.73200988769531,
+        "rmse": 192.2222900390625,
+        "abs_bias": 73.73200988769531
+      }
+    ],
+    "judgment": "均值回归为主但集中度高 → per-(AP,RWY) bucket 校准 + 训练折偏置对齐可缓解, pure post-process 无需改 label/clip 即可做"
+  },
+  "step3": {
+    "median_diff_tu_minus_true_median": -80.0,
+    "mean_diff_tu_minus_true_median": -86.33859056409585,
+    "median_abs_diff": 80.0,
+    "n_groups_n>=50": 2143,
+    "pred_minus_true_median_of_medians": 106.3179931640625,
+    "pred_minus_true_mean_of_means": 116.40629577636719,
+    "tu_minus_true_per_airport_median": -102.54998779296875,
+    "pred_minus_true_per_airport_median": 95.0867919921875,
+    "judgment": "基准口径偏低"
+  },
+  "step3_top_groups_tu_high": [
+    {
+      "ADEP_mvt": "LIRF",
+      "RUNWAY_mvt": "25",
+      "STAND_mvt": "204",
+      "n": 58,
+      "t_unimp_median": 777.0,
+      "true_median": 1070.0,
+      "tu_vs_true_median": -293.0,
+      "pred_median": 1131.3597412109375,
+      "abs_diff": 293.0,
+      "pred_minus_true": 61.3597412109375
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "RUNWAY_mvt": "36",
+      "STAND_mvt": "B14",
+      "n": 67,
+      "t_unimp_median": 963.0,
+      "true_median": 1193.0,
+      "tu_vs_true_median": -230.0,
+      "pred_median": 1211.7406005859375,
+      "abs_diff": 230.0,
+      "pred_minus_true": 18.7406005859375
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "RUNWAY_mvt": "17R",
+      "STAND_mvt": "B3R",
+      "n": 56,
+      "t_unimp_median": 1151.9000244140625,
+      "true_median": 1381.5,
+      "tu_vs_true_median": -229.5999755859375,
+      "pred_median": 1551.262451171875,
+      "abs_diff": 229.5999755859375,
+      "pred_minus_true": 169.762451171875
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "RUNWAY_mvt": "25",
+      "STAND_mvt": "224",
+      "n": 104,
+      "t_unimp_median": 608.2999877929688,
+      "true_median": 835.0,
+      "tu_vs_true_median": -226.70001220703125,
+      "pred_median": 968.8150634765625,
+      "abs_diff": 226.70001220703125,
+      "pred_minus_true": 133.8150634765625
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "RUNWAY_mvt": "35L",
+      "STAND_mvt": "B15",
+      "n": 113,
+      "t_unimp_median": 788.0,
+      "true_median": 1013.0,
+      "tu_vs_true_median": -225.0,
+      "pred_median": 1105.03564453125,
+      "abs_diff": 225.0,
+      "pred_minus_true": 92.03564453125
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "RUNWAY_mvt": "27R",
+      "STAND_mvt": "244",
+      "n": 83,
+      "t_unimp_median": 1026.0,
+      "true_median": 1251.0,
+      "tu_vs_true_median": -225.0,
+      "pred_median": 1413.3448486328125,
+      "abs_diff": 225.0,
+      "pred_minus_true": 162.3448486328125
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "RUNWAY_mvt": "35L",
+      "STAND_mvt": "B10",
+      "n": 114,
+      "t_unimp_median": 911.0,
+      "true_median": 1135.0,
+      "tu_vs_true_median": -224.0,
+      "pred_median": 1221.5028076171875,
+      "abs_diff": 224.0,
+      "pred_minus_true": 86.5028076171875
+    },
+    {
+      "ADEP_mvt": "LFPG",
+      "RUNWAY_mvt": "27R",
+      "STAND_mvt": "D14",
+      "n": 51,
+      "t_unimp_median": 910.2000122070312,
+      "true_median": 1134.0,
+      "tu_vs_true_median": -223.79998779296875,
+      "pred_median": 1123.7056884765625,
+      "abs_diff": 223.79998779296875,
+      "pred_minus_true": -10.2943115234375
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "RUNWAY_mvt": "25",
+      "STAND_mvt": "236",
+      "n": 210,
+      "t_unimp_median": 668.0,
+      "true_median": 890.5,
+      "tu_vs_true_median": -222.5,
+      "pred_median": 983.7416381835938,
+      "abs_diff": 222.5,
+      "pred_minus_true": 93.24163818359375
+    },
+    {
+      "ADEP_mvt": "EDDM",
+      "RUNWAY_mvt": "26L",
+      "STAND_mvt": "521",
+      "n": 75,
+      "t_unimp_median": 430.0,
+      "true_median": 651.0,
+      "tu_vs_true_median": -221.0,
+      "pred_median": 582.2405395507812,
+      "abs_diff": 221.0,
+      "pred_minus_true": -68.75946044921875
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "RUNWAY_mvt": "27R",
+      "STAND_mvt": "232",
+      "n": 108,
+      "t_unimp_median": 971.0,
+      "true_median": 1192.0,
+      "tu_vs_true_median": -221.0,
+      "pred_median": 1353.9698486328125,
+      "abs_diff": 221.0,
+      "pred_minus_true": 161.9698486328125
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "RUNWAY_mvt": "25",
+      "STAND_mvt": "235",
+      "n": 210,
+      "t_unimp_median": 657.0,
+      "true_median": 869.0,
+      "tu_vs_true_median": -212.0,
+      "pred_median": 981.6116943359375,
+      "abs_diff": 212.0,
+      "pred_minus_true": 112.6116943359375
+    },
+    {
+      "ADEP_mvt": "EHAM",
+      "RUNWAY_mvt": "36L",
+      "STAND_mvt": "E18",
+      "n": 51,
+      "t_unimp_median": 1151.0,
+      "true_median": 1363.0,
+      "tu_vs_true_median": -212.0,
+      "pred_median": 1409.5455322265625,
+      "abs_diff": 212.0,
+      "pred_minus_true": 46.5455322265625
+    },
+    {
+      "ADEP_mvt": "LSZH",
+      "RUNWAY_mvt": "16",
+      "STAND_mvt": "B38",
+      "n": 54,
+      "t_unimp_median": 933.0999755859375,
+      "true_median": 1136.5,
+      "tu_vs_true_median": -203.4000244140625,
+      "pred_median": 1187.31640625,
+      "abs_diff": 203.4000244140625,
+      "pred_minus_true": 50.81640625
+    },
+    {
+      "ADEP_mvt": "LSZH",
+      "RUNWAY_mvt": "16",
+      "STAND_mvt": "E27",
+      "n": 89,
+      "t_unimp_median": 911.7000122070312,
+      "true_median": 1107.0,
+      "tu_vs_true_median": -195.29998779296875,
+      "pred_median": 1266.9429931640625,
+      "abs_diff": 195.29998779296875,
+      "pred_minus_true": 159.9429931640625
+    },
+    {
+      "ADEP_mvt": "LEBL",
+      "RUNWAY_mvt": "24L",
+      "STAND_mvt": "53",
+      "n": 53,
+      "t_unimp_median": 973.4000244140625,
+      "true_median": 1168.0,
+      "tu_vs_true_median": -194.5999755859375,
+      "pred_median": 1148.5450439453125,
+      "abs_diff": 194.5999755859375,
+      "pred_minus_true": -19.4549560546875
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "RUNWAY_mvt": "35L",
+      "STAND_mvt": "K51",
+      "n": 63,
+      "t_unimp_median": 717.0,
+      "true_median": 911.0,
+      "tu_vs_true_median": -194.0,
+      "pred_median": 983.67724609375,
+      "abs_diff": 194.0,
+      "pred_minus_true": 72.67724609375
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "RUNWAY_mvt": "27R",
+      "STAND_mvt": "247",
+      "n": 51,
+      "t_unimp_median": 1014.7999877929688,
+      "true_median": 1206.0,
+      "tu_vs_true_median": -191.20001220703125,
+      "pred_median": 1405.7296142578125,
+      "abs_diff": 191.20001220703125,
+      "pred_minus_true": 199.7296142578125
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "RUNWAY_mvt": "27L",
+      "STAND_mvt": "412",
+      "n": 57,
+      "t_unimp_median": 953.0,
+      "true_median": 1144.0,
+      "tu_vs_true_median": -191.0,
+      "pred_median": 1390.7423095703125,
+      "abs_diff": 191.0,
+      "pred_minus_true": 246.7423095703125
+    },
+    {
+      "ADEP_mvt": "LEBL",
+      "RUNWAY_mvt": "06R",
+      "STAND_mvt": "125",
+      "n": 53,
+      "t_unimp_median": 973.9000244140625,
+      "true_median": 1164.0,
+      "tu_vs_true_median": -190.0999755859375,
+      "pred_median": 1175.6484375,
+      "abs_diff": 190.0999755859375,
+      "pred_minus_true": 11.6484375
+    }
+  ],
+  "step3_per_ap": [
+    {
+      "ADEP_mvt": "EDDF",
+      "n": 36135,
+      "true_med": 826.0,
+      "tu_med": 737.0,
+      "pred_med": 940.21533203125
+    },
+    {
+      "ADEP_mvt": "EDDM",
+      "n": 26506,
+      "true_med": 772.0,
+      "tu_med": 660.0,
+      "pred_med": 840.658935546875
+    },
+    {
+      "ADEP_mvt": "EGLL",
+      "n": 35422,
+      "true_med": 1260.0,
+      "tu_med": 1193.0,
+      "pred_med": 1475.6767578125
+    },
+    {
+      "ADEP_mvt": "EHAM",
+      "n": 40194,
+      "true_med": 733.0,
+      "tu_med": 628.0,
+      "pred_med": 808.958251953125
+    },
+    {
+      "ADEP_mvt": "LEBL",
+      "n": 28375,
+      "true_med": 887.0,
+      "tu_med": 763.0,
+      "pred_med": 960.454345703125
+    },
+    {
+      "ADEP_mvt": "LEMD",
+      "n": 34715,
+      "true_med": 973.0,
+      "tu_med": 872.9000244140625,
+      "pred_med": 1030.1099853515625
+    },
+    {
+      "ADEP_mvt": "LFPG",
+      "n": 37311,
+      "true_med": 910.0,
+      "tu_med": 817.2000122070312,
+      "pred_med": 1054.832275390625
+    },
+    {
+      "ADEP_mvt": "LIRF",
+      "n": 23807,
+      "true_med": 1014.0,
+      "tu_med": 837.0,
+      "pred_med": 1144.357421875
+    },
+    {
+      "ADEP_mvt": "LSZH",
+      "n": 21985,
+      "true_med": 711.0,
+      "tu_med": 644.7999877929688,
+      "pred_med": 785.9078979492188
+    },
+    {
+      "ADEP_mvt": "LTFM",
+      "n": 44257,
+      "true_med": 964.0,
+      "tu_med": 846.4000244140625,
+      "pred_med": 1113.4779052734375
+    }
+  ],
+  "verdict_per_step": [
+    "Step1: 向均值回归型 (首档 bias=+267s 渐降到末档 -39s, 首-末差=+306s, 回归证据显著)",
+    "Step2: None",
+    "Step3: 基准口径偏低"
+  ],
+  "final_verdict": "均值回归为主但集中度高 → per-(AP,RWY) bucket 校准 + 训练折偏置对齐可缓解, pure post-process 无需改 label/clip 即可做",
+  "n_short": 328707,
+  "n_core": 344276,
+  "red_lines": "不改 label / 不 clip 真值 / 不建单机场模型; 诊断,不拟合常数当发版方案",
+  "model_source": "models/lgb_full_v15 (3-seed avg, 71 features)",
+  "data": "holdout 2025-01+07 DEP 344,419, short 328,707 (≤1800)"
+}

@@ -1,0 +1,210 @@
+{
+  "n_dep": 2085047,
+  "baseline_normal": {
+    "n": 2023470,
+    "TAXI_p50": 910.0,
+    "TAXI_p90": 1455.0,
+    "TAXI_p99": 2292.0,
+    "TAXI_max": 131167.0,
+    "ADEP_flt_missing_rate": 0.0109,
+    "AOBT_sentinel_rate": 0.0109,
+    "TAXI_gt10800": 137,
+    "n_airports": 10,
+    "top_airports": {
+      "LTFM": 265150,
+      "EHAM": 246692,
+      "LFPG": 232446,
+      "EGLL": 231010,
+      "EDDF": 229049,
+      "LEMD": 205557
+    }
+  },
+  "exclusive": {
+    "only_SCHED": {
+      "n": 3397,
+      "TAXI_p50": 1255.0,
+      "TAXI_p90": 5038.4,
+      "TAXI_p99": 17773.5,
+      "TAXI_max": 64437.0,
+      "ADEP_flt_missing_rate": 0.1395,
+      "AOBT_sentinel_rate": 0.1395,
+      "TAXI_gt10800": 64,
+      "n_airports": 10,
+      "top_airports": {
+        "LTFM": 1553,
+        "LIRF": 1476,
+        "LFPG": 146,
+        "LEBL": 58,
+        "EHAM": 56,
+        "EGLL": 31
+      }
+    },
+    "only_LOBT": {
+      "n": 0
+    },
+    "only_EOBT": {
+      "n": 12674,
+      "TAXI_p50": 964.0,
+      "TAXI_p90": 1498.0,
+      "TAXI_p99": 2201.0,
+      "TAXI_max": 7684.0,
+      "ADEP_flt_missing_rate": 0.0,
+      "AOBT_sentinel_rate": 0.0,
+      "TAXI_gt10800": 0,
+      "n_airports": 9,
+      "top_airports": {
+        "LIRF": 2918,
+        "EGLL": 2820,
+        "LEMD": 1793,
+        "LEBL": 1719,
+        "LFPG": 1439,
+        "EDDM": 1347
+      }
+    },
+    "only_IOBT": {
+      "n": 46,
+      "TAXI_p50": 1112.0,
+      "TAXI_p90": 1673.0,
+      "TAXI_p99": 2171.7,
+      "TAXI_max": 2282.0,
+      "ADEP_flt_missing_rate": 0.0,
+      "AOBT_sentinel_rate": 0.0,
+      "TAXI_gt10800": 0,
+      "n_airports": 8,
+      "top_airports": {
+        "LTFM": 21,
+        "LEBL": 10,
+        "LEMD": 8,
+        "EGLL": 3,
+        "LFPG": 1,
+        "LIRF": 1
+      }
+    }
+  },
+  "all4": {
+    "n": 30298,
+    "TAXI_p50": 967.0,
+    "TAXI_p90": 1556.0,
+    "TAXI_p99": 2279.0,
+    "TAXI_max": 87002.0,
+    "ADEP_flt_missing_rate": 0.0,
+    "AOBT_sentinel_rate": 0.0,
+    "TAXI_gt10800": 1,
+    "n_airports": 10,
+    "top_airports": {
+      "LIRF": 7985,
+      "LTFM": 4212,
+      "EGLL": 3634,
+      "LFPG": 3542,
+      "LEBL": 3326,
+      "LEMD": 3262
+    }
+  },
+  "any_match": {
+    "n": 61577,
+    "TAXI_p50": 1011.0,
+    "TAXI_p90": 1622.0,
+    "TAXI_p99": 3959.2,
+    "TAXI_max": 87002.0,
+    "ADEP_flt_missing_rate": 0.0077,
+    "AOBT_sentinel_rate": 0.0077,
+    "TAXI_gt10800": 65,
+    "n_airports": 10,
+    "top_airports": {
+      "LIRF": 16118,
+      "EGLL": 8536,
+      "LTFM": 7815,
+      "LFPG": 7106,
+      "LEBL": 6938,
+      "LEMD": 6685
+    }
+  },
+  "only_EOBT_by_airport": {
+    "LIRF": {
+      "n": 2918,
+      "pct_of_only_EOBT": 0.14,
+      "TAXI_p50": 962.0,
+      "TAXI_max": 7684.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "EGLL": {
+      "n": 2820,
+      "pct_of_only_EOBT": 0.14,
+      "TAXI_p50": 1204.0,
+      "TAXI_max": 4495.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "LEMD": {
+      "n": 1793,
+      "pct_of_only_EOBT": 0.09,
+      "TAXI_p50": 1023.0,
+      "TAXI_max": 2682.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "LEBL": {
+      "n": 1719,
+      "pct_of_only_EOBT": 0.08,
+      "TAXI_p50": 860.0,
+      "TAXI_max": 3064.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "LFPG": {
+      "n": 1439,
+      "pct_of_only_EOBT": 0.07,
+      "TAXI_p50": 900.0,
+      "TAXI_max": 4023.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "EDDM": {
+      "n": 1347,
+      "pct_of_only_EOBT": 0.06,
+      "TAXI_p50": 776.0,
+      "TAXI_max": 2941.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "EDDF": {
+      "n": 270,
+      "pct_of_only_EOBT": 0.01,
+      "TAXI_p50": 833.0,
+      "TAXI_max": 2149.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "EHAM": {
+      "n": 259,
+      "pct_of_only_EOBT": 0.01,
+      "TAXI_p50": 822.0,
+      "TAXI_max": 2321.0,
+      "ADEP_flt_missing_rate": 0.0
+    },
+    "LSZH": {
+      "n": 109,
+      "pct_of_only_EOBT": 0.01,
+      "TAXI_p50": 668.0,
+      "TAXI_max": 1755.0,
+      "ADEP_flt_missing_rate": 0.0
+    }
+  },
+  "diff_EOBT_quantiles": {
+    "0": 0.0,
+    "1": 0.0,
+    "5": 0.0,
+    "10": 0.0,
+    "25": 1.0,
+    "50": 1.0,
+    "75": 2.0,
+    "90": 2.0,
+    "99": 2.0,
+    "100": 2.0
+  },
+  "overlap_corrupt": {
+    "only_SCHED": 64,
+    "only_EOBT": 0,
+    "all4": 0,
+    "any_match": 64
+  },
+  "pool_14400": 67,
+  "overlap_pool": {
+    "only_SCHED": 19,
+    "only_EOBT": 0
+  }
+}

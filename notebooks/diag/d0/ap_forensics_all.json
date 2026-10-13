@@ -1,0 +1,401 @@
+{
+  "n_dep": 344419,
+  "n_ext": 60,
+  "by_airport": {
+    "EGLL": {
+      "n_ext": 1,
+      "n_dep_ap": 40210,
+      "block_eq_sched": 0,
+      "block_eq_sched_pct": 0.0,
+      "aobt_sentinel": 1,
+      "adep_flt_null": 1,
+      "nm_missing": 1,
+      "mvt_sched_median": 10563.0,
+      "mvt_sched_min": 10563,
+      "mvt_sched_max": 10563,
+      "taxi_median": 11167.0,
+      "verdict": "真实极端",
+      "flight_pref": {
+        "SH": 1
+      },
+      "runway": {
+        "27R": 1
+      },
+      "hour": {
+        "17": 1
+      },
+      "mids": [
+        191483190
+      ],
+      "keys": [
+        {
+          "key": "NM缺失&MVT-SCHED>10800",
+          "n": 41,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>14400",
+          "n": 10,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>21600",
+          "n": 2,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ]
+    },
+    "EHAM": {
+      "n_ext": 2,
+      "n_dep_ap": 40949,
+      "block_eq_sched": 0,
+      "block_eq_sched_pct": 0.0,
+      "aobt_sentinel": 1,
+      "adep_flt_null": 1,
+      "nm_missing": 1,
+      "mvt_sched_median": 6206.0,
+      "mvt_sched_min": -364,
+      "mvt_sched_max": 12776,
+      "taxi_median": 11002.0,
+      "verdict": "真实极端",
+      "flight_pref": {
+        "NC": 1,
+        "OR": 1
+      },
+      "runway": {
+        "22": 1,
+        "24": 1
+      },
+      "hour": {
+        "8": 1,
+        "13": 1
+      },
+      "mids": [
+        182040319,
+        191606727
+      ],
+      "keys": [
+        {
+          "key": "NM缺失&MVT-SCHED>10800",
+          "n": 62,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>14400",
+          "n": 25,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>21600",
+          "n": 8,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ]
+    },
+    "LFPG": {
+      "n_ext": 3,
+      "n_dep_ap": 39612,
+      "block_eq_sched": 0,
+      "block_eq_sched_pct": 0.0,
+      "aobt_sentinel": 2,
+      "adep_flt_null": 2,
+      "nm_missing": 2,
+      "mvt_sched_median": 2043.0,
+      "mvt_sched_min": 1740,
+      "mvt_sched_max": 16858,
+      "taxi_median": 58206.0,
+      "verdict": "真实极端",
+      "flight_pref": {
+        "EJ": 2,
+        "DA": 1
+      },
+      "runway": {
+        "08L": 1,
+        "26R": 1,
+        "27L": 1
+      },
+      "hour": {
+        "15": 1,
+        "17": 1,
+        "18": 1
+      },
+      "mids": [
+        182378789,
+        182377662,
+        191767771
+      ],
+      "keys": [
+        {
+          "key": "NM缺失&MVT-SCHED>10800",
+          "n": 51,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>14400",
+          "n": 20,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>21600",
+          "n": 7,
+          "tp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ]
+    },
+    "LIRF": {
+      "n_ext": 54,
+      "n_dep_ap": 26528,
+      "block_eq_sched": 49,
+      "block_eq_sched_pct": 90.7,
+      "aobt_sentinel": 52,
+      "adep_flt_null": 52,
+      "nm_missing": 52,
+      "mvt_sched_median": 18663.5,
+      "mvt_sched_min": 10979,
+      "mvt_sched_max": 93535,
+      "taxi_median": 18668.0,
+      "verdict": "SCHED损坏",
+      "flight_pref": {
+        "FI": 5,
+        "RY": 5,
+        "AE": 5,
+        "WM": 4,
+        "IT": 3,
+        "IS": 3,
+        "HA": 2,
+        "LA": 2,
+        "TA": 2,
+        "NO": 2,
+        "EX": 2,
+        "WZ": 2,
+        "MA": 2,
+        "AC": 1,
+        "AA": 1,
+        "CH": 1,
+        "MS": 1,
+        "AB": 1,
+        "TG": 1,
+        "TK": 1,
+        "GT": 1,
+        "TH": 1,
+        "VL": 1,
+        "BE": 1,
+        "CE": 1,
+        "VO": 1,
+        "KM": 1,
+        "AR": 1
+      },
+      "runway": {
+        "25": 47,
+        "16R": 5,
+        "34L": 2
+      },
+      "hour": {
+        "0": 3,
+        "1": 2,
+        "3": 2,
+        "5": 1,
+        "6": 3,
+        "7": 2,
+        "8": 3,
+        "9": 1,
+        "12": 4,
+        "13": 2,
+        "14": 4,
+        "15": 1,
+        "16": 2,
+        "17": 6,
+        "18": 1,
+        "20": 4,
+        "21": 4,
+        "22": 4,
+        "23": 5
+      },
+      "mids": [
+        182641648,
+        182640566,
+        182641237,
+        182637273,
+        182638171,
+        182646497,
+        182646487,
+        192614801,
+        192616534,
+        192615553,
+        192615766,
+        192620839,
+        192620872,
+        192621162,
+        192620832,
+        192620837,
+        192623005,
+        192620867,
+        192620868,
+        192620925,
+        192620845,
+        192622644,
+        192620720,
+        192620841,
+        192620797,
+        192620857,
+        192621083,
+        192619286,
+        192619422,
+        192619646,
+        192617995,
+        192617486,
+        192617462,
+        192617604,
+        192618767,
+        192616819,
+        192624632,
+        192627014,
+        192627873,
+        192627290,
+        192624721,
+        192622670,
+        192627512,
+        192626268,
+        192621453,
+        192621989,
+        192624067,
+        192628013,
+        192627196,
+        192621885,
+        192628959,
+        192628951,
+        192629774,
+        192629358
+      ],
+      "keys": [
+        {
+          "key": "NM缺失&MVT-SCHED>10800",
+          "n": 83,
+          "tp": 52,
+          "precision": 0.6265,
+          "recall": 0.963,
+          "f1": 0.7591
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>14400",
+          "n": 45,
+          "tp": 41,
+          "precision": 0.9111,
+          "recall": 0.7593,
+          "f1": 0.8283
+        },
+        {
+          "key": "NM缺失&MVT-SCHED>21600",
+          "n": 21,
+          "tp": 21,
+          "precision": 1.0,
+          "recall": 0.3889,
+          "f1": 0.56
+        }
+      ]
+    }
+  },
+  "lfpg_detail": [
+    {
+      "month": 1,
+      "MVT_ID_mvt": 182378789.0,
+      "FLIGHT_mvt": "EJU983W",
+      "taxi": 84240,
+      "d_mvt_sched": 1740,
+      "d_block_sched": -82500,
+      "aobt_sentinel": true,
+      "adep_flt_null": true,
+      "nm_missing": true,
+      "RUNWAY_mvt": "08L",
+      "AIRCRAFT_TYPE_mvt": "A319"
+    },
+    {
+      "month": 1,
+      "MVT_ID_mvt": 182377662.0,
+      "FLIGHT_mvt": "EJU42AY",
+      "taxi": 58206,
+      "d_mvt_sched": 2043,
+      "d_block_sched": -56163,
+      "aobt_sentinel": true,
+      "adep_flt_null": true,
+      "nm_missing": true,
+      "RUNWAY_mvt": "26R",
+      "AIRCRAFT_TYPE_mvt": "A320"
+    },
+    {
+      "month": 7,
+      "MVT_ID_mvt": 191767771.0,
+      "FLIGHT_mvt": "DAL265",
+      "taxi": 15059,
+      "d_mvt_sched": 16858,
+      "d_block_sched": 1799,
+      "aobt_sentinel": false,
+      "adep_flt_null": false,
+      "nm_missing": false,
+      "RUNWAY_mvt": "27L",
+      "AIRCRAFT_TYPE_mvt": "B764"
+    }
+  ],
+  "ranking": {
+    "EGLL": {
+      "n_dep": 39840,
+      "n_nm": 248,
+      "nm_gt_10800": 31,
+      "nm_gt_14400": 17,
+      "nm_gt_21600": 5,
+      "n_ext_2025": 1
+    },
+    "EHAM": {
+      "n_dep": 38182,
+      "n_nm": 1206,
+      "nm_gt_10800": 297,
+      "nm_gt_14400": 148,
+      "nm_gt_21600": 41,
+      "n_ext_2025": 2
+    },
+    "LFPG": {
+      "n_dep": 39872,
+      "n_nm": 734,
+      "nm_gt_10800": 88,
+      "nm_gt_14400": 36,
+      "nm_gt_21600": 6,
+      "n_ext_2025": 3
+    },
+    "LIRF": {
+      "n_dep": 26899,
+      "n_nm": 383,
+      "nm_gt_10800": 74,
+      "nm_gt_14400": 43,
+      "nm_gt_21600": 26,
+      "n_ext_2025": 54
+    }
+  },
+  "ranking_nonlirf_hits_14400": 201
+}

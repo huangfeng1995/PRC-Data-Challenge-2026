@@ -1,0 +1,171 @@
+{
+  "oof_folds": [
+    [
+      1,
+      2
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      5,
+      6,
+      7
+    ],
+    [
+      8,
+      9
+    ],
+    [
+      10,
+      11,
+      12
+    ]
+  ],
+  "covered_months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "assertions": {
+    "covers_all_12": true,
+    "month_1_included": true,
+    "month_7_included": true,
+    "no_duplicate_months": true,
+    "per_row_coverage_min_max": [
+      1,
+      1
+    ]
+  },
+  "month_row_counts": {
+    "1": 153648,
+    "2": 143682,
+    "3": 164414,
+    "4": 175246,
+    "5": 185164,
+    "6": 183062,
+    "7": 190628,
+    "8": 191112,
+    "9": 183911,
+    "10": 185640,
+    "11": 162308,
+    "12": 165642
+  },
+  "fold_pred_rows": {
+    "1": {
+      "months": [
+        1,
+        2
+      ],
+      "n_pred": 297330,
+      "per_month": {
+        "1": 153648,
+        "2": 143682
+      }
+    },
+    "2": {
+      "months": [
+        3,
+        4
+      ],
+      "n_pred": 339660,
+      "per_month": {
+        "3": 164414,
+        "4": 175246
+      }
+    },
+    "3": {
+      "months": [
+        5,
+        6,
+        7
+      ],
+      "n_pred": 558854,
+      "per_month": {
+        "5": 185164,
+        "6": 183062,
+        "7": 190628
+      }
+    },
+    "4": {
+      "months": [
+        8,
+        9
+      ],
+      "n_pred": 375023,
+      "per_month": {
+        "8": 191112,
+        "9": 183911
+      }
+    },
+    "5": {
+      "months": [
+        10,
+        11,
+        12
+      ],
+      "n_pred": 513590,
+      "per_month": {
+        "10": 185640,
+        "11": 162308,
+        "12": 165642
+      }
+    }
+  },
+  "smoke_fold": 3,
+  "smoke_pred_months": [
+    5,
+    6,
+    7
+  ],
+  "smoke_train_rows": 120000,
+  "smoke_pred_rows": 39999,
+  "smoke_pred_by_month": {
+    "5": 13333,
+    "6": 13333,
+    "7": 13333
+  },
+  "month7_pred_rows": 13333,
+  "month7_oof_all_finite": true,
+  "month_rmse": {
+    "5": 272.0,
+    "6": 282.12,
+    "7": 297.44
+  },
+  "es_best_iters": [
+    1500
+  ],
+  "es_cap": 1500,
+  "es_note": "best_iter 恰等于 cap, 说明 ES 未触发, 实际轮数是硬上界而非早停点",
+  "clip_out_of_range_rows": 0,
+  "int_cast_dtype": "int64",
+  "int_cast_range": [
+    102,
+    6456
+  ],
+  "smoke_oof_rmse": 284.05,
+  "timing": {
+    "n_all_dep": 2084457,
+    "n_full_train_this_fold": 2044458,
+    "smoke_cut_rows": 120000,
+    "scale_factor": 17.04,
+    "smoke_train_sec": 76.6,
+    "per_fold_train_min": 21.8,
+    "n_seeds": 1,
+    "total_train_min_5fold": 109.0,
+    "feature_engineering_min": 4.0,
+    "total_pipeline_min": 112.0,
+    "total_pipeline_h": 1.87,
+    "total_pipeline_h_if_3seed": 5.5
+  }
+}

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多模型分歧度信号检验</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2b303b;
+    --fg:#e6e9ef; --muted:#9aa3b2; --dim:#6b7480;
+    --acc:#5aa9e6; --warn:#e6a35a; --bad:#e2685f; --good:#5fc98f; --pur:#a98bd8;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+    line-height:1.65;font-size:15px}
+  .wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:26px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:28px}
+  h2{font-size:19px;margin:44px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h3{font-size:15.5px;margin:26px 0 10px}
+  p{margin:9px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+  .verdict{background:linear-gradient(135deg,#1a2130,#1d1a24);border-left:4px solid var(--warn)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+  .kpi .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .kpi .v{font-size:23px;font-family:var(--mono);margin-top:5px;font-weight:600}
+  .kpi .d{font-size:12px;color:var(--dim);margin-top:3px}
+  .up{color:var(--bad)}.dn{color:var(--good)}.nt{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px}
+  tbody tr:hover{background:#1c212a}
+  td.num{font-family:var(--mono)}
+  code{font-family:var(--mono);background:#22262f;padding:1.5px 6px;border-radius:4px;font-size:12.5px;color:#c8d3e0}
+  .note{background:#1a1d24;border-left:3px solid var(--dim);padding:11px 15px;margin:14px 0;font-size:13.5px;color:var(--muted);border-radius:0 6px 6px 0}
+  .note.warn{border-left-color:var(--warn)}.note.bad{border-left-color:var(--bad)}.note.good{border-left-color:var(--good)}
+  ul{margin:9px 0;padding-left:22px}li{margin:6px 0}
+  .best{background:#1e2b22;outline:1px solid #2f5c42}
+  svg{display:block;max-width:100%;height:auto}
+  .legend{display:flex;gap:18px;font-size:12.5px;color:var(--muted);margin:8px 0 0;flex-wrap:wrap}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>多模型分歧度信号检验</h1>
+<div class="sub">
+  PRC 2026 出租车时长预测 · 只读统计 + 轻量补训，未训二阶、未发版 · 2026-09-30<br>
+  参照：上一轮已证明「只靠单 pred 做单调后处理」天花板 ≈ 0（条件方差被压缩，σ<sub>pred</sub>/σ<sub>true</sub>=0.749）
+</div>
+
+<div class="card verdict">
+  <h3 style="margin-top:0">核心结论：有信号，但弱于单 pred</h3>
+  <p style="font-size:15.5px;margin-bottom:12px">
+    分歧度确实与误差正相关且 Jan/Jul 同向（Spearman <strong>+0.254 / +0.241</strong>），
+    长尾识别 AUC（&gt;3600s）达 <strong>0.926 / 0.941</strong>，极端行分歧度中位是正常行的 <strong>12.3 倍</strong>。
+    但<strong>单 pred 自身作排序分就已经是 0.954 / 0.959</strong>，分歧度仍低 2.3 个百分点。
+  </p>
+  <p style="margin-bottom:0">
+    按你的判定标准：<strong>分歧度信号显著但不占优</strong>。可作二阶模型的辅助特征，
+    但不能替代 pred；且这只是「识别出哪些行可能错得离谱」，不等于「能把 RMSE 修回来」——
+    与上一轮的天花板 ≈ 0 是同一件事的两个侧面。
+  </p>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="k">Spearman(分歧, |err|)</div><div class="v dn">+0.247</div><div class="d">Jan +0.254 / Jul +0.241 同向</div></div>
+  <div class="kpi"><div class="k">AUC &gt;3600s（分歧度）</div><div class="v">0.934</div><div class="d">Jan 0.926 / Jul 0.941</div></div>
+  <div class="kpi"><div class="k">AUC &gt;3600s（单pred）</div><div class="v nt">0.957</div><div class="d">高出分歧度 2.3pt</div></div>
+  <div class="kpi"><div class="k">极端行分歧度倍数</div><div class="v bad">12.3x</div><div class="d">p=6.7e-38</div></div>
+  <div class="kpi"><div class="k">pred 档内加权 AUC</div><div class="v">0.765</div><div class="d">控制 pred 后仍有增量</div></div>
+  <div class="kpi"><div class="k">集成 core RMSE</div><div class="v">310.76</div><div class="d">LGB×3 + CAT</div></div>
+</div>
+
+<h2>1 · 模型盘点：v15 不可复用，已按许可补训</h2>
+
+<div class="note bad">
+  <strong>v15 的口径疑点确认了，而且比预想更严重：三个库都把 holdout 当早停集。</strong>
+  <code>v15_clean_retrain.py</code> 里 XGB 用 <code>evals=[(dholdout,"holdout")], early_stopping_rounds=100</code>、
+  LGB 用 <code>valid_sets=[lgb_holdout]</code>、CAT 用 <code>eval_set=(df_ho_cat,y_ho)</code>。
+  <strong>best_iter 是用 holdout 标签挑出来的</strong>，holdout 预测带乐观偏差，不能作为折外模型做信号检验。
+</div>
+
+<div class="note warn">
+  <strong>你关于「v15 可能只有 xgb+lgb、无 CAT」的猜测：部分正确。</strong>
+  磁盘上 <code>models/v15_clean_retrain/</code> 确有 <code>cat_seed42</code>，但
+  <strong>只有 1 个 seed</strong>——日志显示 CAT seed123 跑完训练后触发 <code>&gt;20min</code> 保护，
+  在 <code>save_model</code> 之前 break，所以 cat123/cat2024 从未落盘。
+  实际是「xgb 3 seed + lgb 3 seed + cat 1 seed」，不是完整三库 3seed。
+</div>
+
+<table>
+  <thead><tr><th>模型</th><th>落盘情况</th><th>可否直接预测 holdout</th><th>原因</th></tr></thead>
+  <tbody>
+    <tr><td>xgb ×3</td><td>seed42/123/2024</td><td class="up">否</td><td>ES 用 holdout，泄漏</td></tr>
+    <tr><td>lgb ×3</td><td>seed42/123/2024</td><td class="up">否</td><td>ES 用 holdout，泄漏</td></tr>
+    <tr><td>cat ×1</td><td>仅 seed42</td><td class="up">否</td><td>ES 用 holdout + 缺 2 个 seed</td></tr>
+  </tbody>
+</table>
+
+<h3>1.1 补训口径（唯一改动：ES 移出 holdout）</h3>
+<table>
+  <thead><tr><th>项</th><th>设置</th></tr></thead>
+  <tbody>
+    <tr><td>训练月</td><td>2025-02..12（剔 1+7），1,740,181 行</td></tr>
+    <tr><td>ES 集</td><td>训练月内 MVT 时间末 10% = <strong>11、12 月</strong>（174,019 行），<span class="dn">断言不含 1/7 月 ✓</span></td></tr>
+    <tr><td>Holdout</td><td>2025-01 + 2025-07，344,336 行（y&gt;0，含 &gt;10800 极端 60 行）</td></tr>
+    <tr><td>特征</td><td>FEATS71，与 v15 同一份列表</td></tr>
+    <tr><td>模型</td><td>XGB(42) / LGB(42,123,2024) / CAT(42)，cap 2500，ES patience 100</td></tr>
+    <tr><td>耗时</td><td>66 分钟（CAT 32 分钟占大头）</td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead><tr><th>模型</th><th>best_iter</th><th>holdout core RMSE</th><th>holdout full</th><th>训练秒</th></tr></thead>
+  <tbody>
+    <tr><td>LGB123</td><td class="num">2499</td><td class="num good">310.97</td><td class="num">567.29</td><td class="num">460</td></tr>
+    <tr><td>LGB42</td><td class="num">2500</td><td class="num">312.74</td><td class="num">568.57</td><td class="num">441</td></tr>
+    <tr><td>LGB2024</td><td class="num">2500</td><td class="num">316.53</td><td class="num">571.25</td><td class="num">461</td></tr>
+    <tr><td>CAT</td><td class="num">2498</td><td class="num">317.26</td><td class="num">575.67</td><td class="num">1942</td></tr>
+    <tr class="up"><td>XGB</td><td class="num">2500</td><td class="num bad">393.18</td><td class="num bad">620.17</td><td class="num">458</td></tr>
+    <tr class="best"><td>集成(LGB×3+CAT)</td><td>—</td><td class="num">310.76</td><td class="num">568.68</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<div class="note warn">
+  <strong>XGB 明显偏弱（core 393 vs LGB 311），这污染了「算法分歧」。</strong>
+  排查发现：XGB 与其它库的 mean|Δ| ≈ 160s，而 LGB-LGB ≈ 34s、LGB-CAT ≈ 65s。
+  也就是说 <code>std(xgb, lgb, cat)</code> 测的其实是「XGB 有多差」，不是 epistemic 不确定性。
+  证据：<strong>纯种子分歧（3 个 LGB）的 AUC 反而高于含 XGB 的算法分歧</strong>。
+  下面所有主结论都改用剔除 XGB 的定义。
+</div>
+
+<h2>2 · 模型多样性是否真实存在</h2>
+
+<table>
+  <thead><tr><th></th><th>xgb</th><th>lgb42</th><th>lgb123</th><th>lgb2024</th><th>cat</th></tr></thead>
+  <tbody>
+    <tr><td>xgb</td><td class="num">1.0000</td><td class="num">0.8839</td><td class="num">0.8793</td><td class="num">0.8814</td><td class="num">0.8752</td></tr>
+    <tr><td>lgb42</td><td class="num">0.8839</td><td class="num">1.0000</td><td class="num">0.9922</td><td class="num">0.9922</td><td class="num">0.9701</td></tr>
+    <tr><td>lgb123</td><td class="num">0.8793</td><td class="num">0.9922</td><td class="num">1.0000</td><td class="num">0.9936</td><td class="num">0.9720</td></tr>
+    <tr><td>lgb2024</td><td class="num">0.8814</td><td class="num">0.9922</td><td class="num">0.9936</td><td class="num">1.0000</td><td class="num">0.9721</td></tr>
+    <tr><td>cat</td><td class="num">0.8752</td><td class="num">0.9701</td><td class="num">0.9720</td><td class="num">0.9721</td><td class="num">1.0000</td></tr>
+  </tbody>
+</table>
+
+<p>LGB 三个 seed 之间相关 0.992–0.994（同算法换种子，差异很小）；LGB-CAT 0.970（跨算法，差异更大）；
+XGB 与所有库 0.875–0.884（差异最大，但主因是它自己偏弱）。<strong>多样性确实存在，但主要来自跨算法而非换种子。</strong></p>
+
+<h2>3 · 分歧度与误差的相关性</h2>
+
+<p>参照集用 <code>ens_nox = mean(LGB42, LGB123, LGB2024, CAT)</code>，core RMSE 310.76。</p>
+
+<table>
+  <thead><tr><th>口径</th><th>n</th><th>算法分歧(含XGB)</th><th>种子分歧(3×LGB)</th><th>类分歧(无XGB)</th><th>全部分歧(5)</th></tr></thead>
+  <tbody>
+    <tr><td>全部</td><td class="num">344,336</td><td class="num">+0.1655</td><td class="num">+0.2216</td><td class="num dn">+0.2470</td><td class="num">+0.1933</td></tr>
+    <tr><td>Jan</td><td class="num">153,658</td><td class="num">+0.1626</td><td class="num">+0.2352</td><td class="num dn">+0.2540</td><td class="num">+0.1976</td></tr>
+    <tr><td>Jul</td><td class="num">190,678</td><td class="num">+0.1671</td><td class="num">+0.2091</td><td class="num dn">+0.2405</td><td class="num">+0.1890</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  所有 p &lt; 1e-16，<strong>Jan/Jul 完全同向且量级一致</strong>（+0.254 / +0.241），不是单月偶然。
+  剔除 XGB 后相关性从 +0.166 提升到 +0.247，印证了 XGB 在稀释信号。
+  但注意：<strong>单 pred 自身与 |err| 的 Spearman 是 +0.366，仍高于任何分歧度定义</strong>——
+  说明「预测值偏大」本身就是误差的更好指示器。
+</div>
+
+<h2>4 · 长尾识别 AUC（含单 pred 对照）</h2>
+
+<h3>4.1 true &gt; 1800s</h3>
+<table>
+  <thead><tr><th>口径</th><th>n_pos</th><th>算法分歧(含XGB)</th><th>种子分歧</th><th>类分歧(无XGB)</th><th>单pred(基线)</th></tr></thead>
+  <tbody>
+    <tr><td>全部</td><td class="num">15,629</td><td class="num">0.6373</td><td class="num">0.7367</td><td class="num">0.7821</td><td class="num nt">0.9155</td></tr>
+    <tr><td>Jan</td><td class="num">6,985</td><td class="num">0.6637</td><td class="num">0.7510</td><td class="num">0.7857</td><td class="num nt">0.9018</td></tr>
+    <tr><td>Jul</td><td class="num">8,644</td><td class="num">0.6179</td><td class="num">0.7251</td><td class="num">0.7793</td><td class="num nt">0.9283</td></tr>
+  </tbody>
+</table>
+
+<h3>4.2 true &gt; 3600s</h3>
+<table>
+  <thead><tr><th>口径</th><th>n_pos</th><th>算法分歧(含XGB)</th><th>种子分歧</th><th>类分歧(无XGB)</th><th>单pred(基线)</th></tr></thead>
+  <tbody>
+    <tr><td>全部</td><td class="num">981</td><td class="num">0.8706</td><td class="num">0.8987</td><td class="num">0.9364</td><td class="num nt">0.9581</td></tr>
+    <tr><td>Jan</td><td class="num">325</td><td class="num">0.8422</td><td class="num">0.9056</td><td class="num">0.9258</td><td class="num nt">0.9544</td></tr>
+    <tr><td>Jul</td><td class="num">656</td><td class="num">0.8826</td><td class="num">0.8935</td><td class="num">0.9413</td><td class="num nt">0.9593</td></tr>
+  </tbody>
+</table>
+
+<h3>4.3 true &gt; 10800s（极端，仅 60 行）</h3>
+<table>
+  <thead><tr><th>口径</th><th>n_pos</th><th>算法分歧(含XGB)</th><th>种子分歧</th><th>类分歧(无XGB)</th><th>单pred(基线)</th></tr></thead>
+  <tbody>
+    <tr><td>全部</td><td class="num">60</td><td class="num">0.9652</td><td class="num">0.9519</td><td class="num">0.9747</td><td class="num nt">0.9451</td></tr>
+    <tr><td>Jan</td><td class="num">10</td><td class="num">0.9834</td><td class="num">0.9390</td><td class="num">0.9868</td><td class="num nt">0.8264</td></tr>
+    <tr><td>Jul</td><td class="num">50</td><td class="num">0.9565</td><td class="num">0.9528</td><td class="num">0.9715</td><td class="num nt">0.9686</td></tr>
+  </tbody>
+</table>
+
+<div class="note good">
+  <strong>唯一分歧度胜出的场景：&gt;10800s 极端段。</strong>
+  类分歧 AUC 0.975 vs 单 pred 0.945（全部），Jan 上更是 0.987 vs 0.826（单 pred 几乎完全失效，因为模型被 clip 在 10800 天花板附近，对极端行给不出区分）。
+  <strong>极端行的分歧度中位是正常行的 12.32 倍</strong>（Mann-Whitney p=6.7e-38），这是干净、可复现的报警信号。
+</div>
+
+<h2>5 · 极端行的分歧度分布</h2>
+
+<table>
+  <thead><tr><th>组</th><th>n</th><th>算法分歧(含XGB)</th><th>种子分歧</th><th>类分歧(无XGB)</th><th>全部分歧</th></tr></thead>
+  <tbody>
+    <tr><td>正常 (0,1800]</td><td class="num">328,707</td><td class="num">81.17</td><td class="num">20.78</td><td class="num">31.81</td><td class="num">68.22</td></tr>
+    <tr><td>中长 (1800,10800]</td><td class="num">15,569</td><td class="num">114.92</td><td class="num">40.89</td><td class="num">68.49</td><td class="num">102.67</td></tr>
+    <tr class="up"><td>极端 (&gt;10800]</td><td class="num">60</td><td class="num">629.39</td><td class="num">168.72</td><td class="num bad">391.83</td><td class="num">541.33</td></tr>
+  </tbody>
+</table>
+
+<p>极端/正常 中位比：类分歧 <strong>12.32x</strong> &gt; 种子分歧 8.12x &gt; 全部分歧 7.94x &gt; 算法分歧 7.75x，
+全部 p &lt; 1e-33。分歧度随真值档单调递增（31.8 → 68.5 → 391.8），是一个连续风险梯度，不是只有极端段有信号。</p>
+
+<h2>6 · 增量检验：控制 pred 后还有没有信号</h2>
+
+<p>把 holdout 按 <code>ens_nox</code> 十分位分层，在每档内部算 AUC。若分歧度只是 pred 的代理，档内 AUC 会塌向 0.5。</p>
+
+<table>
+  <thead><tr><th>pred 档</th><th>n</th><th>&gt;1800 档内AUC(类分歧)</th><th>&gt;3600 档内AUC(类分歧)</th><th>档内Spearman</th></tr></thead>
+  <tbody>
+    <tr><td>D1</td><td class="num">34,428</td><td class="num">0.5980</td><td class="num">0.9943</td><td class="num">+0.0887</td></tr>
+    <tr><td>D2</td><td class="num">34,428</td><td class="num">0.6128</td><td class="num">0.5123</td><td class="num">+0.0750</td></tr>
+    <tr><td>D3</td><td class="num">34,427</td><td class="num">0.6270</td><td class="num">0.7907</td><td class="num">+0.0895</td></tr>
+    <tr><td>D4</td><td class="num">34,428</td><td class="num">0.5816</td><td class="num">0.7146</td><td class="num">+0.0800</td></tr>
+    <tr><td>D5</td><td class="num">34,427</td><td class="num">0.5575</td><td class="num">0.5999</td><td class="num">+0.0832</td></tr>
+    <tr><td>D6</td><td class="num">34,428</td><td class="num">0.5955</td><td class="num">0.8204</td><td class="num">+0.1278</td></tr>
+    <tr><td>D7</td><td class="num">34,427</td><td class="num">0.6095</td><td class="num">0.8844</td><td class="num">+0.1535</td></tr>
+    <tr><td>D8</td><td class="num">34,428</td><td class="num">0.5605</td><td class="num">0.7516</td><td class="num">+0.1555</td></tr>
+    <tr><td>D9</td><td class="num">34,427</td><td class="num">0.5420</td><td class="num">0.7423</td><td class="num">+0.1614</td></tr>
+    <tr><td>D10</td><td class="num">34,428</td><td class="num">0.5985</td><td class="num">0.8350</td><td class="num">+0.2274</td></tr>
+    <tr class="best"><td>加权平均</td><td class="num">344,276</td><td class="num">0.5883</td><td class="num">0.7646</td><td class="num">—</td></tr>
+  </tbody>
+</table>
+
+<div class="note good">
+  <strong>关键：档内 AUC 没有塌到 0.5。</strong>
+  控制 pred 之后，类分歧在 &gt;1800 目标上仍有 0.588、&gt;3600 上有 0.765，档内 Spearman 全档为正（+0.075 ~ +0.227）。
+  这说明分歧度<strong>携带了 pred 里没有的信息</strong>，不是 pred 的单调代理。这是支持做二阶模型的最强证据。
+</div>
+
+<h2>7 · 判定</h2>
+
+<div class="card verdict">
+  <table style="margin-bottom:0">
+    <thead><tr><th>判据</th><th>实测（用最优的类分歧定义）</th><th>达标</th></tr></thead>
+    <tbody>
+      <tr><td>Spearman 显著（|ρ|≥0.05）</td><td class="num">Jan +0.254 / Jul +0.241，p&lt;1e-16</td><td class="good">✓</td></tr>
+      <tr><td>Jan/Jul 同向</td><td class="num">均为正，量级一致</td><td class="good">✓</td></tr>
+      <tr><td>AUC 达标（≥0.60）</td><td class="num">&gt;1800: 0.783 &nbsp;&gt;3600: 0.934 &nbsp;&gt;10800: 0.975</td><td class="good">✓</td></tr>
+      <tr><td><strong>是否强于单 pred</strong></td><td class="num">&gt;1800 低 13.3pt，&gt;3600 低 2.3pt，&gt;10800 高 3.0pt</td><td class="warn">△ 仅极端段胜出</td></tr>
+      <tr><td>控制 pred 后有增量</td><td class="num">档内加权 AUC 0.588 / 0.765</td><td class="good">✓</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>7.1 结论</h3>
+<p>
+  按你的标准（相关性/AUC 达标 + Jan/Jul 同向 → 做二阶 stacking），<strong>分歧度信号达标</strong>。
+  但要做两个重要修正：
+</p>
+<ol>
+  <li><strong>分歧度不能替代 pred。</strong>它只在 &gt;10800s 极端段（60 行）上比单 pred 强；
+      主力区间（&gt;1800、&gt;3600）都弱于单 pred。二阶模型应以 pred 为主体，分歧度作为辅助特征。</li>
+  <li><strong>「能识别」≠「能修正」。</strong>上一轮已证明单 pred 的单调后处理天花板 ≈ 0。
+      分歧度告诉你「这 60 行很可能错得离谱」，但修正它需要的是<strong>能把 pred 推出 10800 clip 的信息</strong>，
+      而分歧度只告诉你「模型之间意见不一致」，不提供方向。这两件事不能混为一谈。</li>
+</ol>
+
+<h3>7.2 如果要做二阶 stacking，建议</h3>
+<ul>
+  <li><strong>特征集</strong>：pred（主）+ 类分歧 + 极差 + 各库 pred 差值（如 max−min、lgb−cat）+ 机场/时刻。
+      不要只喂分歧度。</li>
+  <li><strong>训练数据</strong>：需要 OOF 预测做 Z 矩阵。当前 5 个模型的预测都来自「训练 2-12 月」这一个切分，
+      严格说<b>还不是 OOF</b>——要用它们当二阶特征，必须先做完整的按月折外预测，否则二阶会直接过拟合第一阶的 in-sample 误差。</li>
+  <li><strong>预期收益</strong>：有限。极端段只占 60/344,336 行，即使全部修正对，core RMSE 最多动 1–2s。
+      真正的杠杆仍在补轮数与补长尾特征。</li>
+</ul>
+
+<div class="note warn">
+  <strong>下一步的前置条件。</strong>要做二阶 stacking，得先跑完整的 5 折 OOF（5 模型 × 5 折）拿到真正的折外预测矩阵。
+  按 fold-3 单 seed 的历史耗时（~600s）估算，XGB+LGB+CAT 三库 × 5 折约 <strong>2.5–3 小时</strong>（CAT 最慢，约占 60%）。
+  建议在动手前先确认这件事值得投入。
+</div>
+
+<p style="color:var(--dim);font-size:12.5px;margin-top:36px;border-top:1px solid var(--line);padding-top:14px">
+  产物：<code>multi_preds.parquet</code>（344,336 行 × 5 模型逐行预测）·
+  <code>train_multi.json</code> · <code>disagreement_signal.json</code> · <code>disagreement_refine.json</code> ·
+  可复现脚本 <code>train_multi.py</code> / <code>disagreement_signal.py</code> / <code>disagreement_refine.py</code>。
+  全程未训二阶、未发版、未上传。
+</p>
+
+</div>
+</body>
+</html>

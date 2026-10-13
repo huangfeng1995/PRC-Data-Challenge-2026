@@ -1,0 +1,54 @@
+{
+  "sentinel_stats": {
+    "MVT_TIME_UTC_mvt": {
+      "n_sentinel_like": 0,
+      "frac": 0.0,
+      "max_s": 1767225456
+    },
+    "BLOCK_TIME_UTC_mvt": {
+      "n_sentinel_like": 0,
+      "frac": 0.0,
+      "max_s": 1767224519
+    },
+    "SCHED_TIME_UTC_mvt": {
+      "n_sentinel_like": 0,
+      "frac": 0.0,
+      "max_s": 1767224400
+    },
+    "AOBT_3_flt": {
+      "n_sentinel_like": 0,
+      "frac": 0.0,
+      "max_s": 1767224340
+    },
+    "LOBT_flt": {
+      "n_sentinel_like": 0,
+      "frac": 0.0,
+      "max_s": 1767224400
+    },
+    "IOBT_flt": {
+      "n_sentinel_like": 0,
+      "frac": 0.0,
+      "max_s": 1767224400
+    },
+    "EOBT_1_flt": {
+      "n_sentinel_like": 0,
+      "frac": 0.0,
+      "max_s": 1767224700
+    }
+  },
+  "c3_self_matches": 18,
+  "c3_other_matches": 185,
+  "c3_other_detail": {
+    "AOBT": 121,
+    "MVT": 8,
+    "SCHED": 3,
+    "LOBT": 52,
+    "EOBT": 1
+  },
+  "block_eq_sched": 171,
+  "block_eq_sched_pct": 84.65,
+  "coverage_ge20": {
+    "BLOCK==SCHED(±60s)": true,
+    "排除自身后真·他机AOBT==BLOCK": true
+  }
+}

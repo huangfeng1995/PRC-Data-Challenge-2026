@@ -1,0 +1,697 @@
+{
+  "meta": {
+    "n_2025": 2084457,
+    "n_2026": 344841,
+    "n_feats_evaluated": 73,
+    "n_red_psi": 8,
+    "note": "2026 ranking 的 TAXITIME 为待预测 label (全空), 故 2026 侧只做特征漂移, 不做残差验证"
+  },
+  "psi_drift_2025_vs_2026": {
+    "threshold": 0.1,
+    "table": {
+      "sched_hour": {
+        "psi": 0.0002,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "sched_dow": {
+        "psi": 0.0092,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "sched_month": {
+        "psi": 10.3611,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "sched_day": {
+        "psi": 0.0029,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "sched_minute": {
+        "psi": 0.0003,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "is_weekend": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "is_morning_peak": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "is_evening_peak": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "hour_sin": {
+        "psi": 0.0001,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "hour_cos": {
+        "psi": 0.0002,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "dow_sin": {
+        "psi": 0.0089,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "dow_cos": {
+        "psi": 0.0098,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "month_sin": {
+        "psi": 8.1241,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "month_cos": {
+        "psi": 7.1661,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "ADEP_mvt": {
+        "psi": 0.0019,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "ADES_mvt": {
+        "psi": 0.0033,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0005,
+        "nan_2025": 0.0001,
+        "nan_2026": 0.0
+      },
+      "RUNWAY_mvt": {
+        "psi": 0.0471,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "STAND_mvt": {
+        "psi": 0.0251,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0008,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "airport_hour": {
+        "psi": 0.0043,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "is_domestic_estimate": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "AIRCRAFT_TYPE_mvt": {
+        "psi": 0.0239,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0001,
+        "nan_2025": 0.0006,
+        "nan_2026": 0.0011
+      },
+      "WK_TBL_CAT_flt": {
+        "psi": 0.0022,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0154
+      },
+      "MARKET_SEGMENT_flt": {
+        "psi": 0.0049,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "FLIGHT_RULE_flt": {
+        "psi": 0.0018,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0154
+      },
+      "FLIGHT_TYPE_flt": {
+        "psi": 0.0019,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "AIRCRAFT_OPERATOR_flt": {
+        "psi": 0.0143,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0005,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "is_diverted": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "iobt_to_sched_sec": {
+        "psi": 0.0077,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "eobt_to_sched_sec": {
+        "psi": 0.0144,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "iobt_eobt_diff_sec": {
+        "psi": 0.0058,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_mvt_cnt_airport_5m": {
+        "psi": 0.0757,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_mvt_cnt_airport_10m": {
+        "psi": 0.1054,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_mvt_cnt_airport_15m": {
+        "psi": 0.1215,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_queue_n_airport": {
+        "psi": 1.684,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_mvt_cnt_runway_5m": {
+        "psi": 0.0023,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_mvt_cnt_runway_10m": {
+        "psi": 0.0031,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_mvt_cnt_runway_15m": {
+        "psi": 0.0033,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_queue_n_runway": {
+        "psi": 0.0009,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "ref_was_estimated": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_n_ahead": {
+        "psi": 0.0044,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_mu_rwy_15": {
+        "psi": 0.0027,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_mu_rwy_30": {
+        "psi": 0.0035,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_w_actual_15": {
+        "psi": 0.0088,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_w_actual_30": {
+        "psi": 0.009,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_q_peak": {
+        "psi": 0.0038,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0111,
+        "nan_2026": 0.0159
+      },
+      "mvt_q_mean": {
+        "psi": 0.0029,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0111,
+        "nan_2026": 0.0159
+      },
+      "mvt_na_J": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_na_H": {
+        "psi": 0.0057,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_na_M": {
+        "psi": 0.0023,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_na_L": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_na_heavy_frac": {
+        "psi": 0.0032,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_pos_rw": {
+        "psi": 0.0044,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_na_heavy_x_pos": {
+        "psi": 0.0056,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_mu_rwy_5": {
+        "psi": 0.0011,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "mvt_w_actual_5": {
+        "psi": 0.0073,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "dep_cnt_m_5": {
+        "psi": 0.0021,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "dep_cnt_m_15": {
+        "psi": 0.0043,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "dep_cnt_m_30": {
+        "psi": 0.0044,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "aobt_cnt_m_5": {
+        "psi": 0.0023,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "aobt_cnt_m_15": {
+        "psi": 0.0048,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "aobt_cnt_m_30": {
+        "psi": 0.0057,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "eobt_ahead_cnt_5": {
+        "psi": 0.0019,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "eobt_ahead_cnt_15": {
+        "psi": 0.0028,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "eobt_ahead_cnt_30": {
+        "psi": 0.0037,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "dly_aobt_eobt": {
+        "psi": 0.0012,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dly_aobt_iobt": {
+        "psi": 0.0018,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dly_aobt_sched": {
+        "psi": 0.0093,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dly_lobt_aobt": {
+        "psi": 0.0018,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "t_unimp_r7": {
+        "psi": 0.0026,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "rwy_month_share": {
+        "psi": 0.0623,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.002
+      },
+      "ap_month_hourly_density": {
+        "psi": 1.2289,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "trust_level": {
+        "psi": 3.1855,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "block_echoes_sched": {
+        "psi": 0.0,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      }
+    },
+    "red_over_0p1": {
+      "sched_month": {
+        "psi": 10.3611,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "month_sin": {
+        "psi": 8.1241,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "month_cos": {
+        "psi": 7.1661,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "dep_mvt_cnt_airport_10m": {
+        "psi": 0.1054,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_mvt_cnt_airport_15m": {
+        "psi": 0.1215,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "dep_queue_n_airport": {
+        "psi": 1.684,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0106,
+        "nan_2026": 0.0153
+      },
+      "ap_month_hourly_density": {
+        "psi": 1.2289,
+        "kind": "num",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      },
+      "trust_level": {
+        "psi": 3.1855,
+        "kind": "cat",
+        "unseen_rate_2026": 0.0,
+        "nan_2025": 0.0,
+        "nan_2026": 0.0
+      }
+    },
+    "nan_rate_jump": [],
+    "trust_level_dist": {
+      "0": {
+        "pct_2025": 1.56,
+        "pct_2026": 1.53,
+        "delta_pp": -0.03
+      },
+      "1": {
+        "pct_2025": 25.03,
+        "pct_2026": 0.0,
+        "delta_pp": -25.03
+      },
+      "2": {
+        "pct_2025": 73.4,
+        "pct_2026": 98.47,
+        "delta_pp": 25.06
+      }
+    }
+  },
+  "t_unimp_bias_offset": {
+    "overall": {
+      "n_groups": 70,
+      "offset_mean_s": -123.4,
+      "offset_median_s": -126.1,
+      "offset_p05_s": -423.6,
+      "offset_p95_s": 238.05,
+      "pct_abs_lt_60s": 5.71,
+      "pct_abs_gt_300s": 18.57
+    },
+    "by_airport": {
+      "EDDF": {
+        "n_grp": 6,
+        "n_dep": 230141,
+        "off_mean": -75.5,
+        "off_med": -110.0,
+        "off_absmean": 127.1
+      },
+      "EDDM": {
+        "n_grp": 4,
+        "n_dep": 167334,
+        "off_mean": -107.4,
+        "off_med": -114.3,
+        "off_absmean": 107.4
+      },
+      "EGLL": {
+        "n_grp": 5,
+        "n_dep": 239542,
+        "off_mean": 88.1,
+        "off_med": -176.7,
+        "off_absmean": 341.9
+      },
+      "EHAM": {
+        "n_grp": 12,
+        "n_dep": 247946,
+        "off_mean": -87.3,
+        "off_med": -97.3,
+        "off_absmean": 138.3
+      },
+      "LEBL": {
+        "n_grp": 5,
+        "n_dep": 179700,
+        "off_mean": -155.4,
+        "off_med": -152.3,
+        "off_absmean": 203.2
+      },
+      "LEMD": {
+        "n_grp": 8,
+        "n_dep": 212242,
+        "off_mean": 1.9,
+        "off_med": -88.2,
+        "off_absmean": 156.8
+      },
+      "LFPG": {
+        "n_grp": 8,
+        "n_dep": 239481,
+        "off_mean": -185.1,
+        "off_med": -168.5,
+        "off_absmean": 185.1
+      },
+      "LIRF": {
+        "n_grp": 7,
+        "n_dep": 160516,
+        "off_mean": -374.3,
+        "off_med": -310.4,
+        "off_absmean": 374.3
+      },
+      "LSZH": {
+        "n_grp": 6,
+        "n_dep": 134592,
+        "off_mean": -7.7,
+        "off_med": -110.8,
+        "off_absmean": 202.3
+      },
+      "LTFM": {
+        "n_grp": 9,
+        "n_dep": 272963,
+        "off_mean": -248.9,
+        "off_med": -127.1,
+        "off_absmean": 248.9
+      }
+    },
+    "residual_check": {
+      "2025": {
+        "offset_coverage_pct": 100.0,
+        "resid_rmse_t_unimp_only_s": 401.18,
+        "resid_rmse_after_offset_s": 490.25,
+        "delta_s": 89.07,
+        "corr_offset_resid": -0.1834
+      },
+      "2026_coverage_only": {
+        "offset_coverage_pct": 100.0,
+        "n_missing_rows": 2
+      }
+    }
+  }
+}

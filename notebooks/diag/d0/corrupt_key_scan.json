@@ -1,0 +1,307 @@
+{
+  "n_holdout_dep": 344419,
+  "n_corrupt": 30428,
+  "corrupt_rate_pct": 8.835,
+  "identity_max_resid_s": 60.0,
+  "n_identity_gt60": 0,
+  "n_extreme": 60,
+  "n_extreme_corrupt": 49,
+  "scan_10800": [
+    {
+      "col": "AIRCRAFT_TYPE_mvt",
+      "n_pos": 47,
+      "n_neg": 37,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.0121,
+      "lift": 79.33
+    },
+    {
+      "col": "FLIGHT_ID_mvt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "CALLSIGN_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "ADES_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "ADES_FILED_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "MARKET_SEGMENT_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "FLIGHT_RULE_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "FLIGHT_TYPE_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "AIRCRAFT_TYPE_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "WK_TBL_CAT_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    },
+    {
+      "col": "AIRCRAFT_OPERATOR_flt",
+      "n_pos": 47,
+      "n_neg": 336,
+      "rate_pos": 0.9592,
+      "rate_neg": 0.1098,
+      "lift": 8.74
+    }
+  ],
+  "scan_3600": [
+    {
+      "col": "AIRCRAFT_TYPE_mvt",
+      "n_pos": 128,
+      "n_neg": 250,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0059,
+      "lift": 60.46
+    },
+    {
+      "col": "FLIGHT_mvt",
+      "n_pos": 3,
+      "n_neg": 12,
+      "rate_pos": 0.0084,
+      "rate_neg": 0.0003,
+      "lift": 29.52
+    },
+    {
+      "col": "FLIGHT_ID_mvt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "CALLSIGN_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "ADES_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "ADES_FILED_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "MARKET_SEGMENT_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "FLIGHT_RULE_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "FLIGHT_TYPE_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "AIRCRAFT_TYPE_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "WK_TBL_CAT_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    },
+    {
+      "col": "AIRCRAFT_OPERATOR_flt",
+      "n_pos": 128,
+      "n_neg": 4102,
+      "rate_pos": 0.3596,
+      "rate_neg": 0.0976,
+      "lift": 3.68
+    }
+  ],
+  "combos": [
+    {
+      "name": "(oracle 上界: 真损坏)",
+      "n": 30428,
+      "tp": 30428,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "name": "ADEP_flt 缺失 (v21 用的)",
+      "n": 5373,
+      "tp": 259,
+      "fp": 5114,
+      "precision": 0.0482,
+      "recall": 0.0085,
+      "f1": 0.0145
+    },
+    {
+      "name": "AOBT 哨兵",
+      "n": 5373,
+      "tp": 259,
+      "fp": 5114,
+      "precision": 0.0482,
+      "recall": 0.0085,
+      "f1": 0.0145
+    },
+    {
+      "name": "AIRCRAFT_TYPE_mvt 缺失  ★lift79",
+      "n": 402,
+      "tp": 134,
+      "fp": 268,
+      "precision": 0.3333,
+      "recall": 0.0044,
+      "f1": 0.0087
+    },
+    {
+      "name": "ADEP_flt空 | AOBT哨兵",
+      "n": 5373,
+      "tp": 259,
+      "fp": 5114,
+      "precision": 0.0482,
+      "recall": 0.0085,
+      "f1": 0.0145
+    },
+    {
+      "name": "三者并集 NM缺失",
+      "n": 5373,
+      "tp": 259,
+      "fp": 5114,
+      "precision": 0.0482,
+      "recall": 0.0085,
+      "f1": 0.0145
+    },
+    {
+      "name": "NM缺失 & MVT-SCHED>10800 (v21核心)",
+      "n": 383,
+      "tp": 47,
+      "fp": 336,
+      "precision": 0.1227,
+      "recall": 0.0015,
+      "f1": 0.0031
+    },
+    {
+      "name": "NM缺失(含机型) & >10800",
+      "n": 383,
+      "tp": 47,
+      "fp": 336,
+      "precision": 0.1227,
+      "recall": 0.0015,
+      "f1": 0.0031
+    },
+    {
+      "name": "NM缺失(含机型) & >3600",
+      "n": 4230,
+      "tp": 128,
+      "fp": 4102,
+      "precision": 0.0303,
+      "recall": 0.0042,
+      "f1": 0.0074
+    },
+    {
+      "name": "NM缺失(含机型) & >7200",
+      "n": 1422,
+      "tp": 84,
+      "fp": 1338,
+      "precision": 0.0591,
+      "recall": 0.0028,
+      "f1": 0.0053
+    },
+    {
+      "name": "NM缺失(含机型) & >10800",
+      "n": 383,
+      "tp": 47,
+      "fp": 336,
+      "precision": 0.1227,
+      "recall": 0.0015,
+      "f1": 0.0031
+    },
+    {
+      "name": "NM缺失(含机型) & >21600",
+      "n": 52,
+      "tp": 16,
+      "fp": 36,
+      "precision": 0.3077,
+      "recall": 0.0005,
+      "f1": 0.001
+    }
+  ]
+}

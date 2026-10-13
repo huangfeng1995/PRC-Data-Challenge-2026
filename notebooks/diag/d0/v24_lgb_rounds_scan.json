@@ -1,0 +1,148 @@
+{
+  "cap": 13000,
+  "seed": 42,
+  "n_fit": 1566156,
+  "fit_clean_raw": 1566565,
+  "n_es": 174063,
+  "es_months": [
+    11,
+    12
+  ],
+  "n_holdout": 344419,
+  "checkpoints": [
+    {
+      "rounds": 3000,
+      "full": 568.49,
+      "jan": 493.67,
+      "jul": 622.28,
+      "d_full": 0.0,
+      "d_jan": 0.0,
+      "d_jul": 0.0
+    },
+    {
+      "rounds": 6000,
+      "full": 569.7,
+      "jan": 493.73,
+      "jul": 624.24,
+      "d_full": 1.21,
+      "d_jan": 0.06,
+      "d_jul": 1.96
+    },
+    {
+      "rounds": 9000,
+      "full": 570.99,
+      "jan": 494.58,
+      "jul": 625.83,
+      "d_full": 2.5,
+      "d_jan": 0.91,
+      "d_jul": 3.55
+    },
+    {
+      "rounds": 10423,
+      "full": 571.52,
+      "jan": 494.88,
+      "jul": 626.5,
+      "d_full": 3.03,
+      "d_jan": 1.21,
+      "d_jul": 4.22
+    },
+    {
+      "rounds": 11000,
+      "full": 571.73,
+      "jan": 495.08,
+      "jul": 626.72,
+      "d_full": 3.24,
+      "d_jan": 1.41,
+      "d_jul": 4.44
+    },
+    {
+      "rounds": 12000,
+      "full": 571.94,
+      "jan": 495.25,
+      "jul": 626.96,
+      "d_full": 3.45,
+      "d_jan": 1.58,
+      "d_jul": 4.68
+    },
+    {
+      "rounds": 13000,
+      "full": 572.37,
+      "jan": 495.68,
+      "jul": 627.39,
+      "d_full": 3.88,
+      "d_jan": 2.01,
+      "d_jul": 5.11
+    }
+  ],
+  "base_rounds": 3000,
+  "sat_point": 11000,
+  "sat_rule": "再增 1000 轮 full RMSE 改善 < 2.0s",
+  "per_airport": {
+    "EDDF": {
+      "n": 36830,
+      "base": 247.76,
+      "sat": 254.5,
+      "delta": 6.74
+    },
+    "EDDM": {
+      "n": 27091,
+      "base": 240.27,
+      "sat": 246.41,
+      "delta": 6.14
+    },
+    "EGLL": {
+      "n": 40210,
+      "base": 382.32,
+      "sat": 404.75,
+      "delta": 22.43
+    },
+    "EHAM": {
+      "n": 40949,
+      "base": 260.94,
+      "sat": 259.75,
+      "delta": -1.19
+    },
+    "LEBL": {
+      "n": 28986,
+      "base": 244.91,
+      "sat": 253.26,
+      "delta": 8.35
+    },
+    "LEMD": {
+      "n": 35328,
+      "base": 207.76,
+      "sat": 214.62,
+      "delta": 6.86
+    },
+    "LFPG": {
+      "n": 39612,
+      "base": 609.73,
+      "sat": 610.57,
+      "delta": 0.84
+    },
+    "LIRF": {
+      "n": 26528,
+      "base": 1680.83,
+      "sat": 1679.1,
+      "delta": -1.73
+    },
+    "LSZH": {
+      "n": 22346,
+      "base": 249.84,
+      "sat": 250.25,
+      "delta": 0.41
+    },
+    "LTFM": {
+      "n": 46539,
+      "base": 310.5,
+      "sat": 319.69,
+      "delta": 9.19
+    }
+  },
+  "airport_n_worse": 8,
+  "airport_n_better": 2,
+  "airport_same_sign": false,
+  "net_gain_full": 3.88,
+  "net_gain_at_sat": 3.24,
+  "suggest_fixed_rounds": 11000
+}

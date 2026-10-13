@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>到港(ARR)数据对 DEP 滑行预测的价值评估</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2b303b;
+    --fg:#e6e9ef; --muted:#9aa3b2; --dim:#6b7480;
+    --acc:#5aa9e6; --warn:#e6a35a; --bad:#e2685f; --good:#5fc98f;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+    line-height:1.65;font-size:15px}
+  .wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:26px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:28px}
+  h2{font-size:19px;margin:44px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h3{font-size:15.5px;margin:26px 0 10px}
+  p{margin:9px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+  .verdict{background:linear-gradient(135deg,#1a2130,#1d1a24);border-left:4px solid var(--warn)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+  .kpi .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .kpi .v{font-size:22px;font-family:var(--mono);margin-top:5px;font-weight:600}
+  .kpi .d{font-size:12px;color:var(--dim);margin-top:3px}
+  .up{color:var(--bad)}.dn{color:var(--good)}.nt{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px}
+  tbody tr:hover{background:#1c212a}
+  td.num{font-family:var(--mono)}
+  code{font-family:var(--mono);background:#22262f;padding:1.5px 6px;border-radius:4px;font-size:12.5px;color:#c8d3e0}
+  .note{background:#1a1d24;border-left:3px solid var(--dim);padding:11px 15px;margin:14px 0;font-size:13.5px;color:var(--muted);border-radius:0 6px 6px 0}
+  .note.warn{border-left-color:var(--warn)}.note.bad{border-left-color:var(--bad)}.note.good{border-left-color:var(--good)}
+  ul{margin:9px 0;padding-left:22px}li{margin:6px 0}
+  .best{background:#1e2b22;outline:1px solid #2f5c42}
+  .dead{background:#2b1a1a;outline:1px solid #5c2f2f}
+  svg{display:block;max-width:100%;height:auto}
+  .legend{display:flex;gap:18px;font-size:12.5px;color:var(--muted);margin:8px 0 0;flex-wrap:wrap}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>到港(ARR)数据对 DEP 滑行预测的价值评估</h1>
+<div class="sub">
+  只读诊断 · 未做特征工程、未发版 · 2026-09-30<br>
+  口径：负荷 = 同机场 DEP 推出时刻（AOBT，回退 EOBT）前后 ±w 分钟内【计划到港】ARR 航班数 ·
+  计划时刻取 ARR 行 <code>SCHED_TIME_UTC_mvt</code> · 全程不读 ARR 的实际落地/占用时刻
+</div>
+
+<div class="card verdict">
+  <h3 style="margin-top:0">判定：不支持做特征（两档都无有效单调信号）</h3>
+  <p style="font-size:15.5px;margin-bottom:12px">
+    你预期的分层结论<strong>部分成立、但方向相反</strong>：真实拥堵档 <code>(1800,10800]</code>
+    的到港负荷<strong>确实随负荷升高而下降</strong>（分箱单调性 ρ = <strong>−0.738</strong>），
+    而 <code>&gt;10800</code> 极端档与负荷无关（符合「匹配错误」预期）。
+    <strong>但真实拥堵档是负相关</strong>——高到港负荷对应<strong>更短</strong>的长滑行，不是更长。
+  </p>
+  <p style="margin-bottom:0">
+    关键否证：控制离港密度/小时/机场规模后，<strong>偏相关 = −0.0283</strong>（符号翻负），
+    分层内加权 ρ 仅 <strong>+0.0256</strong>。原始相关（+0.089）几乎全部来自机场规模与时刻的共线，
+    不是到港负荷的独立信息。<strong>到港数据无增量，死心。</strong>
+  </p>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="k">有效 DEP 行</div><div class="v nt">2,084,659</div><div class="d">2025 全年，10 机场</div></div>
+  <div class="kpi"><div class="k">(1800,10800] 单调性</div><div class="v bad">−0.738</div><div class="d">负相关，反向</div></div>
+  <div class="kpi"><div class="k">偏相关（控混淆）</div><div class="v bad">−0.0283</div><div class="d">符号翻负</div></div>
+  <div class="kpi"><div class="k">分层内加权 ρ</div><div class="v nt">+0.0256</div><div class="d">Q4 层甚至为 −0.004</div></div>
+  <div class="kpi"><div class="k">AUC(&gt;3600) 负荷</div><div class="v">0.532</div><div class="d">vs 现有密度 0.422</div></div>
+  <div class="kpi"><div class="k">AUC(&gt;10800) 负荷</div><div class="v">0.554</div><div class="d">vs 现有密度 0.180</div></div>
+</div>
+
+<h2>第一步 · 盘点</h2>
+
+<h3>1.1 现有 71 特征里哪些用到了 ARR</h3>
+
+<div class="note good">
+  <strong>结论：71 特征中没有任何一个读取 ARR 行的字段。</strong>
+</div>
+
+<table>
+  <thead><tr><th>候选</th><th>是否在 FEATS71</th><th>实际口径</th></tr></thead>
+  <tbody>
+    <tr class="dead"><td><code>arr_mvt_cnt_airport_10m</code></td><td class="up">否</td><td>读 ARR 行 MVT（实际落地），已被否决</td></tr>
+    <tr class="dead"><td><code>arr_mvt_cnt_airport_15m</code></td><td class="up">否</td><td>同上</td></tr>
+    <tr><td><code>eobt_ahead_cnt_5/15/30</code></td><td class="dn">是</td><td><strong>名字像但不是 ARR</strong>：统计本 DEP 之后 N 分钟内同机场其他 DEP 的 <code>EOBT_1_flt</code>（计划推出），属未来离港计划窗</td></tr>
+  </tbody>
+</table>
+
+<h3>1.2 复盘旧「进港特征」</h3>
+
+<div class="note warn">
+  <strong>你记的「4 个」实际是 2 个。</strong>历史 G5_ABCE 里的 E 组 = <code>arr_mvt_cnt_airport_10m</code> +
+  <code>arr_mvt_cnt_airport_15m</code>，实现见 <code>src/features_queue.py::add_arr_mvt_cnt()</code>。
+</div>
+
+<table>
+  <thead><tr><th>项</th><th>旧 E 组（本轮之前的口径）</th><th>本轮口径</th></tr></thead>
+  <tbody>
+    <tr><td>时间轴</td><td class="up">ARR 的 <code>MVT_TIME_UTC_mvt</code> = <strong>实际落地时刻</strong></td><td class="dn">ARR 的 <code>SCHED_TIME_UTC_mvt</code> = <strong>计划到港时刻</strong></td></tr>
+    <tr><td>窗口</td><td>仅过去 10/15 分钟</td><td>±30/±60 分钟 + 仅过去 30/60</td></tr>
+    <tr><td>当年 gain</td><td class="num">221M / 74.9M（极高）</td><td>—</td></tr>
+    <tr><td>当年裁决</td><td colspan="2">❌ 否决：<strong>高 gain 零泛化</strong>，holdout RMSE 无改善</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  当年否决理由已明确写在 <code>docs/diag/holdout_v1p5_significance_diagnosis.md</code>：
+  「线上可构造性已确认（ranking ARR 49.99%），否决理由是<strong>特征本身的泛化能力</strong>，而非线上可构造性」。
+  <strong>本轮换用计划时刻（口径不同、线上更干净）重测，结论一致：仍然没有泛化价值。</strong>
+</div>
+
+<h3>1.3 ranking 里 ARR 行的可见性</h3>
+
+<table>
+  <thead><tr><th>列</th><th>ranking DEP</th><th>ranking ARR</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>MVT_TIME_UTC_mvt</td><td class="num">100.00%</td><td class="num">100.00%</td><td>起飞 / 落地时刻</td></tr>
+    <tr class="dead"><td>BLOCK_TIME_UTC_mvt</td><td class="num bad">0.00%</td><td class="num good">100.00%</td><td><strong>DEP 侧确认 100% 缺失</strong>，ARR 侧完整</td></tr>
+    <tr><td>SCHED_TIME_UTC_mvt</td><td class="num">100.00%</td><td class="num good">100.00%</td><td><strong>计划到港时刻可用</strong></td></tr>
+    <tr><td>EOBT_1_flt</td><td class="num">98.47%</td><td class="num">99.26%</td><td>计划推出</td></tr>
+    <tr><td>ADES_mvt</td><td class="num">100.00%</td><td class="num">100.00%</td><td>ARR 的目的机场 = DEP 的起飞机场</td></tr>
+  </tbody>
+</table>
+
+<p>ranking 共 689,534 行，<strong>DEP 344,841 / ARR 344,693（ARR 占 49.99%）</strong>。
+缺列 3 个：<code>SIB_TIME_UTC_mvt</code>、<code>TIME_AOBT_mvt</code>、<code>TIME_TAXIIN_mvt</code>。</p>
+
+<div class="note good">
+  <strong>好消息：口径上完全可构造。</strong>ARR 行的 <code>SCHED_TIME_UTC_mvt</code> 与 <code>ADES_mvt</code>
+  在 ranking 上都是 100% 非空，构造「计划到港负荷」不需要任何未来信息。
+  <strong>所以下面的否定结论不是被「线上不可用」否掉的，而是被「本身没有信号」否掉的。</strong>
+</div>
+
+<h2>第二步 · 只读诊断</h2>
+
+<h3>2.1 自洽性检查</h3>
+<p>ARR 行 (MVT − SCHED) 秒数分位：p1 = −3302、p25 = −1264、<strong>p50 = −614</strong>、p75 = +240、p99 = +8727，负值占 67.94%。</p>
+<p><strong>负值占多数是正常的</strong>——航班普遍早于计划时刻落地，中位提前约 10 分钟。这恰好证明 <code>SCHED</code> 就是该 ARR 行的计划到港时刻，可直接作为负荷时间轴。</p>
+
+<h3>2.2 分箱表：到港负荷 ±60min（holdout 1+7月）</h3>
+<p>分箱用 8 等分位（负荷中位约 64）。</p>
+<table>
+  <thead><tr><th>负荷档</th><th>n</th><th>中位真值</th><th>均值真值</th><th>&gt;1800 占比</th><th>&gt;10800 占比</th></tr></thead>
+  <tbody>
+    <tr><td>&lt;33</td><td class="num">46,376</td><td class="num">910.0</td><td class="num">996.2</td><td class="num">4.440%</td><td class="num">0.002%</td></tr>
+    <tr><td>33–47</td><td class="num">47,983</td><td class="num">848.0</td><td class="num">925.9</td><td class="num">3.230%</td><td class="num">0.000%</td></tr>
+    <tr><td>47–56</td><td class="num">42,205</td><td class="num">872.0</td><td class="num">953.3</td><td class="num">3.600%</td><td class="num">0.002%</td></tr>
+    <tr><td>56–64</td><td class="num">41,189</td><td class="num">900.0</td><td class="num">974.1</td><td class="num">3.580%</td><td class="num">0.000%</td></tr>
+    <tr><td>64–72</td><td class="num">41,632</td><td class="num">931.0</td><td class="num">1009.1</td><td class="num">4.390%</td><td class="num">0.000%</td></tr>
+    <tr class="best"><td>72–79</td><td class="num">38,411</td><td class="num dn">1055.0</td><td class="num">1125.1</td><td class="num">6.860%</td><td class="num">0.000%</td></tr>
+    <tr class="best"><td>79–87</td><td class="num">39,168</td><td class="num dn">1073.0</td><td class="num">1135.5</td><td class="num">7.010%</td><td class="num">0.000%</td></tr>
+    <tr class="up"><td>87–136</td><td class="num">42,051</td><td class="num up">897.0</td><td class="num">953.3</td><td class="num">3.170%</td><td class="num">0.005%</td></tr>
+  </tbody>
+</table>
+<p>单调性：ρ(负荷档序, 中位真值) = <strong>+0.452</strong>；ρ(负荷档序, &gt;1800 占比) = <strong>+0.071</strong>。</p>
+
+<div class="note warn">
+  <strong>整体是「先升后降」的非单调形态。</strong>负荷从 72–87 档时中位真值与长尾占比都达到峰值（1055s / 7.01%），
+  但最高档 87–136 反而回落到 897s / 3.17%。这不是拥堵效应，而是<strong>机场规模效应</strong>：
+  大机场航班多，负荷自然高，但滑行时间反而短（有独立快车道/更宽裕的机坪）。
+  最高档回落恰恰说明「负荷」在代理机场大小，而不是代理拥堵。
+</div>
+
+<h3>2.3 Jan / Jul 分别看</h3>
+<table>
+  <thead><tr><th>口径</th><th>ρ(负荷档, 中位真值)</th><th>ρ(负荷档, &gt;1800占比)</th><th>峰值档</th></tr></thead>
+  <tbody>
+    <tr><td>全部（208 万行）</td><td class="num">+0.452</td><td class="num">+0.071</td><td>79–87</td></tr>
+    <tr><td>holdout（1+7）</td><td class="num">+0.452</td><td class="num">+0.071</td><td>79–87</td></tr>
+    <tr><td>Jan</td><td class="num">+0.419</td><td class="num dn">+0.714</td><td>79–87</td></tr>
+    <tr><td>Jul</td><td class="num">+0.357</td><td class="num">+0.048</td><td>72–79</td></tr>
+  </tbody>
+</table>
+<p>峰值档位置一致（72–87 区间），Jan/Jul 同向。但 &gt;1800 占比的 ρ 在 Jan（+0.714）与 Jul（+0.048）之间差异巨大，<strong>说明该信号对具体月份敏感、不稳定</strong>。</p>
+
+<h2>2.4 关键拆分：两档长尾</h2>
+
+<table>
+  <thead><tr><th>真值档</th><th>n</th><th>Spearman(负荷, 真值)</th><th>Spearman(负荷, 离港密度)</th><th>分箱单调性 ρ</th></tr></thead>
+  <tbody>
+    <tr><td>(0, 1800]</td><td class="num">2,010,492</td><td class="num dn">+0.0868</td><td class="num">+0.5046</td><td class="num">+0.452</td></tr>
+    <tr class="dead"><td><strong>(1800, 10800]</strong></td><td class="num">73,965</td><td class="num bad">−0.0966</td><td class="num">+0.5539</td><td class="num bad">−0.738</td></tr>
+    <tr><td>&gt;10800</td><td class="num">202</td><td class="num nt">样本不足</td><td class="num nt">—</td><td class="num nt">无法评估</td></tr>
+  </tbody>
+</table>
+
+<h3>(1800, 10800] 档分箱明细</h3>
+<table>
+  <thead><tr><th>负荷档</th><th>n</th><th>中位真值</th><th>均值真值</th></tr></thead>
+  <tbody>
+    <tr><td>&lt;31</td><td class="num">8,759</td><td class="num">2100.0</td><td class="num">2322.0</td></tr>
+    <tr><td>31–50</td><td class="num">9,157</td><td class="num">2104.0</td><td class="num">2349.0</td></tr>
+    <tr><td>50–61</td><td class="num">8,609</td><td class="num dn">2110.0</td><td class="num dn">2363.9</td></tr>
+    <tr><td>61–71</td><td class="num">9,204</td><td class="num">2088.0</td><td class="num">2313.5</td></tr>
+    <tr class="up"><td>71–77</td><td class="num">9,071</td><td class="num up">2024.0</td><td class="num">2206.9</td></tr>
+    <tr class="up"><td>77–80</td><td class="num">7,318</td><td class="num up">1986.0</td><td class="num">2175.3</td></tr>
+    <tr class="up"><td>80–84</td><td class="num">9,637</td><td class="num up">1990.0</td><td class="num">2197.4</td></tr>
+    <tr><td>84–133</td><td class="num">10,375</td><td class="num">2043.0</td><td class="num">2225.4</td></tr>
+  </tbody>
+</table>
+
+<div class="note bad">
+  <strong>真实拥堵档呈显著负向（ρ = −0.738）。</strong>
+  已经处于长滑行的航班，到港负荷越高、其滑行时长反而<strong>越短</strong>（2110s → 1986s）。
+  这与「高到港负荷 → 跑道拥堵 → 滑行变长」的假设完全相反。
+  合理解释：能滑出 30 分钟以上长尾的，往往是<strong>大流量机场</strong>（负荷高但排队机制不同），
+  或者长尾本身由机型/机位/滑行路线决定，与到港流量无关。
+</div>
+
+<div class="note">
+  <strong>&gt;10800 极端档：符合你的预期，与负荷无关。</strong>
+  202 行样本在 8 个分位箱下每箱不足 30 行，无法做单调性评估；
+  但从整体 AUC 看，到港负荷对 &gt;10800 的区分度（0.554）远高于现有离港密度（0.180），
+  说明<strong>极端行确实「不像」正常行</strong>——只是这个「不像」很难用单调负荷刻画，
+  且与上一轮结论一致：&gt;10800 是匹配错误，60 行主导 SSE，模型结构性无法命中。
+</div>
+
+<h2>2.5 与现有 ap_month_hourly_density 的增量对比</h2>
+
+<table>
+  <thead><tr><th>排序分</th><th>&gt;1800</th><th>&gt;3600</th><th>&gt;10800</th></tr></thead>
+  <tbody>
+    <tr><td>到港负荷 ±30m</td><td class="num">0.5483</td><td class="num dn">0.5504</td><td class="num">0.4848</td></tr>
+    <tr class="best"><td>到港负荷 ±60m</td><td class="num">0.5348</td><td class="num">0.5319</td><td class="num dn">0.5539</td></tr>
+    <tr><td>到港负荷 过去 30m</td><td class="num">0.5391</td><td class="num dn">0.5567</td><td class="num dn">0.5905</td></tr>
+    <tr><td>到港负荷 过去 60m</td><td class="num">0.5218</td><td class="num">0.5315</td><td class="num">0.5733</td></tr>
+    <tr><td>到港负荷 ±60m（ref=MVT）</td><td class="num">0.5365</td><td class="num">0.4943</td><td class="num">0.2734</td></tr>
+    <tr class="dead"><td>现有：离港密度</td><td class="num">0.5532</td><td class="num">0.4220</td><td class="num">0.1804</td></tr>
+  </tbody>
+</table>
+<p class="nt" style="font-size:12.5px">口径：holdout（1+7 月），AUC 已剔除负荷缺失的 1.08%。</p>
+
+<p>表面看负荷在 &gt;3600 / &gt;10800 上大幅超过现有密度（+0.11 / +0.37）。<strong>但这不构成增量</strong>，因为两者高度共线：</p>
+
+<table>
+  <thead><tr><th>真值档</th><th>Spearman(负荷, 离港密度)</th></tr></thead>
+  <tbody>
+    <tr><td>(0, 1800]</td><td class="num">+0.5046</td></tr>
+    <tr><td>(1800, 10800]</td><td class="num">+0.5539</td></tr>
+  </tbody>
+</table>
+
+<h3>条件 AUC（在离港密度五等分层内，holdout，&gt;1800）</h3>
+<table>
+  <thead><tr><th>密度层</th><th>n</th><th>到港负荷 AUC</th><th>离港密度 AUC</th><th>Δ</th></tr></thead>
+  <tbody>
+    <tr><td>Q1（最低密度）</td><td class="num">59,730</td><td class="num">0.6096</td><td class="num">0.7092</td><td class="num bad">−0.0997</td></tr>
+    <tr><td>Q2</td><td class="num">95,052</td><td class="num">0.5491</td><td class="num">0.7312</td><td class="num bad">−0.1821</td></tr>
+    <tr><td>Q3</td><td class="num">37,278</td><td class="num">0.5160</td><td class="num">0.4159</td><td class="num dn">+0.1000</td></tr>
+    <tr><td>Q4</td><td class="num">65,561</td><td class="num">0.4005</td><td class="num">0.3442</td><td class="num dn">+0.0564</td></tr>
+    <tr><td>Q5（最高密度）</td><td class="num">86,715</td><td class="num">0.4969</td><td class="num">0.4154</td><td class="num dn">+0.0815</td></tr>
+    <tr class="best"><td>分层合并</td><td class="num">344,336</td><td class="num">0.5146</td><td class="num">0.5400</td><td class="num bad">−0.0254</td></tr>
+  </tbody>
+</table>
+
+<div class="note bad">
+  <strong>控制离港密度后，负荷的净 AUC = 0.5146，低于现有密度的 0.5400。</strong>
+  在最低两个密度层（Q1/Q2）负荷甚至<strong>显著更差</strong>（−0.0997 / −0.1821）——
+  恰恰在稀疏机场、负荷真正有区分意义的地方，负荷没有价值。
+  Q3–Q5 的微弱正 Δ 无法抵消 Q1/Q2 的负 Δ。
+</div>
+
+<h3>分层内 Spearman（负荷, |真值 − 该层中位|）</h3>
+<table>
+  <thead><tr><th>密度层</th><th>n</th><th>ρ</th><th>p</th></tr></thead>
+  <tbody>
+    <tr><td>Q1</td><td class="num">59,730</td><td class="num">+0.0614</td><td class="num">1.66e-50</td></tr>
+    <tr><td>Q2</td><td class="num">95,052</td><td class="num">+0.0236</td><td class="num">4.48e-13</td></tr>
+    <tr><td>Q3</td><td class="num">37,278</td><td class="num">+0.0361</td><td class="num">4.59e-12</td></tr>
+    <tr><td>Q4</td><td class="num">65,561</td><td class="num nt">−0.0040</td><td class="num nt">0.307（不显著）</td></tr>
+    <tr><td>Q5</td><td class="num">86,715</td><td class="num">+0.0210</td><td class="num">8.41e-10</td></tr>
+    <tr class="best"><td>加权平均</td><td class="num">344,336</td><td class="num nt">+0.0256</td><td class="num nt">—</td></tr>
+  </tbody>
+</table>
+
+<h3>偏相关（控制离港密度 + 小时 + 机场规模）</h3>
+<div class="note bad">
+  原始 Spearman(负荷, 真值) holdout = <strong>+0.0893</strong>（p≈0）<br>
+  控制三个混淆后 = <strong>−0.0283</strong>（p=3.24e-61）<br>
+  <strong>符号翻负。</strong>原始相关几乎全部由「负荷 ∝ 机场规模」和「大机场滑行更快」共同造成。
+</div>
+
+<h2>判定与结论</h2>
+
+<div class="card verdict">
+  <table style="margin-bottom:0">
+    <thead><tr><th>你的判定标准</th><th>实测</th><th>达标</th></tr></thead>
+    <tbody>
+      <tr><td><code>(1800,10800]</code> 档到港负荷有<strong>单调</strong>信号</td><td class="num">ρ = −0.738（<strong>负向</strong>）</td><td class="bad">✗ 方向相反</td></tr>
+      <tr><td>且<strong>超越</strong>现有密度特征</td><td class="num">净 AUC 0.5146 &lt; 密度 0.5400</td><td class="bad">✗</td></tr>
+      <tr><td><code>&gt;10800</code> 档与负荷无关</td><td class="num">符合预期（202 行，无法评估单调性）</td><td class="nt">—</td></tr>
+    </tbody>
+  </table>
+  <p style="margin:14px 0 0"><strong>→ 若两档都和负荷无关 → 确认到港数据无增量。</strong>
+  结论成立：<strong>到港数据无增量，不做这个特征。</strong></p>
+</div>
+
+<h3>要点总结</h3>
+<ol>
+  <li><strong>否决理由是「本身没信号」，不是「线上不可用」。</strong>这比当年更彻底：
+      当年 <code>arr_mvt_cnt_*</code> 至少还有高 gain，现在是换用线上完全可构造的计划时刻后，
+      依然没有独立信息。</li>
+  <li><strong>整体分箱的 +0.452 是机场规模代理，不是拥堵。</strong>峰值在 72–87 档后回落，
+      且控制机场规模后偏相关翻负（−0.0283）。</li>
+  <li><strong>真实拥堵档是负相关（−0.738）。</strong>已经长滑行的航班，到港负荷越高滑行越短。
+      这直接证伪了「到港流量驱动离港拥堵」的假设。</li>
+  <li><strong>&gt;10800 与负荷无关，符合「匹配错误」的预期。</strong>极端行是数据问题，
+      不是运行问题，到港流量再高也解释不了。</li>
+</ol>
+
+<div class="note warn">
+  <strong>过程中的两个错误（已修正，值得记录）：</strong><br>
+  ① <strong>单位错误 1000 倍</strong>：pandas 2.3.3 的 datetime 在 <code>astype('int64')</code> 后是
+  <strong>微秒</strong>而非纳秒，我最初用纳秒常数导致 ±60min 窗口变成 ±1000 小时，
+  所有行塌进同一档。已改为显式 <code>to_numpy(dtype='datetime64[us]')</code> 并加护栏断言。<br>
+  ② <strong>Spearman/AUC 未剔 NaN</strong>：1.08% 的行 ref 缺失导致负荷为 NaN，
+  <code>rank()</code> 与 <code>lstsq</code> 分别返回 NaN 和 SVD 不收敛。已统一加有限值过滤。
+</div>
+
+<p style="color:var(--dim);font-size:12.5px;margin-top:36px;border-top:1px solid var(--line);padding-top:14px">
+  产物：<code>arr_ranking_audit.json</code>（第一步盘点）· <code>arr_load_diag.json</code>（第二步诊断全量数值）·
+  可复现脚本 <code>arr_ranking_audit.py</code> / <code>arr_load_diag.py</code>。
+  全程只读，未构造特征、未发版、未上传。
+</p>
+
+</div>
+</body>
+</html>

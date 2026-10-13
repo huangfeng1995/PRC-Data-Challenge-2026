@@ -1,0 +1,11 @@
+{
+  "n_anomaly": 202,
+  "n_block_eq_sched": 171,
+  "pct": 84.65,
+  "normal_block_eq_sched_pct": 9.5673,
+  "sentinel": -9223372037,
+  "sentinel_rate_anomaly_pct": 92.08,
+  "sentinel_rate_normal_pct": 1.07,
+  "mvt_sched_median_h": 4.37,
+  "verdict": "BLOCK 被 SCHED 顶替(标签损坏), 非真实滑行"
+}

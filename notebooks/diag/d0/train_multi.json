@@ -1,0 +1,83 @@
+{
+  "task": "train_multi_xgb_lgb_cat_clean_es",
+  "config": {
+    "train_months": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "holdout_months": [
+      1,
+      7
+    ],
+    "es_split": "训练月内 MVT 时间末 10%",
+    "es_months": [
+      11,
+      12
+    ],
+    "es_leak_check": "PASS (ES 集不含 1/7 月)",
+    "n_fit": 1566162,
+    "n_es": 174019,
+    "n_holdout": 344336,
+    "feats_n": 71,
+    "cap": 2500,
+    "cat_iter": 2500,
+    "es_rounds": 100,
+    "seeds": {
+      "xgb": 42,
+      "lgb": [
+        42,
+        123,
+        2024
+      ],
+      "cat": 42
+    }
+  },
+  "v15_reuse_rejected": {
+    "reason": "v15 三库均以 holdout(1+7) 作 ES 验证集, best_iter 由 holdout 标签选出, holdout 预测带乐观偏差, 不可用于 holdout 上的信号检验",
+    "xgb_es_on": "evals=[(dholdout,'holdout')], early_stopping_rounds=100",
+    "lgb_es_on": "valid_sets=[lgb_holdout], early_stopping(100)",
+    "cat_es_on": "eval_set=(df_ho_cat,y_ho), early_stopping_rounds=100",
+    "cat_seed_count": "磁盘仅 cat_seed42; seed123 在 save_model 前被 >20min 保护 break"
+  },
+  "per_model": {
+    "xgb": {
+      "best_iter": 2500,
+      "sec": 458.4,
+      "rmse_ho_core": 393.18,
+      "rmse_ho_full": 620.17
+    },
+    "lgb42": {
+      "best_iter": 2500,
+      "sec": 440.7,
+      "rmse_ho_core": 312.74,
+      "rmse_ho_full": 568.57
+    },
+    "lgb123": {
+      "best_iter": 2499,
+      "sec": 460.4,
+      "rmse_ho_core": 310.97,
+      "rmse_ho_full": 567.29
+    },
+    "lgb2024": {
+      "best_iter": 2500,
+      "sec": 460.7,
+      "rmse_ho_core": 316.53,
+      "rmse_ho_full": 571.25
+    },
+    "cat": {
+      "best_iter": 2498,
+      "sec": 1942.0,
+      "rmse_ho_core": 317.26,
+      "rmse_ho_full": 575.67
+    }
+  },
+  "timing_sec": 3962.8
+}

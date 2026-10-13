@@ -1,0 +1,33 @@
+{
+  "n_dep": 2085047,
+  "n_block_valid": 2085047,
+  "exact_s": 2,
+  "approx_s": 60,
+  "taxi_p50": 912.0,
+  "counts": {
+    "exact_le2s": {
+      "SCHED": 40484,
+      "LOBT": 45134,
+      "EOBT": 48817,
+      "IOBT": 45322,
+      "any": 61577,
+      "all": 30298
+    },
+    "approx_le60s": {
+      "SCHED": 199634,
+      "LOBT": 232294,
+      "EOBT": 261092,
+      "IOBT": 233158,
+      "any": 318808,
+      "all": 155950
+    },
+    "exclusive_exact": {
+      "only_SCHED": 3397,
+      "only_LOBT": 0,
+      "only_EOBT": 12674,
+      "only_IOBT": 46,
+      "none": 2023470,
+      "all4": 30298
+    }
+  }
+}

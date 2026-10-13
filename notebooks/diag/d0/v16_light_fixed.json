@@ -1,0 +1,594 @@
+{
+  "meta": {
+    "n_2025": 2084457,
+    "n_2026": 344841,
+    "ranking_months": [
+      1,
+      7
+    ],
+    "note": "ranking 仅含 2026-01/07, 故 sched_month 等时间特征的 全量 PSI 是采样窗口伪漂移, 已改分层口径"
+  },
+  "fix1_psi_stratified": {
+    "pairs": [
+      "2025-01 vs 2026-01",
+      "2025-07 vs 2026-07"
+    ],
+    "threshold": 0.1,
+    "n_evaluated": 65,
+    "n_red": 2,
+    "red_features": {
+      "dep_queue_n_airport": {
+        "psi_max_abs": 1.6416,
+        "psi_worst_month": "07vs07",
+        "01vs01": 1.3912,
+        "07vs07": 1.6416
+      },
+      "RUNWAY_mvt": {
+        "psi_max_abs": 0.1622,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0906,
+        "unseen_01": 0.0001,
+        "07vs07": 0.1622,
+        "unseen_07": 0.0028
+      }
+    },
+    "table": {
+      "sched_hour": {
+        "psi_max_abs": 0.0004,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0003,
+        "07vs07": 0.0004
+      },
+      "sched_dow": {
+        "psi_max_abs": 0.0156,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0124,
+        "07vs07": 0.0156
+      },
+      "sched_minute": {
+        "psi_max_abs": 0.0016,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0016,
+        "07vs07": 0.0004
+      },
+      "is_weekend": {
+        "psi_max_abs": 0.0,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0,
+        "07vs07": 0.0
+      },
+      "is_morning_peak": {
+        "psi_max_abs": 0.0,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0,
+        "07vs07": 0.0
+      },
+      "is_evening_peak": {
+        "psi_max_abs": 0.0,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0,
+        "07vs07": 0.0
+      },
+      "hour_sin": {
+        "psi_max_abs": 0.0008,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0008,
+        "07vs07": 0.0002
+      },
+      "hour_cos": {
+        "psi_max_abs": 0.0004,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0002,
+        "07vs07": 0.0004
+      },
+      "dow_sin": {
+        "psi_max_abs": 0.0117,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0115,
+        "07vs07": 0.0117
+      },
+      "dow_cos": {
+        "psi_max_abs": 0.0066,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0001,
+        "07vs07": 0.0066
+      },
+      "is_domestic_estimate": {
+        "psi_max_abs": 0.0,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0,
+        "07vs07": 0.0
+      },
+      "iobt_to_sched_sec": {
+        "psi_max_abs": 0.0191,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0191,
+        "07vs07": 0.0052
+      },
+      "eobt_to_sched_sec": {
+        "psi_max_abs": 0.0216,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0216,
+        "07vs07": 0.0028
+      },
+      "iobt_eobt_diff_sec": {
+        "psi_max_abs": 0.0036,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0032,
+        "07vs07": 0.0036
+      },
+      "dep_mvt_cnt_airport_5m": {
+        "psi_max_abs": 0.0545,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0545,
+        "07vs07": 0.0473
+      },
+      "dep_mvt_cnt_airport_10m": {
+        "psi_max_abs": 0.0785,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0785,
+        "07vs07": 0.0695
+      },
+      "dep_mvt_cnt_airport_15m": {
+        "psi_max_abs": 0.0892,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0892,
+        "07vs07": 0.0841
+      },
+      "dep_queue_n_airport": {
+        "psi_max_abs": 1.6416,
+        "psi_worst_month": "07vs07",
+        "01vs01": 1.3912,
+        "07vs07": 1.6416
+      },
+      "dep_mvt_cnt_runway_5m": {
+        "psi_max_abs": 0.0011,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0011,
+        "07vs07": 0.0003
+      },
+      "dep_mvt_cnt_runway_10m": {
+        "psi_max_abs": 0.0014,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0014,
+        "07vs07": 0.0005
+      },
+      "dep_mvt_cnt_runway_15m": {
+        "psi_max_abs": 0.0014,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0014,
+        "07vs07": 0.0004
+      },
+      "dep_queue_n_runway": {
+        "psi_max_abs": 0.0034,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0002,
+        "07vs07": 0.0034
+      },
+      "mvt_n_ahead": {
+        "psi_max_abs": 0.0099,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0099,
+        "07vs07": 0.0009
+      },
+      "mvt_mu_rwy_5": {
+        "psi_max_abs": 0.0039,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0039,
+        "07vs07": 0.0009
+      },
+      "mvt_mu_rwy_15": {
+        "psi_max_abs": 0.0066,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0066,
+        "07vs07": 0.0009
+      },
+      "mvt_mu_rwy_30": {
+        "psi_max_abs": 0.0102,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0102,
+        "07vs07": 0.0019
+      },
+      "mvt_w_actual_5": {
+        "psi_max_abs": 0.0102,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0102,
+        "07vs07": 0.001
+      },
+      "mvt_w_actual_15": {
+        "psi_max_abs": 0.0117,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0117,
+        "07vs07": 0.0008
+      },
+      "mvt_w_actual_30": {
+        "psi_max_abs": 0.0115,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0115,
+        "07vs07": 0.001
+      },
+      "mvt_q_peak": {
+        "psi_max_abs": 0.0061,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0061,
+        "07vs07": 0.0054
+      },
+      "mvt_q_mean": {
+        "psi_max_abs": 0.0048,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0048,
+        "07vs07": 0.0044
+      },
+      "mvt_na_J": {
+        "psi_max_abs": 0.0,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0,
+        "07vs07": 0.0
+      },
+      "mvt_na_H": {
+        "psi_max_abs": 0.0084,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0084,
+        "07vs07": 0.0006
+      },
+      "mvt_na_M": {
+        "psi_max_abs": 0.0068,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0068,
+        "07vs07": 0.0006
+      },
+      "mvt_na_L": {
+        "psi_max_abs": 0.0,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0,
+        "07vs07": 0.0
+      },
+      "mvt_na_heavy_frac": {
+        "psi_max_abs": 0.003,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.003,
+        "07vs07": 0.0008
+      },
+      "mvt_pos_rw": {
+        "psi_max_abs": 0.0099,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0099,
+        "07vs07": 0.0009
+      },
+      "mvt_na_heavy_x_pos": {
+        "psi_max_abs": 0.0098,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0098,
+        "07vs07": 0.0004
+      },
+      "dep_cnt_m_5": {
+        "psi_max_abs": 0.001,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0008,
+        "07vs07": 0.001
+      },
+      "dep_cnt_m_15": {
+        "psi_max_abs": 0.0033,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0012,
+        "07vs07": 0.0033
+      },
+      "dep_cnt_m_30": {
+        "psi_max_abs": 0.0037,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0011,
+        "07vs07": 0.0037
+      },
+      "aobt_cnt_m_5": {
+        "psi_max_abs": 0.0008,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0008,
+        "07vs07": 0.0008
+      },
+      "aobt_cnt_m_15": {
+        "psi_max_abs": 0.002,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0019,
+        "07vs07": 0.002
+      },
+      "aobt_cnt_m_30": {
+        "psi_max_abs": 0.0038,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0022,
+        "07vs07": 0.0038
+      },
+      "eobt_ahead_cnt_5": {
+        "psi_max_abs": 0.0011,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0011,
+        "07vs07": 0.0008
+      },
+      "eobt_ahead_cnt_15": {
+        "psi_max_abs": 0.0017,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0017,
+        "07vs07": 0.0017
+      },
+      "eobt_ahead_cnt_30": {
+        "psi_max_abs": 0.0035,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.002,
+        "07vs07": 0.0035
+      },
+      "dly_aobt_eobt": {
+        "psi_max_abs": 0.058,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0103,
+        "07vs07": 0.058
+      },
+      "dly_aobt_iobt": {
+        "psi_max_abs": 0.0346,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0126,
+        "07vs07": 0.0346
+      },
+      "dly_aobt_sched": {
+        "psi_max_abs": 0.0283,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0283,
+        "07vs07": 0.0283
+      },
+      "dly_lobt_aobt": {
+        "psi_max_abs": 0.0347,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0131,
+        "07vs07": 0.0347
+      },
+      "t_unimp_r7": {
+        "psi_max_abs": 0.0047,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0045,
+        "07vs07": 0.0047
+      },
+      "rwy_month_share": {
+        "psi_max_abs": 0.0771,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0348,
+        "07vs07": 0.0771
+      },
+      "ap_month_hourly_density": {
+        "psi_max_abs": 0.0021,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0021,
+        "07vs07": 0.0015
+      },
+      "ADEP_mvt": {
+        "psi_max_abs": 0.0024,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0024,
+        "unseen_01": 0.0,
+        "07vs07": 0.0015,
+        "unseen_07": 0.0
+      },
+      "ADES_mvt": {
+        "psi_max_abs": 0.0043,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0032,
+        "unseen_01": 0.0054,
+        "07vs07": 0.0043,
+        "unseen_07": 0.0052
+      },
+      "RUNWAY_mvt": {
+        "psi_max_abs": 0.1622,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0906,
+        "unseen_01": 0.0001,
+        "07vs07": 0.1622,
+        "unseen_07": 0.0028
+      },
+      "STAND_mvt": {
+        "psi_max_abs": 0.0417,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0261,
+        "unseen_01": 0.0046,
+        "07vs07": 0.0417,
+        "unseen_07": 0.0103
+      },
+      "airport_hour": {
+        "psi_max_abs": 0.0059,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0059,
+        "unseen_01": 0.0001,
+        "07vs07": 0.0044,
+        "unseen_07": 0.0
+      },
+      "AIRCRAFT_TYPE_mvt": {
+        "psi_max_abs": 0.0516,
+        "psi_worst_month": "07vs07",
+        "01vs01": 0.0262,
+        "unseen_01": 0.0003,
+        "07vs07": 0.0516,
+        "unseen_07": 0.0002
+      },
+      "AIRCRAFT_OPERATOR_flt": {
+        "psi_max_abs": 0.0218,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0218,
+        "unseen_01": 0.0048,
+        "07vs07": 0.016,
+        "unseen_07": 0.0032
+      },
+      "WK_TBL_CAT_flt": {
+        "psi_max_abs": 0.0046,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0046,
+        "unseen_01": 0.0,
+        "07vs07": 0.0018,
+        "unseen_07": 0.0
+      },
+      "MARKET_SEGMENT_flt": {
+        "psi_max_abs": 0.0061,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0061,
+        "unseen_01": 0.0,
+        "07vs07": 0.0059,
+        "unseen_07": 0.0
+      },
+      "FLIGHT_RULE_flt": {
+        "psi_max_abs": 0.0041,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0041,
+        "unseen_01": 0.0,
+        "07vs07": 0.0018,
+        "unseen_07": 0.0
+      },
+      "FLIGHT_TYPE_flt": {
+        "psi_max_abs": 0.0048,
+        "psi_worst_month": "01vs01",
+        "01vs01": 0.0048,
+        "unseen_01": 0.0,
+        "07vs07": 0.0019,
+        "unseen_07": 0.0
+      }
+    },
+    "fake_drift_check": {
+      "ap_month_hourly_density": {
+        "psi_unstratified": 1.2289,
+        "psi_stratified_max": 0.0021
+      },
+      "dep_queue_n_airport": {
+        "psi_unstratified": 1.684,
+        "psi_stratified_max": 1.6416
+      }
+    }
+  },
+  "fix2_trust_level_availability": {
+    "column_availability_by_frame": {
+      "2025-01": {
+        "n": 153706,
+        "BLOCK_notna_pct": 100.0,
+        "AOBT_notna_pct": 99.07,
+        "SCHED_notna_pct": 100.0,
+        "IOBT_notna_pct": 99.07
+      },
+      "2026-rank": {
+        "n": 344841,
+        "BLOCK_notna_pct": 0.0,
+        "AOBT_notna_pct": 98.47,
+        "SCHED_notna_pct": 100.0,
+        "IOBT_notna_pct": 98.47
+      }
+    },
+    "block_missing_gap_pp": 100.0,
+    "verdict": "ranking DEP 的 BLOCK_TIME_UTC_mvt 全缺失, 原 trust_level(依赖 AOBT vs BLOCK) 在推理期不可用",
+    "alt_definition_iobt": {
+      "2025-01": {
+        "0": 1.36,
+        "1": 24.43,
+        "2": 74.21
+      },
+      "2026-rank": {
+        "0": 2.17,
+        "1": 24.88,
+        "2": 72.96
+      }
+    },
+    "alt_psi": {
+      "0": 0.3785,
+      "1": 0.0082,
+      "2": 0.0212
+    }
+  },
+  "fix3_bias_offset": {
+    "n_groups": 70,
+    "offset_add_definition": "median(true) - median(t_unimp_r7), 按 (ADEP, RUNWAY) 分组",
+    "overall": {
+      "mean_s": 123.4,
+      "median_s": 126.1,
+      "p05_s": -238.05,
+      "p95_s": 423.6,
+      "pct_abs_lt_60s": 5.71,
+      "pct_abs_gt_300s": 18.57
+    },
+    "residual_check_2025": {
+      "offset_coverage_pct": 100.0,
+      "rmse_t_unimp_only_s": 401.18,
+      "rmse_plus_offset_add_s": 353.58,
+      "delta_add_s": -47.6,
+      "rmse_minus_offset_s": 490.25,
+      "delta_sub_s": 89.07,
+      "corr_offset_resid": 0.1834
+    },
+    "coverage_2026": {
+      "pct": 100.0,
+      "n_missing_rows": 2
+    },
+    "by_airport": {
+      "EDDF": {
+        "n_grp": 6,
+        "n_dep": 230141,
+        "off_mean": 75.5,
+        "off_med": 110.0,
+        "off_absmean": 127.1
+      },
+      "EDDM": {
+        "n_grp": 4,
+        "n_dep": 167334,
+        "off_mean": 107.4,
+        "off_med": 114.3,
+        "off_absmean": 107.4
+      },
+      "EGLL": {
+        "n_grp": 5,
+        "n_dep": 239542,
+        "off_mean": -88.1,
+        "off_med": 176.7,
+        "off_absmean": 341.9
+      },
+      "EHAM": {
+        "n_grp": 12,
+        "n_dep": 247946,
+        "off_mean": 87.3,
+        "off_med": 97.3,
+        "off_absmean": 138.3
+      },
+      "LEBL": {
+        "n_grp": 5,
+        "n_dep": 179700,
+        "off_mean": 155.4,
+        "off_med": 152.3,
+        "off_absmean": 203.2
+      },
+      "LEMD": {
+        "n_grp": 8,
+        "n_dep": 212242,
+        "off_mean": -1.9,
+        "off_med": 88.2,
+        "off_absmean": 156.8
+      },
+      "LFPG": {
+        "n_grp": 8,
+        "n_dep": 239481,
+        "off_mean": 185.1,
+        "off_med": 168.5,
+        "off_absmean": 185.1
+      },
+      "LIRF": {
+        "n_grp": 7,
+        "n_dep": 160516,
+        "off_mean": 374.3,
+        "off_med": 310.4,
+        "off_absmean": 374.3
+      },
+      "LSZH": {
+        "n_grp": 6,
+        "n_dep": 134592,
+        "off_mean": 7.7,
+        "off_med": 110.8,
+        "off_absmean": 202.3
+      },
+      "LTFM": {
+        "n_grp": 9,
+        "n_dep": 272963,
+        "off_mean": 248.9,
+        "off_med": 127.1,
+        "off_absmean": 248.9
+      }
+    }
+  }
+}

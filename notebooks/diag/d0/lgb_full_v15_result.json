@@ -1,0 +1,142 @@
+{
+  "task": "LGB_full_train_71feat_3seed",
+  "training_months": "2025-01..12 (\u6e05\u6d17\u540e\u5168\u91cf)",
+  "holdout_months": "2025-01+07 (\u6838\u5fc3\u53e3\u5f84\u5254>10800)",
+  "ranking_months": "2026-01+07",
+  "features": 71,
+  "seeds": [
+    42,
+    123,
+    2024
+  ],
+  "high_card_int_encoding": true,
+  "low_card_cat_features_for_lgb": [
+    "MARKET_SEGMENT_flt",
+    "FLIGHT_RULE_flt",
+    "FLIGHT_TYPE_flt",
+    "WK_TBL_CAT_flt"
+  ],
+  "lgb_params": {
+    "objective": "regression",
+    "metric": "rmse",
+    "learning_rate": 0.0147555939449363,
+    "num_leaves": 127,
+    "max_depth": 11,
+    "min_data_in_leaf": 5,
+    "feature_fraction": 0.6720708449966734,
+    "bagging_fraction": 0.9813515130184908,
+    "bagging_freq": 5,
+    "reg_alpha": 2.4624169162161342,
+    "reg_lambda": 1.9936339729896335,
+    "verbose": -1,
+    "num_threads": -1
+  },
+  "seed_results": {
+    "seed42": {
+      "best_iter": 3000,
+      "time_sec": 543.2,
+      "rmse_core": 241.62896733283443,
+      "rmse_all": 241.62896733283443,
+      "bias_core": -0.35230949613912516,
+      "model_path": "/Users/openclaw/Documents/PRC_data_challenge/models/lgb_full_v15/lgb_seed42.txt"
+    },
+    "seed123": {
+      "best_iter": 3000,
+      "time_sec": 530.3,
+      "rmse_core": 241.62886529324624,
+      "rmse_all": 241.62886529324624,
+      "bias_core": -0.3795909169559853,
+      "model_path": "/Users/openclaw/Documents/PRC_data_challenge/models/lgb_full_v15/lgb_seed123.txt"
+    },
+    "seed2024": {
+      "best_iter": 3000,
+      "time_sec": 532.0,
+      "rmse_core": 241.43045532358028,
+      "rmse_all": 241.43045532358028,
+      "bias_core": -0.28266398262646597,
+      "model_path": "/Users/openclaw/Documents/PRC_data_challenge/models/lgb_full_v15/lgb_seed2024.txt"
+    }
+  },
+  "ensemble_holdout": {
+    "rmse_core": 241.35564397773467,
+    "bias_core": -0.3381881319071918,
+    "rmse_all": 241.35564397773467,
+    "n_core": 344276,
+    "n_all": 344276
+  },
+  "per_airport_core": {
+    "102": {
+      "n": 27091,
+      "rmse_core": 208.34759954740022,
+      "bias": -4.090182385469436
+    },
+    "1027": {
+      "n": 26474,
+      "rmse_core": 368.3907351869019,
+      "bias": -5.047971182783653
+    },
+    "1164": {
+      "n": 22287,
+      "rmse_core": 217.10342847732164,
+      "bias": -2.1876740672474106
+    },
+    "1236": {
+      "n": 46539,
+      "rmse_core": 235.69905651746174,
+      "bias": -2.6442056902250113
+    },
+    "247": {
+      "n": 40209,
+      "rmse_core": 272.06472919263507,
+      "bias": 2.3064767668303157
+    },
+    "294": {
+      "n": 40947,
+      "rmse_core": 199.79056796891572,
+      "bias": 1.1017596016023716
+    },
+    "774": {
+      "n": 28985,
+      "rmse_core": 220.3004351765559,
+      "bias": -2.3634603677409243
+    },
+    "797": {
+      "n": 35328,
+      "rmse_core": 184.09850765508264,
+      "bias": 1.6237754434969511
+    },
+    "900": {
+      "n": 39586,
+      "rmse_core": 266.4857247827574,
+      "bias": 1.7547024214039337
+    },
+    "97": {
+      "n": 36830,
+      "rmse_core": 210.00646319201863,
+      "bias": 2.81444687658249
+    }
+  },
+  "per_month_core": {
+    "month_1": {
+      "n": 153648,
+      "rmse_core": 238.22530449859832,
+      "bias": 0.33327026492485334
+    },
+    "month_7": {
+      "n": 190628,
+      "rmse_core": 243.84948176214468,
+      "bias": -0.879390052697685
+    }
+  },
+  "ranking_submission": {
+    "path": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_lgb_full_v15.parquet",
+    "n_rows": 344841,
+    "n_nan": 0,
+    "min": 30,
+    "p50": 967.0,
+    "max": 8926,
+    "mvt_id_set_match": true,
+    "mvt_id_order_match": "True"
+  },
+  "total_time_sec": 2073.9
+}

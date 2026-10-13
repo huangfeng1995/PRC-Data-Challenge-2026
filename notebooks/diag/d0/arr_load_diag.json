@@ -1,0 +1,466 @@
+{
+  "task": "arr_load_diagnostic",
+  "design": {
+    "load_def": "同机场, DEP 推出时刻(AOBT,回退EOBT)前后±w分钟内【计划到港】ARR 航班数",
+    "sched_source": "ARR 行 SCHED_TIME_UTC_mvt (flight 源计划时刻)",
+    "ranking_availability": "ranking 上 ARR 行 SCHED_TIME_UTC_mvt 非空率 100%, ADES_mvt 100%",
+    "not_used": "TAXITIME / ARR 的 MVT(实际落地) / BLOCK —— 全部未读",
+    "windows": [
+      30,
+      60
+    ]
+  },
+  "selfcheck_arr_sched_vs_mvt_sec": {
+    "p1": -3061.0,
+    "p50": -537.0,
+    "p99": 8039.0,
+    "negative_frac": 0.67941
+  },
+  "n_valid_dep": 2084659,
+  "n_holdout": 344336,
+  "bins_all": [
+    {
+      "bin": "<0-33",
+      "n": 248799,
+      "median_true": 908.0,
+      "mean_true": 983.7,
+      "share_gt1800": 0.0379,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "33-47",
+      "n": 254185,
+      "median_true": 842.0,
+      "mean_true": 905.2,
+      "share_gt1800": 0.0241,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "47-56",
+      "n": 258111,
+      "median_true": 869.0,
+      "mean_true": 936.6,
+      "share_gt1800": 0.0276,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "56-64",
+      "n": 252261,
+      "median_true": 895.0,
+      "mean_true": 952.5,
+      "share_gt1800": 0.0257,
+      "share_gt10800": 2e-05
+    },
+    {
+      "bin": "64-72",
+      "n": 260855,
+      "median_true": 909.0,
+      "mean_true": 977.9,
+      "share_gt1800": 0.0294,
+      "share_gt10800": 1e-05
+    },
+    {
+      "bin": "72-79",
+      "n": 244568,
+      "median_true": 1024.0,
+      "mean_true": 1088.1,
+      "share_gt1800": 0.0521,
+      "share_gt10800": 1e-05
+    },
+    {
+      "bin": "79-87",
+      "n": 272438,
+      "median_true": 1076.0,
+      "mean_true": 1122.7,
+      "share_gt1800": 0.0596,
+      "share_gt10800": 1e-05
+    },
+    {
+      "bin": "87->136",
+      "n": 271222,
+      "median_true": 887.0,
+      "mean_true": 927.8,
+      "share_gt1800": 0.0234,
+      "share_gt10800": 1e-05
+    }
+  ],
+  "bins_holdout": [
+    {
+      "bin": "<0-33",
+      "n": 46376,
+      "median_true": 910.0,
+      "mean_true": 996.2,
+      "share_gt1800": 0.0444,
+      "share_gt10800": 2e-05
+    },
+    {
+      "bin": "33-47",
+      "n": 47983,
+      "median_true": 848.0,
+      "mean_true": 925.9,
+      "share_gt1800": 0.0323,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "47-56",
+      "n": 42205,
+      "median_true": 872.0,
+      "mean_true": 953.3,
+      "share_gt1800": 0.036,
+      "share_gt10800": 2e-05
+    },
+    {
+      "bin": "56-64",
+      "n": 41189,
+      "median_true": 900.0,
+      "mean_true": 974.1,
+      "share_gt1800": 0.0358,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "64-72",
+      "n": 41632,
+      "median_true": 931.0,
+      "mean_true": 1009.1,
+      "share_gt1800": 0.0439,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "72-79",
+      "n": 38411,
+      "median_true": 1055.0,
+      "mean_true": 1125.1,
+      "share_gt1800": 0.0686,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "79-87",
+      "n": 39168,
+      "median_true": 1073.0,
+      "mean_true": 1135.5,
+      "share_gt1800": 0.0701,
+      "share_gt10800": 0.0
+    },
+    {
+      "bin": "87->136",
+      "n": 42051,
+      "median_true": 897.0,
+      "mean_true": 953.3,
+      "share_gt1800": 0.0317,
+      "share_gt10800": 5e-05
+    }
+  ],
+  "monotonic": {
+    "all_rho_median": 0.452,
+    "all_rho_gt1800share": 0.071,
+    "holdout_rho_median": 0.452,
+    "holdout_rho_gt1800share": 0.071
+  },
+  "per_true_bucket": {
+    "(0,1800]": {
+      "n": 2010492,
+      "spearman_load_vs_true": 0.0868,
+      "spearman_load_vs_density": 0.5046,
+      "spearman_load_vs_above_median": 0.075,
+      "bins": [
+        {
+          "bin": "<0-33",
+          "n": 239366,
+          "median_true": 900.0,
+          "mean_true": 930.5,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "33-47",
+          "n": 248064,
+          "median_true": 838.0,
+          "mean_true": 869.8,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "47-56",
+          "n": 250975,
+          "median_true": 851.0,
+          "mean_true": 896.0,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "56-64",
+          "n": 245788,
+          "median_true": 889.0,
+          "mean_true": 915.1,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "64-72",
+          "n": 253182,
+          "median_true": 903.0,
+          "mean_true": 938.3,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "72-79",
+          "n": 231833,
+          "median_true": 1011.0,
+          "mean_true": 1027.0,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "79-87",
+          "n": 256201,
+          "median_true": 1031.0,
+          "mean_true": 1055.1,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "87->136",
+          "n": 264880,
+          "median_true": 871.0,
+          "mean_true": 896.1,
+          "share_gt1800": 0.0,
+          "share_gt10800": 0.0
+        }
+      ],
+      "bin_monotonic_rho_median": 0.452,
+      "bin_monotonic_rho_gt1800share": NaN
+    },
+    "(1800,10800]": {
+      "n": 73965,
+      "spearman_load_vs_true": -0.0966,
+      "spearman_load_vs_density": 0.5539,
+      "spearman_load_vs_above_median": -0.0826,
+      "bins": [
+        {
+          "bin": "<0-31",
+          "n": 8759,
+          "median_true": 2100.0,
+          "mean_true": 2322.0,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "31-50",
+          "n": 9157,
+          "median_true": 2104.0,
+          "mean_true": 2349.0,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "50-61",
+          "n": 8609,
+          "median_true": 2110.0,
+          "mean_true": 2363.9,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "61-71",
+          "n": 9204,
+          "median_true": 2088.0,
+          "mean_true": 2313.5,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "71-77",
+          "n": 9071,
+          "median_true": 2024.0,
+          "mean_true": 2206.9,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "77-80",
+          "n": 7318,
+          "median_true": 1986.0,
+          "mean_true": 2175.3,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "80-84",
+          "n": 9637,
+          "median_true": 1990.0,
+          "mean_true": 2197.4,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        },
+        {
+          "bin": "84->133",
+          "n": 10375,
+          "median_true": 2043.0,
+          "mean_true": 2225.4,
+          "share_gt1800": 1.0,
+          "share_gt10800": 0.0
+        }
+      ],
+      "bin_monotonic_rho_median": -0.738,
+      "bin_monotonic_rho_gt1800share": NaN
+    },
+    ">10800": {
+      "n": 202,
+      "spearman_load_vs_true": null,
+      "spearman_load_vs_density": null,
+      "spearman_load_vs_above_median": null,
+      "bins": [],
+      "bin_monotonic_rho_median": NaN,
+      "bin_monotonic_rho_gt1800share": NaN
+    }
+  },
+  "auc": {
+    "全部": {
+      "到港负荷±30m": {
+        "auc_gt1800": 0.548,
+        "auc_gt3600": 0.4851,
+        "auc_gt10800": 0.5401
+      },
+      "到港负荷±60m": {
+        "auc_gt1800": 0.5334,
+        "auc_gt3600": 0.4641,
+        "auc_gt10800": 0.544
+      },
+      "到港负荷过去30m": {
+        "auc_gt1800": 0.5384,
+        "auc_gt3600": 0.4904,
+        "auc_gt10800": 0.577
+      },
+      "到港负荷过去60m": {
+        "auc_gt1800": 0.5196,
+        "auc_gt3600": 0.4653,
+        "auc_gt10800": 0.579
+      },
+      "到港负荷±60m(ref=MVT)": {
+        "auc_gt1800": 0.5338,
+        "auc_gt3600": 0.4293,
+        "auc_gt10800": 0.2441
+      },
+      "现有:离港密度": {
+        "auc_gt1800": 0.5753,
+        "auc_gt3600": 0.3863,
+        "auc_gt10800": 0.1575
+      }
+    },
+    "holdout": {
+      "到港负荷±30m": {
+        "auc_gt1800": 0.5483,
+        "auc_gt3600": 0.5504,
+        "auc_gt10800": 0.4848
+      },
+      "到港负荷±60m": {
+        "auc_gt1800": 0.5348,
+        "auc_gt3600": 0.5319,
+        "auc_gt10800": 0.5539
+      },
+      "到港负荷过去30m": {
+        "auc_gt1800": 0.5391,
+        "auc_gt3600": 0.5567,
+        "auc_gt10800": 0.5905
+      },
+      "到港负荷过去60m": {
+        "auc_gt1800": 0.5218,
+        "auc_gt3600": 0.5315,
+        "auc_gt10800": 0.5733
+      },
+      "到港负荷±60m(ref=MVT)": {
+        "auc_gt1800": 0.5365,
+        "auc_gt3600": 0.4943,
+        "auc_gt10800": 0.2734
+      },
+      "现有:离港密度": {
+        "auc_gt1800": 0.5532,
+        "auc_gt3600": 0.422,
+        "auc_gt10800": 0.1804
+      }
+    }
+  },
+  "conditional_auc_within_density_quintile": {
+    "Q1": {
+      "n": 59730,
+      "auc_arr_pm60": 0.6096,
+      "auc_density": 0.7092
+    },
+    "Q2": {
+      "n": 95052,
+      "auc_arr_pm60": 0.5491,
+      "auc_density": 0.7312
+    },
+    "Q3": {
+      "n": 37278,
+      "auc_arr_pm60": 0.516,
+      "auc_density": 0.4159
+    },
+    "Q4": {
+      "n": 65561,
+      "auc_arr_pm60": 0.4005,
+      "auc_density": 0.3442
+    },
+    "Q5": {
+      "n": 86715,
+      "auc_arr_pm60": 0.4969,
+      "auc_density": 0.4154
+    }
+  },
+  "within_stratum_spearman": [
+    {
+      "stratum": "Q1",
+      "n": 59730,
+      "rho": 0.0614,
+      "p": 1.66e-50
+    },
+    {
+      "stratum": "Q2",
+      "n": 95052,
+      "rho": 0.0236,
+      "p": 4.48e-13
+    },
+    {
+      "stratum": "Q3",
+      "n": 37278,
+      "rho": 0.0361,
+      "p": 4.59e-12
+    },
+    {
+      "stratum": "Q4",
+      "n": 65561,
+      "rho": -0.004,
+      "p": 0.307
+    },
+    {
+      "stratum": "Q5",
+      "n": 86715,
+      "rho": 0.021,
+      "p": 8.41e-10
+    }
+  ],
+  "within_stratum_weighted_rho": 0.0256,
+  "partial_correlation": {
+    "raw_spearman_holdout": 0.0893,
+    "raw_p": 0.0,
+    "partial_rho_holdout": -0.0283,
+    "partial_p": 3.24e-61,
+    "controls": [
+      "ap_month_hourly_density",
+      "hour_of_day",
+      "log(airport_arr_size)"
+    ]
+  },
+  "verdict": {
+    "mid_bucket_monotonic_rho": -0.738,
+    "extreme_bucket_monotonic_rho": NaN,
+    "auc3600_load": 0.5319,
+    "auc3600_density": 0.422,
+    "delta_auc_vs_density": 0.1099,
+    "within_stratum_weighted_rho": 0.0256,
+    "partial_rho": -0.0283,
+    "worth_building_feature": false
+  },
+  "timing_sec": 24.1
+}

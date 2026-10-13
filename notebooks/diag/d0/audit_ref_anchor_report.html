@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FEATS71 参考时刻锚点审计</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2b303b;
+    --fg:#e6e9ef; --muted:#9aa3b2; --dim:#6b7480;
+    --acc:#5aa9e6; --warn:#e6a35a; --bad:#e2685f; --good:#5fc98f;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+    line-height:1.65;font-size:15px}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:26px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:28px}
+  h2{font-size:19px;margin:44px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h3{font-size:15.5px;margin:26px 0 10px}
+  p{margin:9px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+  .verdict{background:linear-gradient(135deg,#1f1a1a,#1d1a24);border-left:4px solid var(--bad)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+  .kpi .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .kpi .v{font-size:23px;font-family:var(--mono);margin-top:5px;font-weight:600}
+  .kpi .d{font-size:12px;color:var(--dim);margin-top:3px}
+  .up{color:var(--bad)}.dn{color:var(--good)}.nt{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+  th,td{padding:6px 9px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px}
+  tbody tr:hover{background:#1c212a}
+  td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+  td.src{font-family:var(--mono);font-size:11.5px;color:#8fa3b8}
+  code{font-family:var(--mono);background:#22262f;padding:1.5px 6px;border-radius:4px;font-size:12.5px;color:#c8d3e0}
+  .note{background:#1a1d24;border-left:3px solid var(--dim);padding:11px 15px;margin:14px 0;font-size:13.5px;color:var(--muted);border-radius:0 6px 6px 0}
+  .note.warn{border-left-color:var(--warn)}.note.bad{border-left-color:var(--bad)}.note.good{border-left-color:var(--good)}
+  ul{margin:9px 0;padding-left:22px}li{margin:6px 0}
+  ol{margin:9px 0;padding-left:22px}li{margin:7px 0}
+  .lk{background:#2b1a1a}
+  .lg{background:#1a241c}
+  .tag{display:inline-block;padding:1.5px 7px;border-radius:4px;font-size:11.5px;font-weight:600}
+  .tag-b{background:#4a2020;color:#ff9b94}
+  .tag-g{background:#1f3d2a;color:#7ee0a8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>FEATS71 参考时刻锚点审计</h1>
+<div class="sub">
+  只读代码审计 · 未训练、未改代码、未发版 · 2026-09-30<br>
+  两路独立证据：源码静态审计 + 反事实 MVT 数值实证
+</div>
+
+<div class="card verdict">
+  <h3 style="margin-top:0">结论：71 个特征里 25 个锚定了当前航班自己的 MVT（泄漏），剔除后剩 46 个</h3>
+  <p style="font-size:15.5px;margin-bottom:12px">
+    泄漏特征全部来自两个函数：<code>compute_mvt_anchor_features</code>（16 个）与
+    <code>compute_extra_features</code> 的 9 个计数（3+3+3）。
+    <strong>你列的重点三项全部泄漏</strong>——<code>mvt_pos_rw</code> 的 query 事件、
+    <code>dep_cnt_m_*</code> 的查询点、<code>dep_mvt_cnt_*</code> 也是（虽然名字不像）。
+  </p>
+  <p style="margin-bottom:0">
+    唯一需要纠正的预期：<strong><code>dep_mvt_cnt_airport_*</code> / <code>dep_mvt_cnt_runway_*</code> 其实是合法的</strong>，
+    它们锚 <code>AOBT</code>（<code>features_queue.py::add_ref_time</code>），不是自己的 MVT。
+    真正锚 MVT 的是 <code>dep_cnt_m_*</code>——两者名字只差词序，极易混淆。
+  </p>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="k">FEATS71 总数</div><div class="v nt">71</div><div class="d">审计覆盖 39 个 mvt/计数/漂移</div></div>
+  <div class="kpi"><div class="k">泄漏（锚自身 MVT）</div><div class="v up">25</div><div class="d">mvt_anchor 16 + extra 计数 9</div></div>
+  <div class="kpi"><div class="k">剔除后</div><div class="v dn">46</div><div class="d">71 − 25</div></div>
+  <div class="kpi"><div class="k">实证变化率区间</div><div class="v up">8.9%–99.9%</div><div class="d">泄漏特征响应反事实</div></div>
+  <div class="kpi"><div class="k">合法特征变化率</div><div class="v dn">0.00%</div><div class="d">逐行完全不变</div></div>
+  <div class="kpi"><div class="k">两路证据一致</div><div class="v dn">✓</div><div class="d">静态 = 实证</div></div>
+</div>
+
+<h2>方法</h2>
+
+<div class="note good">
+  <strong>两路证据相互独立，结论完全一致。</strong>
+</div>
+
+<ol>
+  <li><strong>静态审计</strong>：逐特征读源码，记录它构造时用的「参考时刻 / 查询点」是哪一列。</li>
+  <li><strong>反事实实证</strong>（更硬，不依赖对源码的理解）：把 <code>MVT_TIME_UTC_mvt</code> 每行随机平移 ±6 小时后重算全部特征。
+      <strong>合法特征必须逐行完全不变</strong>；只要变了就说明它读了未来信息。</li>
+</ol>
+
+<div class="formula">
+实证: dep['MVT_TIME_UTC_mvt'] += rng.randint(-6h, +6h)   # 每行独立随机, 彻底打乱时间轴<br>
+合法 → 变化行数 = 0        泄漏 → 变化行数占比 8.9% ~ 99.9%<br>
+样本: 2025-07 DEP 190,713 行
+</div>
+
+<h2>审计表</h2>
+
+<h3>A · compute_mvt_anchor_features — 全部 16 个泄漏</h3>
+<p class="nt" style="font-size:13px">核心机制在 <code>_r7_lib.py:363-372</code>：事件数组由三段拼接
+<code>[enter=AOBT+t_unimp] + [leave=MVT] + [query=MVT]</code>。第三段 query 用的是
+<code>mvt_g</code>，即<strong>当前航班自己的起飞时刻</strong>，然后在 <code>:417-435</code> 按 query 时刻回读队列长度。</p>
+
+<table>
+  <thead><tr><th>特征名</th><th>源码位置</th><th>参考时刻用的列</th><th>变化率</th><th>判定</th></tr></thead>
+  <tbody>
+    <tr class="lg"><td><code>mvt_n_ahead</code></td><td class="src">_r7_lib.py:291 compute_mvt_anchor_features</td><td>MVT_TIME_UTC_mvt（自身，query 事件）</td><td class="num">95.91%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>mvt_pos_rw</code></td><td class="src">_r7_lib.py:445-447（pos_rw = q_n + 1）</td><td>MVT_TIME_UTC_mvt（自身，query）</td><td class="num">95.91%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_na_J</code></td><td class="src">_r7_lib.py:438</td><td>MVT_TIME_UTC_mvt（自身，query）</td><td class="num">16.13%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_na_H</code></td><td class="src">_r7_lib.py:439</td><td>MVT_TIME_UTC_mvt（自身，query）</td><td class="num">80.93%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_na_M</code></td><td class="src">_r7_lib.py:440</td><td>MVT_TIME_UTC_mvt（自身，query）</td><td class="num">94.66%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_na_L</code></td><td class="src">_r7_lib.py:441</td><td>MVT_TIME_UTC_mvt（自身，query）</td><td class="num">8.87%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_na_heavy_frac</code></td><td class="src">_r7_lib.py:442-443</td><td>MVT_TIME_UTC_mvt（自身，query）</td><td class="num">82.14%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_na_heavy_x_pos</code></td><td class="src">_r7_lib.py:448-449</td><td>MVT_TIME_UTC_mvt（自身，query）</td><td class="num">82.42%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_mu_rwy_5</code></td><td class="src">_r7_lib.py:452-460（mvt_g − w_ns 窗口）</td><td>MVT_TIME_UTC_mvt（自身为中心）</td><td class="num">77.76%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_mu_rwy_15</code></td><td class="src">_r7_lib.py:452-460</td><td>MVT_TIME_UTC_mvt（自身为中心）</td><td class="num">90.03%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_mu_rwy_30</code></td><td class="src">_r7_lib.py:452-460</td><td>MVT_TIME_UTC_mvt（自身为中心）</td><td class="num">94.13%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_w_actual_5</code></td><td class="src">_r7_lib.py:463-467（= n_ahead / mu）</td><td>间接经 n_ahead 与 mu_rwy → MVT</td><td class="num">96.31%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_w_actual_15</code></td><td class="src">_r7_lib.py:463-467</td><td>间接经 n_ahead 与 mu_rwy → MVT</td><td class="num">96.47%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_w_actual_30</code></td><td class="src">_r7_lib.py:463-467</td><td>间接经 n_ahead 与 mu_rwy → MVT</td><td class="num">96.50%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_q_peak</code></td><td class="src">_r7_lib.py:473-562（窗口 [AOBT_i, MVT_i]）</td><td>窗口终点 = MVT_TIME_UTC_mvt（自身）</td><td class="num">98.48%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lg"><td><code>mvt_q_mean</code></td><td class="src">_r7_lib.py:473-562（窗口 [AOBT_i, MVT_i]）</td><td>窗口终点 = MVT_TIME_UTC_mvt（自身）</td><td class="num">99.86%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+  </tbody>
+</table>
+
+<h3>B · compute_extra_features 的 9 个计数 — 全部泄漏</h3>
+<p class="nt" style="font-size:13px">关键在 <code>_r7_lib.py:148-165</code>：<code>mvt_ap = mvt_i[mask]</code> 作为
+<strong>查询点</strong>传给 <code>_window_count_1d</code>。注意 <code>aobt_cnt_m_*</code> 和
+<code>eobt_ahead_cnt_*</code> 虽然计的是 AOBT / EOBT 事件，<strong>查询点仍是自己的 MVT</strong>。</p>
+
+<table>
+  <thead><tr><th>特征名</th><th>源码位置</th><th>参考时刻用的列</th><th>变化率</th><th>判定</th></tr></thead>
+  <tbody>
+    <tr class="lk"><td><code>dep_cnt_m_5</code></td><td class="src">_r7_lib.py:150-153（查询点 mvt_ap）</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">81.92%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>dep_cnt_m_15</code></td><td class="src">_r7_lib.py:150-153</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">91.71%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>dep_cnt_m_30</code></td><td class="src">_r7_lib.py:150-153</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">95.12%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>aobt_cnt_m_5</code></td><td class="src">_r7_lib.py:154-159（查询点 mvt_ap，事件 AOBT）</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">83.69%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>aobt_cnt_m_15</code></td><td class="src">_r7_lib.py:154-159</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">92.09%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>aobt_cnt_m_30</code></td><td class="src">_r7_lib.py:154-159</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">94.80%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>eobt_ahead_cnt_5</code></td><td class="src">_r7_lib.py:160-165（查询点 mvt_ap，事件 EOBT）</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">83.76%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>eobt_ahead_cnt_15</code></td><td class="src">_r7_lib.py:160-165</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">91.91%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+    <tr class="lk"><td><code>eobt_ahead_cnt_30</code></td><td class="src">_r7_lib.py:160-165</td><td>MVT_TIME_UTC_mvt（自身，查询点）</td><td class="num">94.47%</td><td><span class="tag tag-b">泄漏</span></td></tr>
+  </tbody>
+</table>
+
+<h3>C · dep_mvt_cnt_* 与漂移特征 — 合法</h3>
+<table>
+  <thead><tr><th>特征名</th><th>源码位置</th><th>参考时刻用的列</th><th>判定</th></tr></thead>
+  <tbody>
+    <tr class="lg"><td><code>dep_mvt_cnt_airport_5m</code></td><td class="src">features_queue.py:38-47 add_ref_time + :173</td><td>AOBT_3_flt（回退 EOBT_1_flt）</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dep_mvt_cnt_airport_10m</code></td><td class="src">features_queue.py:38-47 + :173</td><td>AOBT_3_flt（回退 EOBT_1_flt）</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dep_mvt_cnt_airport_15m</code></td><td class="src">features_queue.py:38-47 + :173</td><td>AOBT_3_flt（回退 EOBT_1_flt）</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dep_mvt_cnt_runway_5m</code></td><td class="src">features_queue.py:38-47 + :195-201</td><td>AOBT_3_flt（回退 EOBT_1_flt）</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dep_mvt_cnt_runway_10m</code></td><td class="src">features_queue.py:38-47 + :195-201</td><td>AOBT_3_flt（回退 EOBT_1_flt）</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dep_mvt_cnt_runway_15m</code></td><td class="src">features_queue.py:38-47 + :195-201</td><td>AOBT_3_flt（回退 EOBT_1_flt）</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>rwy_month_share</code></td><td class="src">_r8_drift_lib.py:42-56</td><td>无自身时刻窗口，仅 (ADEP,RUNWAY,MONTH) 频率</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>ap_month_hourly_density</code></td><td class="src">_r8_drift_lib.py:58-68</td><td>无自身时刻窗口，仅 (ADEP,MONTH,HOUR) 频率</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dly_aobt_eobt</code></td><td class="src">_r7_lib.py:125（AOBT − EOBT）</td><td>两列之差，不含 MVT</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dly_aobt_iobt</code></td><td class="src">_r7_lib.py:126（AOBT − IOBT）</td><td>两列之差，不含 MVT</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dly_aobt_sched</code></td><td class="src">_r7_lib.py:127（AOBT − SCHED）</td><td>两列之差，不含 MVT</td><td><span class="tag tag-g">合法</span></td></tr>
+    <tr class="lg"><td><code>dly_lobt_aobt</code></td><td class="src">_r7_lib.py:128（LOBT − AOBT）</td><td>两列之差，不含 MVT</td><td><span class="tag tag-g">合法</span></td></tr>
+  </tbody>
+</table>
+<p class="nt" style="font-size:13px">这 4 个 <code>dly_*</code> 的实证变化率均为 <strong>0.00%</strong>，
+是「合法」判定的干净对照。</p>
+
+<h2>你重点关注的三项</h2>
+
+<div class="card">
+  <h3 style="margin-top:0">1 · mvt_pos_rw（跑道位置）—— 泄漏</h3>
+  <p><code>_r7_lib.py:445-447</code>：<code>pos_rw = q_n + 1</code>，而 <code>q_n</code> 来自
+  <strong>query 事件在自己 MVT 时刻</strong>读到的队列长度。所以它等于「我起飞瞬间排在我前面的飞机数 + 1」。</p>
+  <p>这在<strong>物理上就是答案的直接函数</strong>——起飞时刻的队列位置几乎决定了滑行被拖延多久。
+  实证变化率 95.91%，与 <code>mvt_n_ahead</code> 完全相同（两者由同一个 <code>q_n</code> 派生，符合预期）。</p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">2 · dep_cnt_m_* 与 dep_mvt_cnt_* —— 一泄漏一合法</h3>
+  <table style="margin-bottom:0">
+    <thead><tr><th>特征族</th><th>计数的事件</th><th>查询点（中心）</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr class="lk"><td><code>dep_cnt_m_*</code></td><td>其他航班 MVT</td><td><strong>自己的 MVT</strong>（_r7_lib.py:152）</td><td><span class="tag tag-b">泄漏</span></td></tr>
+      <tr class="lg"><td><code>dep_mvt_cnt_*</code></td><td>其他航班 MVT</td><td><strong>自己的 AOBT</strong>（features_queue.py:47）</td><td><span class="tag tag-g">合法</span></td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:12px;margin-bottom:0">两者计的是<strong>同一类事件</strong>（其他航班的起飞数），
+  唯一差别是窗口中心：前者以自己起飞时刻为中心（未来），后者以自己推出时刻为中心（已知）。
+  名字只差词序，是本次审计最容易踩的坑。</p>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">3 · dep_cnt_m_5/15/30 —— 泄漏</h3>
+  <p style="margin-bottom:0">基于 <strong>自己的 MVT</strong>（<code>_r7_lib.py:148, 152</code>：
+  <code>mvt_ap = mvt_i[mask]</code> → <code>_window_count_1d(mvt_ap, mvt_sorted, w*60, "past")</code>）。
+  实证变化率 81.92% / 91.71% / 95.12%。</p>
+</div>
+
+<h2>总结</h2>
+
+<div class="card verdict">
+  <p style="margin:0 0 10px"><strong>71 个特征中，25 个锚定了当前航班自己的 MVT_TIME_UTC_mvt（泄漏）。剔除后 71 → 46。</strong></p>
+  <p style="margin:0 0 10px">泄漏特征名（25 个）：</p>
+  <p style="font-family:var(--mono);font-size:12.5px;margin:0;line-height:1.9">
+  mvt_n_ahead, mvt_pos_rw, mvt_na_J, mvt_na_H, mvt_na_M, mvt_na_L,<br>
+  mvt_na_heavy_frac, mvt_na_heavy_x_pos, mvt_mu_rwy_5, mvt_mu_rwy_15, mvt_mu_rwy_30,<br>
+  mvt_w_actual_5, mvt_w_actual_15, mvt_w_actual_30, mvt_q_peak, mvt_q_mean,<br>
+  dep_cnt_m_5, dep_cnt_m_15, dep_cnt_m_30,<br>
+  aobt_cnt_m_5, aobt_cnt_m_15, aobt_cnt_m_30,<br>
+  eobt_ahead_cnt_5, eobt_ahead_cnt_15, eobt_ahead_cnt_30
+  </p>
+</div>
+
+<h3>影响范围</h3>
+<p>这 25 个占 71 的 <strong>35.2%</strong>，且包含队列位置、跑道流量、等待时长等<strong>信号最强</strong>的一批特征。
+这解释了此前一个一直未被解释的现象：</p>
+<ul>
+  <li><strong>方差压缩</strong>（σpred/σtrue = 0.749）与 <strong>长尾识别不出</strong>——
+      模型可能一直在用「起飞时刻的队列状态」这类未来信息拟合训练集，这些信息在真实预测时不可得。</li>
+  <li><strong>保序校准天花板 ≈ 0</strong>——若 35% 的特征带泄漏，holdout 上测出的「已到顶」结论需要重新审视：
+      泄漏特征在 holdout 上同样可用（holdout 也来自同一份事后全量数据），所以线上表现会显著低于 holdout。</li>
+  <li><strong>此前所有 holdout 数字（core 308.96 等）都含这层乐观偏差</strong>，不能作为线上预期。</li>
+</ul>
+
+<div class="note bad">
+  <strong>需要你确认的关键口径问题。</strong>本审计判定「泄漏」的依据是
+  <strong>MVT_TIME_UTC_mvt 在预测时点未知</strong>。但这取决于比赛的实际设定：
+  <ul style="margin:8px 0 0">
+    <li>如果官方明确<strong>允许使用 MVT_TIME_UTC_mvt</strong>（即评测时它已可见），那这 25 个不算泄漏，结论作废。</li>
+    <li>如果预测时点是<strong>起飞前</strong>（taxi-out 预测的常规设定），则 MVT 确实不可知，这 25 个必须剔除。</li>
+  </ul>
+  <div style="margin-top:10px">
+    值得注意的是：组织方<strong>专门把 ranking DEP 的 <code>BLOCK_TIME_UTC_mvt</code> 抽空（0.00%）</strong>，
+    却保留了 <code>MVT_TIME_UTC_mvt</code>（100%）。这个不对称强烈暗示<strong> MVT 是刻意留给选手的合法输入</strong>——
+    否则最直接的目标泄漏（TAXITIME = MVT − BLOCK）只需要抽 MVT 就能防住。
+    <strong>按这个证据，我的结论倾向于：这 25 个大概率不构成线上泄漏，但这一点建议向官方确认后再定。</strong>
+  </div>
+</div>
+
+<h3>建议动作</h3>
+<ol>
+  <li><strong>先确认口径</strong>：向官方数据说明或比赛 FAQ 核实预测时点与可用字段清单。这决定本次审计结论是否成立，也决定 P0 九模型要不要改特征表。</li>
+  <li><strong>并行准备 46 特征版</strong>：无论结论如何，建议都建一版剔除这 25 个的对照。它能直接回答「泄漏特征到底贡献了多少性能」。</li>
+  <li><strong>若确认 MVT 不可用</strong>：<code>compute_mvt_anchor_features</code> 与 <code>compute_extra_features</code> 需整体重写为 AOBT 锚点（可直接复用 <code>features_queue.py::add_ref_time</code> 的口径），不能只改列名。</li>
+</ol>
+
+<p style="color:var(--dim);font-size:12.5px;margin-top:36px;border-top:1px solid var(--line);padding-top:14px">
+  产物：<code>audit_ref_anchor.json</code>（完整审计表 + 实证变化率）·
+  可复现脚本 <code>audit_ref_anchor.py</code>（只读，<code>audit_ref_anchor.py:63-78</code> 为静态表，可直接查阅）。
+  全程未训练、未改任何生产代码、未发版。
+</p>
+
+</div>
+</body>
+</html>

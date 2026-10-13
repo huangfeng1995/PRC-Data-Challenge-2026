@@ -33,6 +33,7 @@ def upload_file(
         access_key=access_key,
         secret_key=secret_key,
         secure=True,
+        region="eu-west-1",
     )
 
     local = Path(local_path)

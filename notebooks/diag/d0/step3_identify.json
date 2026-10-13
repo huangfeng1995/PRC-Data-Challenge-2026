@@ -1,0 +1,633 @@
+{
+  "only_SCHED": {
+    "n": 3397,
+    "target_time": "SCHED",
+    "rules": {
+      "A: ADEP_flt缺失": {
+        "tp": 474,
+        "fp": 21996,
+        "fn": 2923,
+        "precision": 0.02109,
+        "recall": 0.13953,
+        "f1": 0.03665
+      },
+      "B: AOBT哨兵": {
+        "tp": 474,
+        "fp": 21996,
+        "fn": 2923,
+        "precision": 0.02109,
+        "recall": 0.13953,
+        "f1": 0.03665
+      },
+      "C: ADEP缺 或 AOBT哨兵": {
+        "tp": 474,
+        "fp": 21996,
+        "fn": 2923,
+        "precision": 0.02109,
+        "recall": 0.13953,
+        "f1": 0.03665
+      },
+      "D: MVT-SCHED > 10800": {
+        "tp": 64,
+        "fp": 14107,
+        "fn": 3333,
+        "precision": 0.00452,
+        "recall": 0.01884,
+        "f1": 0.00729
+      },
+      "E: MVT-SCHED > 14400": {
+        "tp": 45,
+        "fp": 6772,
+        "fn": 3352,
+        "precision": 0.0066,
+        "recall": 0.01325,
+        "f1": 0.00881
+      },
+      "F: (A或B) 且 MVT-SCHED>10800": {
+        "tp": 64,
+        "fp": 1287,
+        "fn": 3333,
+        "precision": 0.04737,
+        "recall": 0.01884,
+        "f1": 0.02696
+      },
+      "G: (A或B) 且 MVT-SCHED>14400": {
+        "tp": 45,
+        "fp": 496,
+        "fn": 3352,
+        "precision": 0.08318,
+        "recall": 0.01325,
+        "f1": 0.02285
+      },
+      "H: (A或B) 且 MVT-SCHED>21600": {
+        "tp": 24,
+        "fp": 184,
+        "fn": 3373,
+        "precision": 0.11538,
+        "recall": 0.00707,
+        "f1": 0.01331
+      }
+    }
+  },
+  "only_LOBT": {
+    "n": 0,
+    "note": "候选批次为空"
+  },
+  "only_EOBT": {
+    "n": 12674,
+    "target_time": "EOBT",
+    "rules": {
+      "A: ADEP_flt缺失": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "B: AOBT哨兵": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "C: ADEP缺 或 AOBT哨兵": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "D: MVT-EOBT > 10800": {
+        "tp": 0,
+        "fp": 13,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "E: MVT-EOBT > 14400": {
+        "tp": 0,
+        "fp": 3,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "F: (A或B) 且 MVT-EOBT>10800": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "G: (A或B) 且 MVT-EOBT>14400": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "H: (A或B) 且 MVT-EOBT>21600": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 12674,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  },
+  "only_IOBT": {
+    "n": 46,
+    "target_time": "IOBT",
+    "rules": {
+      "A: ADEP_flt缺失": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "B: AOBT哨兵": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "C: ADEP缺 或 AOBT哨兵": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "D: MVT-IOBT > 10800": {
+        "tp": 0,
+        "fp": 20,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "E: MVT-IOBT > 14400": {
+        "tp": 0,
+        "fp": 5,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "F: (A或B) 且 MVT-IOBT>10800": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "G: (A或B) 且 MVT-IOBT>14400": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "H: (A或B) 且 MVT-IOBT>21600": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 46,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  },
+  "all4": {
+    "n": 30298,
+    "target_time": "SCHED",
+    "rules": {
+      "A: ADEP_flt缺失": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 30298,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "B: AOBT哨兵": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 30298,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "C: ADEP缺 或 AOBT哨兵": {
+        "tp": 0,
+        "fp": 22470,
+        "fn": 30298,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "D: MVT-SCHED > 10800": {
+        "tp": 1,
+        "fp": 14170,
+        "fn": 30297,
+        "precision": 7e-05,
+        "recall": 3e-05,
+        "f1": 4e-05
+      },
+      "E: MVT-SCHED > 14400": {
+        "tp": 1,
+        "fp": 6816,
+        "fn": 30297,
+        "precision": 0.00015,
+        "recall": 3e-05,
+        "f1": 5e-05
+      },
+      "F: (A或B) 且 MVT-SCHED>10800": {
+        "tp": 0,
+        "fp": 1351,
+        "fn": 30298,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "G: (A或B) 且 MVT-SCHED>14400": {
+        "tp": 0,
+        "fp": 541,
+        "fn": 30298,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "H: (A或B) 且 MVT-SCHED>21600": {
+        "tp": 0,
+        "fp": 208,
+        "fn": 30298,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  },
+  "per_airport": {
+    "only_SCHED": {
+      "EDDF": {
+        "tp": 0,
+        "fp": 57,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EDDM": {
+        "tp": 0,
+        "fp": 13,
+        "fn": 23,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EGLL": {
+        "tp": 0,
+        "fp": 40,
+        "fn": 31,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EHAM": {
+        "tp": 0,
+        "fp": 91,
+        "fn": 56,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEBL": {
+        "tp": 0,
+        "fp": 49,
+        "fn": 58,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEMD": {
+        "tp": 0,
+        "fp": 14,
+        "fn": 21,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LFPG": {
+        "tp": 0,
+        "fp": 96,
+        "fn": 146,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LIRF": {
+        "tp": 45,
+        "fp": 82,
+        "fn": 1431,
+        "precision": 0.35433,
+        "recall": 0.03049,
+        "f1": 0.05614
+      },
+      "LSZH": {
+        "tp": 0,
+        "fp": 12,
+        "fn": 28,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LTFM": {
+        "tp": 0,
+        "fp": 42,
+        "fn": 1553,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    },
+    "only_EOBT": {
+      "EDDF": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 270,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EDDM": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1347,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EGLL": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2820,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EHAM": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 259,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEBL": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1719,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEMD": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1793,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LFPG": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1439,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LIRF": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2918,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LSZH": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 109,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LTFM": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    },
+    "only_IOBT": {
+      "EDDF": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EDDM": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EGLL": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EHAM": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEBL": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 10,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEMD": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 8,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LFPG": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LIRF": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LSZH": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LTFM": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 21,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    },
+    "all4": {
+      "EDDF": {
+        "tp": 0,
+        "fp": 57,
+        "fn": 539,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EDDM": {
+        "tp": 0,
+        "fp": 13,
+        "fn": 2867,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EGLL": {
+        "tp": 0,
+        "fp": 40,
+        "fn": 3634,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "EHAM": {
+        "tp": 0,
+        "fp": 91,
+        "fn": 593,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEBL": {
+        "tp": 0,
+        "fp": 49,
+        "fn": 3326,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LEMD": {
+        "tp": 0,
+        "fp": 14,
+        "fn": 3262,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LFPG": {
+        "tp": 0,
+        "fp": 96,
+        "fn": 3542,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LIRF": {
+        "tp": 0,
+        "fp": 127,
+        "fn": 7985,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LSZH": {
+        "tp": 0,
+        "fp": 12,
+        "fn": 338,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "LTFM": {
+        "tp": 0,
+        "fp": 42,
+        "fn": 4212,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  },
+  "verdicts": {
+    "only_SCHED": "最优规则 H: (A或B) 且 MVT-SCHED>21600 precision=0.1154 误伤=184 → 不可用",
+    "only_LOBT": "候选批次为空",
+    "only_EOBT": "最优规则 A: ADEP_flt缺失 precision=0.0000 误伤=22,470 → 不可用",
+    "only_IOBT": "最优规则 A: ADEP_flt缺失 precision=0.0000 误伤=22,470 → 不可用",
+    "all4": "最优规则 E: MVT-SCHED > 14400 precision=0.0001 误伤=6,816 → 不可用"
+  },
+  "only_EOBT_diagnosis": {
+    "n": 12674,
+    "ADEP_flt_missing": 0,
+    "AOBT_sentinel": 0,
+    "TAXI_p50": 964.0,
+    "baseline_TAXI_p50": 910.0,
+    "median_abs_BLOCK_minus_LOBT": 418.0,
+    "median_abs_BLOCK_minus_IOBT": 418.0,
+    "n_airports": 9
+  }
+}

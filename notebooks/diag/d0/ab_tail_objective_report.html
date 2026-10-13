@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A/B 尾部改造: L2 vs log vs Huber</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2b303b;
+    --fg:#e6e9ef; --muted:#9aa3b2; --dim:#6b7480;
+    --acc:#5aa9e6; --warn:#e6a35a; --bad:#e2685f; --good:#5fc98f; --pur:#a98bd8;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
+    line-height:1.65;font-size:15px}
+  .wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:26px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:28px}
+  h2{font-size:19px;margin:44px 0 14px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  h3{font-size:15.5px;margin:26px 0 10px}
+  p{margin:9px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+  .verdict{background:linear-gradient(135deg,#1a2130,#1d1a24);border-left:4px solid var(--warn)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+  .kpi .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .kpi .v{font-size:23px;font-family:var(--mono);margin-top:5px;font-weight:600}
+  .kpi .d{font-size:12px;color:var(--dim);margin-top:3px}
+  .up{color:var(--bad)}.dn{color:var(--good)}.nt{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px}
+  tbody tr:hover{background:#1c212a}
+  td.num{font-family:var(--mono)}
+  code{font-family:var(--mono);background:#22262f;padding:1.5px 6px;border-radius:4px;font-size:12.5px;color:#c8d3e0}
+  .note{background:#1a1d24;border-left:3px solid var(--dim);padding:11px 15px;margin:14px 0;font-size:13.5px;color:var(--muted);border-radius:0 6px 6px 0}
+  .note.warn{border-left-color:var(--warn)}.note.bad{border-left-color:var(--bad)}.note.good{border-left-color:var(--good)}
+  ul{margin:9px 0;padding-left:22px}li{margin:6px 0}
+  ol{margin:9px 0;padding-left:22px}li{margin:7px 0}
+  .best{background:#1e2b22;outline:1px solid #2f5c42}
+  .dead{background:#2b1a1a;outline:1px solid #5c2f2f}
+  .formula{font-family:var(--mono);background:#12151b;border:1px solid var(--line);border-radius:7px;padding:13px 16px;margin:12px 0;font-size:13px;color:#9fd0f0;overflow-x:auto}
+  svg{display:block;max-width:100%;height:auto}
+  .legend{display:flex;gap:18px;font-size:12.5px;color:var(--muted);margin:8px 0 0;flex-wrap:wrap}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>A/B 尾部改造：L2 vs log目标 vs Huber</h1>
+<div class="sub">
+  固定 holdout 锚点 · 单 seed 看方向 · 2026-09-30<br>
+  MAIN split：train 2-12月 / holdout 1+7月 / FEATS71 / 整数编码 / seed 42 / cap 2500 / ES patience 100
+</div>
+
+<div class="card verdict">
+  <h3 style="margin-top:0">结论：两组都不采纳，且 log 组的机制与假设相反</h3>
+  <p style="font-size:15.5px;margin-bottom:12px">
+    <strong>B (log) 核心口径 −12.62s、全样本 +4.50s</strong>；<strong>C (Huber) 双口径大幅恶化</strong>（core +143.63s）。
+    按你的严格门槛（full 下降且超 ±1s 抖动、分机场同号、Jan/Jul 同向），<strong>两组均不采纳</strong>。
+  </p>
+  <p style="margin-bottom:0">
+    更关键的是归因：<strong>log 目标的改善全部来自主体段（0,1200] 各降约 55s），
+    而长尾段反而更差</strong>（1800-3600 档 +94.23s，3600-10800 档 +476.45s）。
+    尾部幅度比从 0.827 降到 0.757、0.602 降到 0.514——<strong>log 目标让尾部更保守，而不是更放开</strong>。
+    假设方向错了。
+  </p>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="k">A 基线 core</div><div class="v nt">312.74</div><div class="d">best_iter 2500（撞顶）</div></div>
+  <div class="kpi"><div class="k">B log core</div><div class="v dn">300.12</div><div class="d">−12.62s，但 full +4.50s</div></div>
+  <div class="kpi"><div class="k">C Huber core</div><div class="v bad">456.37</div><div class="d">+143.63s，退化配置</div></div>
+  <div class="kpi"><div class="k">主体段改善 (B)</div><div class="v dn">−55s</div><div class="d">(0,600] 与 (600,1200]</div></div>
+  <div class="kpi"><div class="k">长尾段恶化 (B)</div><div class="v bad">+476s</div><div class="d">(3600,10800] 档</div></div>
+  <div class="kpi"><div class="k">B 采纳</div><div class="v bad">否</div><div class="d">full 未降 + 机场非同号</div></div>
+</div>
+
+<h2>1 · 主结果</h2>
+
+<table>
+  <thead><tr><th>组</th><th>best_iter</th><th>full（对标真榜）</th><th>core（剔&gt;10800）</th><th>Δfull</th><th>Δcore</th></tr></thead>
+  <tbody>
+    <tr><td>A — L2 基线</td><td class="num">2500</td><td class="num">568.57</td><td class="num">312.74</td><td class="num nt">—</td><td class="num nt">—</td></tr>
+    <tr><td>B — log（未校正）</td><td class="num">2500</td><td class="num">573.07</td><td class="num dn">300.12</td><td class="num up">+4.50</td><td class="num dn">−12.62</td></tr>
+    <tr><td>B — log（smearing）</td><td class="num">2500</td><td class="num">573.33</td><td class="num">301.56</td><td class="num up">+4.76</td><td class="num dn">−11.18</td></tr>
+    <tr class="dead"><td>C — Huber α=0.9</td><td class="num">2500</td><td class="num bad">678.65</td><td class="num bad">456.37</td><td class="num bad">+110.08</td><td class="num bad">+143.63</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <strong>三组 best_iter 全部 = 2500，即都撞到 cap 上限，ES 未真正生效。</strong>
+  这与上一轮学习曲线的结论一致：3000 轮仍未触底。所以本次 A/B 是在「同一个欠训练程度」下比较的相对差异，
+  绝对值都还不是各方案的上限。
+</div>
+
+<h3>1.1 分月</h3>
+<table>
+  <thead><tr><th>组</th><th>Jan full</th><th>Jan core</th><th>Jul full</th><th>Jul core</th><th>ΔJan core</th><th>ΔJul core</th></tr></thead>
+  <tbody>
+    <tr><td>A — L2</td><td class="num">492.48</td><td class="num">305.20</td><td class="num">623.17</td><td class="num">318.68</td><td class="num nt">—</td><td class="num nt">—</td></tr>
+    <tr><td>B — log</td><td class="num">492.61</td><td class="num dn">292.79</td><td class="num">630.47</td><td class="num dn">305.90</td><td class="num dn">−12.41</td><td class="num dn">−12.78</td></tr>
+    <tr><td>B — log+smear</td><td class="num">494.12</td><td class="num">295.81</td><td class="num">629.95</td><td class="num">306.12</td><td class="num dn">−9.39</td><td class="num dn">−12.56</td></tr>
+    <tr class="dead"><td>C — Huber</td><td class="num">596.25</td><td class="num">438.40</td><td class="num">738.40</td><td class="num">470.36</td><td class="num up">+133.20</td><td class="num up">+151.68</td></tr>
+  </tbody>
+</table>
+
+<p>Jan/Jul 四组全部同向，方向一致性达标。问题出在 full 口径与分机场。</p>
+
+<h2>2 · 归因：log 的改善来自哪里</h2>
+
+<p>这是本轮最有价值的发现。按真值分档看 RMSE：</p>
+
+<table>
+  <thead><tr><th>真值档</th><th>n</th><th>A RMSE</th><th>B RMSE</th><th>ΔB</th></tr></thead>
+  <tbody>
+    <tr class="best"><td>(0, 600]</td><td class="num">43,235</td><td class="num">260.14</td><td class="num">204.75</td><td class="num dn">−55.39</td></tr>
+    <tr class="best"><td>(600, 1200]</td><td class="num">216,739</td><td class="num">245.93</td><td class="num">189.86</td><td class="num dn">−56.07</td></tr>
+    <tr><td>(1200, 1800]</td><td class="num">68,733</td><td class="num">286.92</td><td class="num">272.67</td><td class="num dn">−14.25</td></tr>
+    <tr><td>(1800, 3600]</td><td class="num">14,648</td><td class="num">685.78</td><td class="num">780.01</td><td class="num up">+94.23</td></tr>
+    <tr class="dead"><td>(3600, 10800]</td><td class="num">921</td><td class="num">2350.98</td><td class="num">2827.42</td><td class="num up">+476.45</td></tr>
+    <tr class="dead"><td>(&gt;10800, ∞</td><td class="num">60</td><td class="num">35972.98</td><td class="num">36984.44</td><td class="num up">+1011.46</td></tr>
+  </tbody>
+</table>
+
+<div class="note bad">
+  <strong>方向完全反了。</strong>原本假设「log 目标能让模型更关注大值、放开尾部」，
+  实测是<strong>主体段大幅改善、长尾段明显恶化</strong>。log 变换压缩了大值的相对权重，
+  模型把容量分配给了占比 74% 的 (600,1200] 主体段（行数 216,739），代价是长尾预测更保守。
+</div>
+
+<h3>2.1 尾部幅度：log 让尾部更小，不是更大</h3>
+<table>
+  <thead><tr><th>真值档</th><th>true 中位</th><th>A 幅度比</th><th>B 幅度比</th><th>Δ</th></tr></thead>
+  <tbody>
+    <tr><td>(1800, 3600]</td><td class="num">2,096.0</td><td class="num">0.827</td><td class="num">0.757</td><td class="num up">−0.070</td></tr>
+    <tr><td>(3600, 10800]</td><td class="num">4,393.0</td><td class="num">0.602</td><td class="num">0.514</td><td class="num up">−0.088</td></tr>
+    <tr><td>(&gt;10800, ∞</td><td class="num">18,250.5</td><td class="num">0.241</td><td class="num">0.143</td><td class="num up">−0.098</td></tr>
+  </tbody>
+</table>
+
+<p>预测中位 / 真值中位。B 在三个尾部档的幅度比全部低于 A，<strong>尾部被收得更紧</strong>。</p>
+
+<h3>2.2 σpred/σtrue 也没有被放开</h3>
+<table>
+  <thead><tr><th>组</th><th>σpred/σtrue</th><th>IQR 比</th><th>p99 比</th><th>p99 预测</th><th>p99.9 预测</th></tr></thead>
+  <tbody>
+    <tr><td>A — L2</td><td class="num">0.8392</td><td class="num">0.9540</td><td class="num">0.8667</td><td class="num">2245.7</td><td class="num">3852.7</td></tr>
+    <tr><td>B — log</td><td class="num bad">0.7439</td><td class="num">0.8736</td><td class="num">0.7882</td><td class="num">2042.2</td><td class="num">3116.3</td></tr>
+    <tr class="dead"><td>C — Huber</td><td class="num bad">0.0420</td><td class="num">0.0765</td><td class="num">0.3917</td><td class="num">1014.8</td><td class="num">1015.0</td></tr>
+    <tr><td>TRUE</td><td class="num">1.0000</td><td class="num">1.0000</td><td class="num">1.0000</td><td class="num">2591.0</td><td class="num">4800.0</td></tr>
+  </tbody>
+</table>
+
+<div class="note bad">
+  <strong>log 目标让方差压缩更严重，而不是更轻。</strong>
+  σpred/σtrue 从 A 的 0.8392 降到 B 的 0.7439；p99 比从 0.8667 降到 0.7882。
+  这与「用 log 目标解决方差压缩」的假设正好相反。
+</div>
+
+<h3>2.3 改善不是标定漂移（反事实检验）</h3>
+<p>B 的核心 bias 从 A 的 <strong>+76.02s</strong> 降到 <strong>+6.81s</strong>，看起来像是整体标定改善。
+但直接对 A 做线性重标定验证：</p>
+<div class="formula">
+主体段 (y≤1800) 最小二乘拟合: A_pred → true 得 a=0.70766, b=+200.934<br>
+A_L2 线性重标定后 core = 314.25  (Δ = <span style="color:#e2685f">+1.51s</span>, 反而变差)<br>
+B_log_raw  core = 300.12  (Δ = <span style="color:#5fc98f">−12.61s</span>)
+</div>
+<p><strong>线性重标定拿不到 B 的收益</strong>（甚至变差 1.51s），所以 B 的 −12.62s 不是简单的尺度/偏置修正。
+它来自 log 空间中对相对误差的优化分配——代价就是长尾更保守。</p>
+
+<h2>3 · C 组为何崩塌：alpha 尺度错配</h2>
+
+<table>
+  <thead><tr><th>组</th><th>预测 min</th><th>预测 max</th><th>全距</th><th>预测 std</th></tr></thead>
+  <tbody>
+    <tr><td>A — L2</td><td class="num">30.0</td><td class="num">9066.5</td><td class="num">9036.5</td><td class="num">395.24</td></tr>
+    <tr><td>B — log</td><td class="num">30.0</td><td class="num">10800.0</td><td class="num">10770.0</td><td class="num">348.82</td></tr>
+    <tr class="dead"><td>C — Huber</td><td class="num">953.4</td><td class="num">1015.0</td><td class="num bad">61.7</td><td class="num bad">19.62</td></tr>
+  </tbody>
+</table>
+
+<div class="note bad">
+  <strong>C_huber 的预测区间只有 [953.4, 1015.0]，全距 61.7 秒</strong>（A 是 9036.5 秒），
+  标准差 19.62（σpred/σtrue = 0.042）。模型退化成近似输出常数。
+</div>
+
+<div class="formula">
+LightGBM huber 的 δ 直接取 alpha 参数。目标单位是「秒」，残差量级 ~100-200s，<br>
+而 alpha=0.9 → <span style="color:#e6a35a">几乎所有样本都落进线性区</span> → 梯度恒为 ±1（与残差大小无关）<br>
+→ 树只能做全局平移，无法拟合任何结构 → 预测坍缩到常数
+</div>
+
+<div class="note warn">
+  <strong>重要限定：C 组不能作为「Huber 策略无效」的证据。</strong>
+  它是一个<strong>退化配置</strong>——alpha 必须与目标量级匹配（秒级目标需要数十到数百），
+  0.9 是相对量纲下的默认值，直接套用必然失效。按你「不允许为降验证分硬调、参数只用常规值」的要求，
+  本轮不重试 alpha。若要重新评估 Huber，需要在训练折上按残差量级 principled 地选 alpha，
+  而不是照着 holdout 试。
+</div>
+
+<h2>4 · full 口径为何变差：60 行极端样本</h2>
+
+<table>
+  <thead><tr><th>项</th><th>A — L2</th><th>B — log</th></tr></thead>
+  <tbody>
+    <tr><td>全样本 SSE</td><td class="num">1.113e+11</td><td class="num">1.131e+11</td></tr>
+    <tr><td>极端行 SSE</td><td class="num">7.764e+10</td><td class="num">8.207e+10</td></tr>
+    <tr><td>极端行占 SSE 比重</td><td class="num">69.75%</td><td class="num bad">72.58%</td></tr>
+    <tr><td>极端行预测中位</td><td class="num">4403.2</td><td class="num bad">2606.7</td></tr>
+    <tr><td>极端行真值中位</td><td class="num" colspan="2">18250.5</td></tr>
+  </tbody>
+</table>
+
+<p>极端行 SSE 变化 +5.7%，<strong>贡献了全样本 ΔSSE 的 +250.7%</strong>（即主体段其实是负贡献、被极端段完全抵消并反超）。
+B 在极端段预测中位只有 2606.7（A 是 4403.2），误差更大。这与幅度比结论一致。</p>
+
+<div class="note">
+  这再次印证前两轮的结论：<strong>60 行（占 0.026%）主导 full 口径</strong>。
+  A 的 69.75%、B 的 72.58%——尾部改造方案在 full 口径上的分数，几乎完全由这 60 行决定，
+  而模型对它们的预测（4403 / 2607 对真值 18250）都是数量级错误。
+</div>
+
+<h2>5 · smearing 校正跨月反向</h2>
+
+<table>
+  <thead><tr><th>口径</th><th>B 未校正</th><th>B + smearing</th><th>校正带来</th></tr></thead>
+  <tbody>
+    <tr><td>Jan core</td><td class="num">292.79</td><td class="num">295.81</td><td class="num up">+3.02</td></tr>
+    <tr><td>Jul core</td><td class="num">305.90</td><td class="num">306.12</td><td class="num up">+0.22</td></tr>
+  </tbody>
+</table>
+
+<p>smearing 因子 <strong>1.024932</strong>（ES 集残差 mean=−0.00075，mean(exp)=1.0249），
+方向符合 Jensen 不等式的预期（exp 会系统性低估）。但<strong>应用后两个月份都变差</strong>。</p>
+
+<div class="note warn">
+  因子是在训练月末 <strong>11-12 月（秋末）</strong>残差上估的，对 <strong>7 月（夏季）</strong>不适用。
+  这与上一轮 isotonic 校准跨月失效<strong>完全同型</strong>：训练月末的 seasonal 分布不能代表 7 月。
+  这是第二次在同一处栽跟头——<strong>任何在 11-12 月拟合、跨到 7 月应用的后处理都会失效</strong>。
+</div>
+
+<h2>6 · 分机场（核心口径）</h2>
+
+<table>
+  <thead><tr><th>ADEP</th><th>n</th><th>A_L2</th><th>B_log</th><th>C_huber</th><th>ΔB</th><th>ΔC</th></tr></thead>
+  <tbody>
+    <tr><td>LIRF</td><td class="num">26,474</td><td class="num">542.24</td><td class="num">536.53</td><td class="num">755.41</td><td class="num dn">−5.71</td><td class="num up">+213.17</td></tr>
+    <tr><td>EGLL</td><td class="num">40,209</td><td class="num">366.27</td><td class="num">349.85</td><td class="num">619.15</td><td class="num dn">−16.42</td><td class="num up">+252.88</td></tr>
+    <tr><td>LFPG</td><td class="num">39,586</td><td class="num">341.41</td><td class="num">324.28</td><td class="num">465.24</td><td class="num dn">−17.13</td><td class="num up">+123.84</td></tr>
+    <tr><td>LTFM</td><td class="num">46,539</td><td class="num">304.13</td><td class="num">282.41</td><td class="num">401.44</td><td class="num dn">−21.72</td><td class="num up">+97.31</td></tr>
+    <tr><td>EDDF</td><td class="num">36,830</td><td class="num">257.56</td><td class="num">239.23</td><td class="num">367.21</td><td class="num dn">−18.33</td><td class="num up">+109.66</td></tr>
+    <tr><td>EHAM</td><td class="num">40,947</td><td class="num">255.08</td><td class="num">243.82</td><td class="num">396.47</td><td class="num dn">−11.26</td><td class="num up">+141.39</td></tr>
+    <tr><td>LEBL</td><td class="num">28,985</td><td class="num">252.54</td><td class="num">237.07</td><td class="num">330.85</td><td class="num dn">−15.47</td><td class="num up">+78.31</td></tr>
+    <tr class="up"><td>LSZH</td><td class="num">22,287</td><td class="num">251.62</td><td class="num">252.47</td><td class="num">404.47</td><td class="num up">+0.85</td><td class="num up">+152.84</td></tr>
+    <tr><td>EDDM</td><td class="num">27,091</td><td class="num">245.77</td><td class="num">240.99</td><td class="num">368.78</td><td class="num dn">−4.77</td><td class="num up">+123.01</td></tr>
+    <tr><td>LEMD</td><td class="num">35,328</td><td class="num">210.92</td><td class="num">201.08</td><td class="num">301.35</td><td class="num dn">−9.84</td><td class="num up">+90.44</td></tr>
+  </tbody>
+</table>
+
+<p><strong>B 组 9/10 机场改善</strong>，唯一反向的 LSZH 只差 +0.85s（其余改善幅度 4.77–21.72s）。
+按「分机场同号」的严格标准判为不通过，但实质上 B 在机场维度高度一致。<strong>C 组 0/10 改善，全同号恶化。</strong></p>
+
+<h2>7 · 采纳判定</h2>
+
+<div class="card verdict">
+  <table style="margin-bottom:0">
+    <thead><tr><th>门槛</th><th>B — log</th><th>C — Huber</th></tr></thead>
+    <tbody>
+      <tr><td>full RMSE 下降且超 ±1s</td><td class="num up">+4.50s ✗</td><td class="num up">+110.08s ✗</td></tr>
+      <tr><td>分机场同号</td><td class="num">9/10 改善 ✗</td><td class="num">0/10 改善 ✗（全恶化）</td></tr>
+      <tr><td>Jan/Jul 同向</td><td class="num dn">同向 ✓</td><td class="num">同向 ✓</td></tr>
+      <tr><td><strong>结论</strong></td><td class="up"><strong>不采纳</strong></td><td class="up"><strong>不采纳</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>7.1 关键判断</h3>
+<ol>
+  <li><strong>log 目标不解决方差压缩，反而加重。</strong>σpred/σtrue 0.839 → 0.744，p99 比 0.867 → 0.788，长尾幅度比全面下降。
+      它的 −12.62s 核心收益来自占 74% 行数的主体段，是<strong>把容量从长尾转移到主体</strong>的取舍，不是「放开尾部」。</li>
+  <li><strong>若你的真实评测口径是 core（剔极端），B 值得重新考虑</strong>——它是 9/10 机场改善、Jan/Jul 同向、−12.6s 的一致性改善。
+      但按你设定的门槛（全样本对标真榜），它不通过。</li>
+  <li><strong>Huber 本轮结果无效</strong>，属配置退化而非策略失败。若要重新评估，必须按秒级目标的残差量级重新选 alpha，
+      且应在训练折上选、不看 holdout。</li>
+  <li><strong>三组 best_iter 全部撞顶 2500</strong>，说明 A 本身严重欠训练。在补轮数之前，
+      任何目标函数改造的结论都只在「2500 轮这个欠训练点」上成立，不能外推。</li>
+</ol>
+
+<h3>7.2 建议的下一步（按优先级）</h3>
+<ul>
+  <li><strong>先补轮数</strong>：三组都撞 cap，学习曲线显示 8000 轮仍在单调下降。欠训练状态下比较目标函数意义有限。</li>
+  <li><strong>先确认榜单极端值口径</strong>：60 行占 full 口径 SSE 的 70%–73%。口径决定 B 是「−12.6s 可采纳」还是「+4.5s 不可采纳」。</li>
+  <li><strong>若还想试尾部改造</strong>，方向应是<strong>放开而非收紧</strong>：显式的尾部加权/分段目标，
+      或对长尾段单独建模，而不是 log 这种全局压缩变换。</li>
+  <li><strong>不要在 11-12 月拟合跨月后处理</strong>：这是本项目第二次因此失效（上次是 isotonic）。
+      若必须做，应改用能代表 7 月的折（如按月 OOF 的 7 月前一个月，或多折平均）。</li>
+</ul>
+
+<p style="color:var(--dim);font-size:12.5px;margin-top:36px;border-top:1px solid var(--line);padding-top:14px">
+  产物：<code>ab_tail_objective.json</code>（主结果）· <code>ab_tail_followup.json</code>（归因）·
+  <code>ab_tail_preds.parquet</code>（逐行预测）· 可复现脚本 <code>ab_tail_objective.py</code> / <code>ab_tail_followup.py</code>。
+  单 seed，未跑完整 OOF，未发版，未上传。
+</p>
+
+</div>
+</body>
+</html>

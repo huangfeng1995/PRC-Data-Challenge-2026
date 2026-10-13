@@ -1,0 +1,103 @@
+{
+  "part1_diagnosis": {
+    "n_unique_flights_train": 42115,
+    "n_unique_flights_holdout": 19544,
+    "n_unique_flights_ranking": 20329,
+    "train_holdout_overlap_n": 16021,
+    "train_holdout_overlap_pct_of_holdout": 81.97,
+    "train_ranking_overlap_n": 12757,
+    "train_ranking_overlap_pct_of_ranking": 62.75,
+    "overlap_train_count_p10": 2,
+    "overlap_train_count_median": 51,
+    "overlap_n_with_at_least_10_train_seen": 9472,
+    "ranking_fl_seen_pct_of_rows": 78.8,
+    "ranking_fl_unseen_pct_of_rows": 21.2,
+    "ADEP_changed_holdout_n": 5265,
+    "ADEP_changed_holdout_pct": 1.53,
+    "ADEP_changed_delta_med_s": 55.0,
+    "TYPE_changed_holdout_n": 1233,
+    "TYPE_changed_holdout_pct": 0.36,
+    "TYPE_changed_delta_med_s": 70.0,
+    "ADEP_changed_ranking_pct": 1.53,
+    "TYPE_changed_ranking_pct": 1.6,
+    "decision": {
+      "do_flight_te_strong_threshold": false,
+      "do_flight_te_soft_threshold": true,
+      "do_dep_changed": false,
+      "do_type_changed": false
+    },
+    "note": "强门槛见任务原文 p10≥10, soft_threshold = seen>60% 且 ≥50% 重叠号 ≥10 次"
+  },
+  "part2_new_features": {
+    "n_features_added": [
+      "actl_takeoff_ap_5m",
+      "actl_takeoff_ap_15m",
+      "actl_takeoff_ap_30m",
+      "actl_takeoff_ap_60m",
+      "actl_congestion_ap"
+    ],
+    "decision_per_candidate": {
+      "flight_te": "强门槛未通过 (p10=2<10); 软门槛通过, 但严格按任务指令跳过",
+      "dep_changed": "门槛未通过 (|Δ|=55s<150s)",
+      "type_changed": "门槛未通过 (|Δ|=70s<150s)"
+    }
+  },
+  "part3_A_eval": {
+    "rmse_short": 252.09,
+    "rmse_long": 877.01,
+    "rmse_core": 308.96,
+    "rmse_full": 568.19
+  },
+  "part3_B_eval": {
+    "rmse_short": 248.7,
+    "rmse_long": 882.01,
+    "rmse_core": 306.98,
+    "rmse_full": 567.47
+  },
+  "part3_delta_B_minus_A": {
+    "rmse_short": -3.39,
+    "rmse_long": 5.0,
+    "rmse_core": -1.99,
+    "rmse_full": -0.72
+  },
+  "part3_seed_jitter_A": 0.39,
+  "part3_seed_jitter_B": 0.68,
+  "part3_per_ap_long": {
+    "EGLL": {
+      "A": 628.6,
+      "B": 631.8,
+      "B-A": 3.2,
+      "n": 4787
+    },
+    "LIRF": {
+      "A": 1235.8,
+      "B": 1240.7,
+      "B-A": 4.9,
+      "n": 2667
+    },
+    "LFPG": {
+      "A": 850.9,
+      "B": 858.2,
+      "B-A": 7.3,
+      "n": 2275
+    },
+    "EHAM": {
+      "A": 1116.3,
+      "B": 1123.0,
+      "B-A": 6.7,
+      "n": 753
+    }
+  },
+  "part3_stage": {
+    "AUC": 0.9319,
+    "PR_AUC": 0.487,
+    "recall_at_thr_0.5": 0.374,
+    "precision_at_thr_0.5": 0.558,
+    "verdict_short_head": "✓ 分类有效 (AUC=0.93 >> 0.65)",
+    "verdict_long_head": "⚠ 长段 head 训练在主脚本中因 numpy .values 报错中断; 但 分类 AUC 强信号表明长尾是强可分的",
+    "note": "两阶段软加权未在 holdout 验证完 (主脚本断在短 head); 但分类 AUC 0.93 表明长尾用概率门有效, 后续可补全"
+  },
+  "red_lines": "不改 label / 不 clip 真值 / 不建单机场模型; encoding 只用 train OOF; 时间安全",
+  "model_source": "models/lgb_full_v15 (A baseline reference), B = 71+5 actl_* 扩展特征, 3-seed (42/123/2024) LGB",
+  "data": "holdout 2025 1+7 (DEP), train 2025 2-12 (DEP), ranking 2026 (DEP)"
+}

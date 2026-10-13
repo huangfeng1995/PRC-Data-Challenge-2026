@@ -1,0 +1,95 @@
+{
+  "task": "\u5b8c\u6574\u4e09\u5e93\u96c6\u6210 (XGB+LGB+CAT \u00d7 3seed, \u6e05\u6d17\u53e3\u5f84)",
+  "params": {
+    "xgb": {
+      "objective": "reg:squarederror",
+      "eval_metric": "rmse",
+      "learning_rate": 0.0147555939449363,
+      "max_depth": 11,
+      "min_child_weight": 5,
+      "subsample": 0.9813515130184908,
+      "colsample_bytree": 0.6720708449966734,
+      "reg_alpha": 2.4624169162161342,
+      "reg_lambda": 1.9936339729896335,
+      "tree_method": "hist",
+      "nthread": -1,
+      "verbosity": 0
+    },
+    "lgb": {
+      "objective": "regression",
+      "metric": "rmse",
+      "learning_rate": 0.0147555939449363,
+      "num_leaves": 127,
+      "min_data_in_leaf": 5,
+      "feature_fraction": 0.6720708449966734,
+      "bagging_fraction": 0.9813515130184908,
+      "bagging_freq": 5,
+      "reg_alpha": 2.4624169162161342,
+      "reg_lambda": 1.9936339729896335,
+      "verbose": -1,
+      "num_threads": -1
+    },
+    "cat": "default"
+  },
+  "seeds": [
+    42,
+    123,
+    2024
+  ],
+  "xgb_results": {
+    "42": {
+      "core": 305.1619567871094,
+      "all": 538.9530639648438,
+      "best_iter": 1848
+    },
+    "123": {
+      "core": 304.6288757324219,
+      "all": 539.7066040039062,
+      "best_iter": 2419
+    },
+    "2024": {
+      "core": 304.32220458984375,
+      "all": 539.60400390625,
+      "best_iter": 2500
+    }
+  },
+  "lgb_results": {
+    "42": {
+      "core": 297.1880544077077,
+      "all": 537.2301549227503,
+      "best_iter": 2492
+    },
+    "123": {
+      "core": 298.01503052206766,
+      "all": 537.3283932976375,
+      "best_iter": 2486
+    },
+    "2024": {
+      "core": 297.66347977316093,
+      "all": 537.1447876714183,
+      "best_iter": 2500
+    }
+  },
+  "cat_results": {
+    "42": {
+      "core": 309.659226946817,
+      "all": 542.4437278788761,
+      "best_iter": 2500
+    },
+    "123": {
+      "core": 309.43370787595893,
+      "all": 541.7916095142496,
+      "best_iter": 2499
+    },
+    "2024": {
+      "core": 308.55996367749486,
+      "all": 542.924842740875,
+      "best_iter": 2499
+    }
+  },
+  "ensemble_core_rmse": 297.8325692348753,
+  "ensemble_all_rmse": 536.0981600726523,
+  "anchor": 283.55,
+  "delta_core": 14.282569234875268,
+  "verdict": "\u26a0\ufe0f \u504f\u79bb"
+}

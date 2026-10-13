@@ -1,0 +1,27 @@
+{
+  "n_anomaly": 202,
+  "n_block_eq_sched": 171,
+  "n_other": 31,
+  "n_normal": 2084845,
+  "adjudicate_group_bsched": {
+    "n": 171,
+    "norm_p01": 291.0,
+    "norm_p99": 2337.0,
+    "pct_in_norm_range": 2.34,
+    "pct_le_3600s": 2.34
+  },
+  "adjudicate_other": {
+    "n": 31,
+    "norm_p01": 291.0,
+    "norm_p99": 2337.0,
+    "pct_in_norm_range": 22.58,
+    "pct_le_3600s": 22.58
+  },
+  "taxi_median_group_bsched": 15710.0,
+  "mvt_minus_aobt_median_group_bsched": 10975824373.0,
+  "normal_taxi_p01": 291.0,
+  "normal_taxi_p99": 2337.0,
+  "n_still_over_10800_after_rebuild": 167,
+  "pct_still_over": 97.66,
+  "verdict": "真实超长滑行"
+}

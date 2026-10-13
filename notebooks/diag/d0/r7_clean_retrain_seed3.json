@@ -1,0 +1,50 @@
+{
+  "task": "R7slim \u6e05\u6d17\u8bad\u7ec3\u6570\u636e + \u91cd\u8bad XGB 3 seed",
+  "params": {
+    "objective": "reg:squarederror",
+    "eval_metric": "rmse",
+    "learning_rate": 0.0147555939449363,
+    "max_depth": 11,
+    "min_child_weight": 5,
+    "subsample": 0.9813515130184908,
+    "colsample_bytree": 0.6720708449966734,
+    "reg_alpha": 2.4624169162161342,
+    "reg_lambda": 1.9936339729896335,
+    "tree_method": "hist",
+    "nthread": -1,
+    "verbosity": 0,
+    "seeds": [
+      42,
+      123,
+      2024
+    ]
+  },
+  "cleaning": {
+    "n_train_dep_raw": 1740628,
+    "n_drop_le_zero": 305,
+    "n_drop_gt_10800": 142,
+    "n_train_dep_clean": 1740181,
+    "kept_long_taxi": "1800~10800 (real long taxi, NOT dropped)"
+  },
+  "seeds_results": {
+    "42": {
+      "rmse_core": 305.1619567871094,
+      "rmse_all": 538.9530639648438,
+      "best_iter": 1848
+    },
+    "123": {
+      "rmse_core": 304.6288757324219,
+      "rmse_all": 539.7066040039062,
+      "best_iter": 2419
+    },
+    "2024": {
+      "rmse_core": 304.32220458984375,
+      "rmse_all": 539.60400390625,
+      "best_iter": 2500
+    }
+  },
+  "ensemble_rmse_core": 304.0886211900468,
+  "ensemble_rmse_all": 539.0575845536987,
+  "anchor_r7slim": 283.55,
+  "verdict": "\u26a0\ufe0f \u504f\u79bb"
+}

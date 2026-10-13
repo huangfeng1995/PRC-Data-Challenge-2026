@@ -1,0 +1,104 @@
+{
+  "task": "ab_tail_followup_attribution",
+  "huber_degenerate": {
+    "pred_min": 953.3501755744168,
+    "pred_max": 1015.0442953590531,
+    "pred_range": 61.69,
+    "pred_std": 19.623,
+    "n_unique": 338765,
+    "baseline_range": 9036.5,
+    "mechanism": "alpha=0.9 与秒级目标残差量级(~100-200s)错配 → 全部落线性区 → 梯度恒±1 → 预测退化为常数",
+    "conclusion": "C 组为退化配置, 不能作为 'Huber 策略无效' 的证据"
+  },
+  "bucket_rmse": [
+    {
+      "bucket": "(0,600]",
+      "n": 43235,
+      "rmse_A": 260.14,
+      "rmse_B": 204.75,
+      "delta": -55.39
+    },
+    {
+      "bucket": "(600,1200]",
+      "n": 216739,
+      "rmse_A": 245.93,
+      "rmse_B": 189.86,
+      "delta": -56.07
+    },
+    {
+      "bucket": "(1200,1800]",
+      "n": 68733,
+      "rmse_A": 286.92,
+      "rmse_B": 272.67,
+      "delta": -14.25
+    },
+    {
+      "bucket": "(1800,3600]",
+      "n": 14648,
+      "rmse_A": 685.78,
+      "rmse_B": 780.01,
+      "delta": 94.23
+    },
+    {
+      "bucket": "(3600,10800]",
+      "n": 921,
+      "rmse_A": 2350.98,
+      "rmse_B": 2827.42,
+      "delta": 476.45
+    },
+    {
+      "bucket": "(10800,inf)",
+      "n": 60,
+      "rmse_A": 35972.98,
+      "rmse_B": 36984.44,
+      "delta": 1011.46
+    }
+  ],
+  "bias_core": {
+    "A": 76.02,
+    "B": 6.81
+  },
+  "counterfactual_linear_recal": {
+    "a": 0.707657,
+    "b": 200.9344,
+    "rmse_A_core": 312.74,
+    "rmse_A_linear_core": 314.25,
+    "delta_linear": 1.51,
+    "delta_B": -12.61
+  },
+  "tail_amplitude": {
+    "(1800,3600]": {
+      "true_median": 2096.0,
+      "ratio_A": 0.827,
+      "ratio_B": 0.757,
+      "delta": -0.07
+    },
+    "(3600,10800]": {
+      "true_median": 4393.0,
+      "ratio_A": 0.602,
+      "ratio_B": 0.514,
+      "delta": -0.088
+    }
+  },
+  "full_decomposition": {
+    "sse_full_A": 111315186863.83443,
+    "sse_full_B": 113081165135.13377,
+    "sse_extreme_A": 77643335242.39287,
+    "sse_extreme_B": 82070949765.87346,
+    "extreme_share_A": 0.6975,
+    "extreme_share_B": 0.7258,
+    "extreme_pred_median_A": 4403.2,
+    "extreme_pred_median_B": 2606.7,
+    "true_extreme_median": 18250.5
+  },
+  "smearing_by_month": {
+    "Jan": {
+      "raw": 292.79,
+      "smear": 295.81
+    },
+    "Jul": {
+      "raw": 305.9,
+      "smear": 306.12
+    }
+  }
+}

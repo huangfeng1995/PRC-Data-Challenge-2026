@@ -1,0 +1,194 @@
+{
+  "all_files_columns_inventory": {
+    "ranking.parquet": {
+      "rows": 689534,
+      "cols": 30,
+      "unused_cols": [
+        "FLIGHT_mvt",
+        "FLIGHT_RULE_mvt",
+        "ADEP_flt",
+        "AIRCRAFT_TYPE_flt",
+        "ARVT_1_flt"
+      ]
+    },
+    "training_2025-*_parquet": {
+      "cols": 30,
+      "unused_cols": "同 ranking (5 列)"
+    },
+    "submitting.parquet": {
+      "rows": 344841,
+      "cols": 2,
+      "unused_cols": "[]"
+    }
+  },
+  "numeric_candidates_results": [
+    {
+      "col": "EOBT_1_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "nn_ho": 339046,
+      "rho": 0.028915469953679628
+    },
+    {
+      "col": "IOBT_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "nn_ho": 339046,
+      "rho": 0.028911680178684607
+    },
+    {
+      "col": "LOBT_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "nn_ho": 339046,
+      "rho": 0.0289124543801499
+    },
+    {
+      "col": "ARVT_1_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "nn_ho": 339046,
+      "rho": 0.031188029161612844
+    },
+    {
+      "col": "ARVT_3_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "nn_ho": 339046,
+      "rho": 0.03132456739671707
+    },
+    {
+      "col": "BLOCK_TIME_UTC_mvt",
+      "nn_pct_ho": 100.0,
+      "nn_ho": 344419,
+      "rho": 0.027901376147991614
+    },
+    {
+      "col": "MVT_TIME_UTC_mvt",
+      "nn_pct_ho": 100.0,
+      "nn_ho": 344419,
+      "rho": 0.02823193384857305
+    },
+    {
+      "col": "AOBT_3_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "nn_ho": 339046,
+      "rho": 0.029034489149497397
+    }
+  ],
+  "category_candidates_results": [
+    {
+      "col": "FLIGHT_mvt",
+      "nn_pct_ho": 99.99274139928401,
+      "n_unique_ho": 19544,
+      "median_diff_y": 88131.0,
+      "top_3": [
+        "CHHHH438",
+        "EXSXS1GT",
+        "RYRR90BN"
+      ],
+      "bot_3": [
+        "RGARN",
+        "HBZRP",
+        "3AMAX"
+      ],
+      "spread_n_classes_above_500s": 17784
+    },
+    {
+      "col": "FLIGHT_RULE_mvt",
+      "nn_pct_ho": 99.97125594116469,
+      "n_unique_ho": 2,
+      "median_diff_y": 693.0,
+      "top_3": [
+        "I",
+        "V"
+      ],
+      "bot_3": [
+        "V",
+        "I"
+      ],
+      "spread_n_classes_above_500s": 1
+    },
+    {
+      "col": "ADEP_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "n_unique_ho": 10,
+      "median_diff_y": 601.0,
+      "top_3": [
+        "EGLL",
+        "LIRF",
+        "LEMD"
+      ],
+      "bot_3": [
+        "LSZH",
+        "EHAM",
+        "EDDM"
+      ],
+      "spread_n_classes_above_500s": 10
+    },
+    {
+      "col": "AIRCRAFT_TYPE_flt",
+      "nn_pct_ho": 98.43998153411978,
+      "n_unique_ho": 188,
+      "median_diff_y": 1870.0,
+      "top_3": [
+        "PAY3",
+        "A124",
+        "C130"
+      ],
+      "bot_3": [
+        "C10T",
+        "DH8A",
+        "SR20"
+      ],
+      "spread_n_classes_above_500s": 160
+    }
+  ],
+  "time_safety_check": {
+    "FLIGHT_mvt": [
+      "✓ 航班号, ranking 100% 可得 (排班定)",
+      "航班号隐含运营商 / 调度规律; 假名化但是隐式ID.  100% 字段可用"
+    ],
+    "FLIGHT_RULE_mvt": [
+      "✓ I/V 类 (排班), 100%",
+      "全部 343,793 行 I(主要) + 444 行 V; V 子群中位 231s vs I 的 924s, 极小样本"
+    ],
+    "ADEP_flt": [
+      "✓ 计划起飞机场, 98.4% (排班)",
+      "FILLED 的计划 = 排班机场; 与 ADEP_mvt 比, 反映改跑备降与否 / 改计划"
+    ],
+    "AIRCRAFT_TYPE_flt": [
+      "✓ 计划机型, 98.4% (排班)",
+      "最大中位差 1870s, e.g. A380/B747 heavy 滑行长 vs RJ CRJ 短, 信息已在 AIRCRAFT_TYPE_mvt 里 (实际机型), 计划机型未必多余"
+    ],
+    "ARVT_1_flt": [
+      "✓ 排班到达时间, 98.9%",
+      "DEP 任务里, ARVT 是 도착; 通常预知. 提供机场→机场的飞行时长代理信号"
+    ],
+    "EOBT_1_flt": [
+      "✓ 已用",
+      "派生 iobt_to_sched_sec 等"
+    ],
+    "IOBT_flt": [
+      "✓ 已用",
+      ""
+    ],
+    "LOBT_flt": [
+      "✓ 已用",
+      ""
+    ],
+    "ARVT_3_flt": [
+      "✓ 已用 (实际到达)",
+      ""
+    ],
+    "BLOCK_TIME_UTC_mvt": [
+      "✓ 已用",
+      ""
+    ],
+    "MVT_TIME_UTC_mvt": [
+      "❌ MVT 事件 = 预测目标, ranking 不可知",
+      "如果当特征用就未来泄漏"
+    ],
+    "AOBT_3_flt": [
+      "✓ 已用 (实际推出)",
+      ""
+    ]
+  },
+  "verdict_pending": true,
+  "red_lines": "不训练 / 不上传 / 不改 label 真值; 只训练折 + holdout 测信号强度"
+}

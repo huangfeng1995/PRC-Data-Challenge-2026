@@ -1,0 +1,213 @@
+{
+  "n_holdout": 344419,
+  "seed": 42,
+  "cap": 2000,
+  "train_months": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "holdout_months": [
+    1,
+    7
+  ],
+  "es_months": [
+    11,
+    12
+  ],
+  "n_fit": 1566565,
+  "n_es": 174063,
+  "best_iter": {
+    "A": 1989,
+    "B": 2000
+  },
+  "baseline_FEATS71": {
+    "full": 645.39,
+    "core": 470.95,
+    "jan": 560.42,
+    "jul": 706.48,
+    "bins": [
+      {
+        "bin": "[0,600)",
+        "n": 42792,
+        "rmse": 379.46,
+        "pred_med": 649.0,
+        "true_med": 505.0,
+        "bias": 219.7
+      },
+      {
+        "bin": "[600,1800)",
+        "n": 285832,
+        "rmse": 446.54,
+        "pred_med": 1092.8,
+        "true_med": 961.0,
+        "bias": 187.9
+      },
+      {
+        "bin": "[1800,3600)",
+        "n": 14733,
+        "rmse": 771.59,
+        "pred_med": 1902.4,
+        "true_med": 2095.0,
+        "bias": -242.7
+      },
+      {
+        "bin": "[3600,10800]",
+        "n": 922,
+        "rmse": 2204.7,
+        "pred_med": 2940.6,
+        "true_med": 4392.5,
+        "bias": -1249.1
+      },
+      {
+        "bin": ">10800",
+        "n": 60,
+        "rmse": 33392.89,
+        "pred_med": 8635.6,
+        "true_med": 18250.5,
+        "bias": -22384.2
+      }
+    ]
+  },
+  "with_seq_FEATS74": {
+    "full": 610.48,
+    "core": 421.27,
+    "jan": 536.93,
+    "jul": 663.85,
+    "bins": [
+      {
+        "bin": "[0,600)",
+        "n": 42792,
+        "rmse": 341.74,
+        "pred_med": 639.3,
+        "true_med": 505.0,
+        "bias": 201.9
+      },
+      {
+        "bin": "[600,1800)",
+        "n": 285832,
+        "rmse": 390.59,
+        "pred_med": 1083.7,
+        "true_med": 961.0,
+        "bias": 160.8
+      },
+      {
+        "bin": "[1800,3600)",
+        "n": 14733,
+        "rmse": 738.55,
+        "pred_med": 1887.9,
+        "true_med": 2095.0,
+        "bias": -270.6
+      },
+      {
+        "bin": "[3600,10800]",
+        "n": 922,
+        "rmse": 2211.18,
+        "pred_med": 2866.9,
+        "true_med": 4392.5,
+        "bias": -1371.2
+      },
+      {
+        "bin": ">10800",
+        "n": 60,
+        "rmse": 33445.55,
+        "pred_med": 8933.3,
+        "true_med": 18250.5,
+        "bias": -22477.9
+      }
+    ]
+  },
+  "delta": {
+    "full": -34.91,
+    "core": -49.68,
+    "jan": -23.49,
+    "jul": -42.63
+  },
+  "verdict": "PASS_GE_10S",
+  "top_gain": [
+    {
+      "feat": "t_unimp_r7",
+      "gain": 2806696620858
+    },
+    {
+      "feat": "AIRCRAFT_TYPE_mvt",
+      "gain": 947375346574
+    },
+    {
+      "feat": "dly_aobt_eobt",
+      "gain": 652488653716
+    },
+    {
+      "feat": "STAND_mvt",
+      "gain": 467414847041
+    },
+    {
+      "feat": "dep_queue_n_runway",
+      "gain": 418669598974
+    },
+    {
+      "feat": "airport_hour",
+      "gain": 392156496668
+    },
+    {
+      "feat": "ADES_mvt",
+      "gain": 383857122264
+    },
+    {
+      "feat": "dly_aobt_iobt",
+      "gain": 279905300571
+    },
+    {
+      "feat": "rwy_month_share",
+      "gain": 270917740906
+    },
+    {
+      "feat": "ap_month_hourly_density",
+      "gain": 260240807310
+    },
+    {
+      "feat": "mvt_q_peak",
+      "gain": 237551599713
+    },
+    {
+      "feat": "seq_rwy_gap_mean_prev10",
+      "gain": 236365814025
+    },
+    {
+      "feat": "sched_hour",
+      "gain": 230071180355
+    },
+    {
+      "feat": "seq_rwy_gap_mean_prev3",
+      "gain": 212165877561
+    },
+    {
+      "feat": "eobt_ahead_cnt_30",
+      "gain": 201132762359
+    }
+  ],
+  "seq_feat_gain": [
+    {
+      "feat": "seq_rwy_gap_mean_prev3",
+      "gain": 212165877561,
+      "rank": 14
+    },
+    {
+      "feat": "seq_rwy_gap_mean_prev10",
+      "gain": 236365814025,
+      "rank": 12
+    },
+    {
+      "feat": "seq_ap_dep_cnt_15min",
+      "gain": 32432600953,
+      "rank": 47
+    }
+  ]
+}

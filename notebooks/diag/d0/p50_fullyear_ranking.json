@@ -1,0 +1,52 @@
+{
+  "task": "p50_fullyear_ranking",
+  "objective": "quantile alpha=0.5",
+  "n_train_dep": 2085047,
+  "train_months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "lut_months": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "cap": 2000,
+  "seeds": [
+    42,
+    123,
+    2024
+  ],
+  "n_ranking_dep": 344841,
+  "T_lirf": 14400,
+  "n_lirf_changed": 43,
+  "pred_stats": {
+    "min": 30.0,
+    "p25": 810.5273748800324,
+    "median": 994.2189530502172,
+    "p75": 1229.4385778656012,
+    "p95": 1664.7973582311263,
+    "max": 111654.0
+  },
+  "n_changed_vs_v15": 344795,
+  "submission": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_v23_p50_lirf.parquet",
+  "status": "NOT uploaded",
+  "total_min": 1.9
+}

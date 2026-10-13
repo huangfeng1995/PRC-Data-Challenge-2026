@@ -1,0 +1,378 @@
+{
+  "meta": {
+    "ap": "LIRF",
+    "apep_code": "LIRF",
+    "tol": 60,
+    "sentinel": -9223372037,
+    "extreme_thr": 10800,
+    "note": "单机场数据取证, 非建模"
+  },
+  "step1": {
+    "n_lirf_dep": 26528,
+    "n_ext": 54,
+    "block_eq_sched": 49,
+    "block_eq_aobt": 0,
+    "adep_flt_null": 52,
+    "aobt_sentinel": 52,
+    "aobt_null": 0,
+    "nm_missing": 52,
+    "taxi_min": 10979,
+    "taxi_median": 18668.0,
+    "taxi_max": 88132,
+    "mvt_sched_median": 18663.5,
+    "mvt_sched_max": 93535,
+    "verdict": "BLOCK==SCHED 标签损坏(推出时刻被计划时刻顶替)",
+    "carrier_top": {
+      "<NA>": 52,
+      "48910dcb821117a444345fed5c3a6252fbd8001e57ccbf6a8de57789aaf1a459": 1,
+      "15411f3d2b871015c95769cd30aecfb523d203b1f4d1cc0875d24545cb1261ae": 1
+    },
+    "ac": {
+      "B738": 1,
+      "A321": 1
+    },
+    "rwy": {
+      "25": 47,
+      "16R": 5,
+      "34L": 2
+    },
+    "market": {
+      "Lowcost": 2
+    },
+    "flight_rule": {
+      "I": 2
+    },
+    "hour": {
+      "0": 3,
+      "1": 2,
+      "3": 2,
+      "5": 1,
+      "6": 3,
+      "7": 2,
+      "8": 3,
+      "9": 1,
+      "12": 4,
+      "13": 2,
+      "14": 4,
+      "15": 1,
+      "16": 2,
+      "17": 6,
+      "18": 1,
+      "20": 4,
+      "21": 4,
+      "22": 4,
+      "23": 5
+    },
+    "flight_pref": {
+      "FI": 5,
+      "RY": 5,
+      "AE": 5,
+      "WM": 4,
+      "IT": 3,
+      "IS": 3,
+      "HA": 2,
+      "LA": 2,
+      "TA": 2,
+      "NO": 2,
+      "EX": 2,
+      "WZ": 2,
+      "MA": 2,
+      "AC": 1,
+      "AA": 1,
+      "CH": 1,
+      "MS": 1,
+      "AB": 1,
+      "TG": 1,
+      "TK": 1,
+      "GT": 1,
+      "TH": 1,
+      "VL": 1,
+      "BE": 1,
+      "CE": 1,
+      "VO": 1,
+      "KM": 1,
+      "AR": 1
+    }
+  },
+  "step2": {
+    "base_rate_pct": 0.2036,
+    "n_ext": 54,
+    "rules": [
+      {
+        "rule": "ADEP_flt 缺失",
+        "n": 397,
+        "tp": 52,
+        "fp": 345,
+        "precision": 0.131,
+        "recall": 0.963,
+        "f1": 0.2306
+      },
+      {
+        "rule": "AOBT 哨兵",
+        "n": 397,
+        "tp": 52,
+        "fp": 345,
+        "precision": 0.131,
+        "recall": 0.963,
+        "f1": 0.2306
+      },
+      {
+        "rule": "no_nm(AOBT哨兵或空)",
+        "n": 397,
+        "tp": 52,
+        "fp": 345,
+        "precision": 0.131,
+        "recall": 0.963,
+        "f1": 0.2306
+      },
+      {
+        "rule": "NM缺失(AOBT异常 或 ADEP_flt空)",
+        "n": 397,
+        "tp": 52,
+        "fp": 345,
+        "precision": 0.131,
+        "recall": 0.963,
+        "f1": 0.2306
+      },
+      {
+        "rule": "MVT-SCHED > 3600s",
+        "n": 4166,
+        "tp": 54,
+        "fp": 4112,
+        "precision": 0.013,
+        "recall": 1.0,
+        "f1": 0.0256
+      },
+      {
+        "rule": "MVT-SCHED > 10800s",
+        "n": 337,
+        "tp": 54,
+        "fp": 283,
+        "precision": 0.1602,
+        "recall": 1.0,
+        "f1": 0.2762
+      },
+      {
+        "rule": "MVT-SCHED > 14400s",
+        "n": 157,
+        "tp": 42,
+        "fp": 115,
+        "precision": 0.2675,
+        "recall": 0.7778,
+        "f1": 0.3981
+      },
+      {
+        "rule": "MVT-SCHED > 21600s",
+        "n": 42,
+        "tp": 22,
+        "fp": 20,
+        "precision": 0.5238,
+        "recall": 0.4074,
+        "f1": 0.4583
+      },
+      {
+        "rule": "MVT-SCHED > 10800s",
+        "n": 337,
+        "tp": 54,
+        "fp": 283,
+        "precision": 0.1602,
+        "recall": 1.0,
+        "f1": 0.2762
+      },
+      {
+        "rule": "NM缺失 且 MVT-SCHED>10800",
+        "n": 83,
+        "tp": 52,
+        "fp": 31,
+        "precision": 0.6265,
+        "recall": 0.963,
+        "f1": 0.7591
+      },
+      {
+        "rule": "ADEP_flt缺失 且 MVT-SCHED>10800",
+        "n": 83,
+        "tp": 52,
+        "fp": 31,
+        "precision": 0.6265,
+        "recall": 0.963,
+        "f1": 0.7591
+      },
+      {
+        "rule": "ADEP_flt缺失 且 MVT-SCHED>10800",
+        "n": 83,
+        "tp": 52,
+        "fp": 31,
+        "precision": 0.6265,
+        "recall": 0.963,
+        "f1": 0.7591
+      },
+      {
+        "rule": "ADEP_flt缺失 且 MVT-SCHED>14400",
+        "n": 45,
+        "tp": 41,
+        "fp": 4,
+        "precision": 0.9111,
+        "recall": 0.7593,
+        "f1": 0.8283
+      },
+      {
+        "rule": "ADEP_flt缺失 且 MVT-SCHED>21600",
+        "n": 21,
+        "tp": 21,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 0.3889,
+        "f1": 0.56
+      },
+      {
+        "rule": "ADEP_flt缺失 且 MVT-SCHED>28800",
+        "n": 16,
+        "tp": 16,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 0.2963,
+        "f1": 0.4571
+      },
+      {
+        "rule": "ADEP_flt缺失 且 MVT-SCHED>43200",
+        "n": 11,
+        "tp": 11,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 0.2037,
+        "f1": 0.3385
+      }
+    ],
+    "month_stability": {
+      "1": {
+        "n": 11317,
+        "n_ext": 7,
+        "rate_pct": 0.0619,
+        "n_adep_flt_null": 60,
+        "n_nm_missing": 60
+      },
+      "2": {
+        "n": 10703,
+        "n_ext": 11,
+        "rate_pct": 0.1028,
+        "n_adep_flt_null": 58,
+        "n_nm_missing": 58
+      },
+      "3": {
+        "n": 12544,
+        "n_ext": 6,
+        "rate_pct": 0.0478,
+        "n_adep_flt_null": 59,
+        "n_nm_missing": 59
+      },
+      "4": {
+        "n": 14028,
+        "n_ext": 10,
+        "rate_pct": 0.0713,
+        "n_adep_flt_null": 70,
+        "n_nm_missing": 70
+      },
+      "5": {
+        "n": 14541,
+        "n_ext": 15,
+        "rate_pct": 0.1032,
+        "n_adep_flt_null": 99,
+        "n_nm_missing": 99
+      },
+      "6": {
+        "n": 14696,
+        "n_ext": 18,
+        "rate_pct": 0.1225,
+        "n_adep_flt_null": 185,
+        "n_nm_missing": 185
+      },
+      "7": {
+        "n": 15211,
+        "n_ext": 47,
+        "rate_pct": 0.309,
+        "n_adep_flt_null": 337,
+        "n_nm_missing": 337
+      },
+      "8": {
+        "n": 15459,
+        "n_ext": 25,
+        "rate_pct": 0.1617,
+        "n_adep_flt_null": 197,
+        "n_nm_missing": 197
+      },
+      "9": {
+        "n": 14667,
+        "n_ext": 20,
+        "rate_pct": 0.1364,
+        "n_adep_flt_null": 168,
+        "n_nm_missing": 168
+      },
+      "10": {
+        "n": 14142,
+        "n_ext": 12,
+        "rate_pct": 0.0849,
+        "n_adep_flt_null": 115,
+        "n_nm_missing": 115
+      },
+      "11": {
+        "n": 11328,
+        "n_ext": 6,
+        "rate_pct": 0.053,
+        "n_adep_flt_null": 52,
+        "n_nm_missing": 52
+      },
+      "12": {
+        "n": 12068,
+        "n_ext": 11,
+        "rate_pct": 0.0912,
+        "n_adep_flt_null": 88,
+        "n_nm_missing": 88
+      }
+    },
+    "block_eq_sched_baseline_lirf_pct": 20.725,
+    "block_eq_sched_extreme_pct": 90.74,
+    "block_eq_sched_nonextreme_pct": 20.6434,
+    "n_lirf_dep_12m": 160704,
+    "n_ext_12m": 188
+  },
+  "step3": {
+    "n_ranking_lirf_dep": 26899,
+    "block_nonnull_pct": 100.0,
+    "taxitime_nonnull_pct": 0.0,
+    "adep_flt_null_pct": 1.42,
+    "aobt_sentinel_pct": 1.42,
+    "nm_missing_pct": 1.42,
+    "mvt_sched_median": 1561.0,
+    "mvt_sched_p99": 11279.0,
+    "mvt_sched_max": 111654.0,
+    "train12m_adep_flt_null_pct": 0.93,
+    "train12m_nm_missing_pct": 0.93,
+    "screen": {
+      "10800": {
+        "ranking": 304,
+        "ranking_pct": 1.13,
+        "train12m": 1168
+      },
+      "14400": {
+        "ranking": 138,
+        "ranking_pct": 0.51,
+        "train12m": 510
+      },
+      "21600": {
+        "ranking": 43,
+        "ranking_pct": 0.16,
+        "train12m": 149
+      },
+      "28800": {
+        "ranking": 30,
+        "ranking_pct": 0.11,
+        "train12m": 75
+      },
+      "43200": {
+        "ranking": 12,
+        "ranking_pct": 0.04,
+        "train12m": 31
+      }
+    }
+  }
+}

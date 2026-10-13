@@ -1,0 +1,452 @@
+{
+  "task": "audit_ref_anchor_feats71",
+  "method": {
+    "static": "逐特征读源码, 记录计算时的参考时刻/查询点列",
+    "empirical": "把 MVT_TIME_UTC_mvt 换成反事实值(每行±6h随机平移)重算, 合法特征必须逐行不变; 不依赖对源码的理解"
+  },
+  "static_table": {
+    "mvt_n_ahead": {
+      "source": "_r7_lib.py:291 compute_mvt_anchor_features",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query 事件)",
+      "verdict": "泄漏"
+    },
+    "mvt_pos_rw": {
+      "source": "_r7_lib.py:445-447 (pos_rw = q_n+1)",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query)",
+      "verdict": "泄漏"
+    },
+    "mvt_na_J": {
+      "source": "_r7_lib.py:438",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query)",
+      "verdict": "泄漏"
+    },
+    "mvt_na_H": {
+      "source": "_r7_lib.py:439",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query)",
+      "verdict": "泄漏"
+    },
+    "mvt_na_M": {
+      "source": "_r7_lib.py:440",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query)",
+      "verdict": "泄漏"
+    },
+    "mvt_na_L": {
+      "source": "_r7_lib.py:441",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query)",
+      "verdict": "泄漏"
+    },
+    "mvt_na_heavy_frac": {
+      "source": "_r7_lib.py:442-443",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query)",
+      "verdict": "泄漏"
+    },
+    "mvt_na_heavy_x_pos": {
+      "source": "_r7_lib.py:448-449",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, query)",
+      "verdict": "泄漏"
+    },
+    "mvt_mu_rwy_5": {
+      "source": "_r7_lib.py:452-460 (mvt_g - w_ns 窗口)",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身中心)",
+      "verdict": "泄漏"
+    },
+    "mvt_mu_rwy_15": {
+      "source": "_r7_lib.py:452-460",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身中心)",
+      "verdict": "泄漏"
+    },
+    "mvt_mu_rwy_30": {
+      "source": "_r7_lib.py:452-460",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身中心)",
+      "verdict": "泄漏"
+    },
+    "mvt_w_actual_5": {
+      "source": "_r7_lib.py:463-467 (= n_ahead/mu)",
+      "ref_time_col": "间接经 n_ahead/mu_rwy → MVT",
+      "verdict": "泄漏"
+    },
+    "mvt_w_actual_15": {
+      "source": "_r7_lib.py:463-467",
+      "ref_time_col": "间接经 n_ahead/mu_rwy → MVT",
+      "verdict": "泄漏"
+    },
+    "mvt_w_actual_30": {
+      "source": "_r7_lib.py:463-467",
+      "ref_time_col": "间接经 n_ahead/mu_rwy → MVT",
+      "verdict": "泄漏"
+    },
+    "mvt_q_peak": {
+      "source": "_r7_lib.py:473-562 (窗口 [AOBT_i, MVT_i])",
+      "ref_time_col": "窗口终点 = MVT_TIME_UTC_mvt (自身)",
+      "verdict": "泄漏"
+    },
+    "mvt_q_mean": {
+      "source": "_r7_lib.py:473-562 (窗口 [AOBT_i, MVT_i])",
+      "ref_time_col": "窗口终点 = MVT_TIME_UTC_mvt (自身)",
+      "verdict": "泄漏"
+    },
+    "dep_cnt_m_5": {
+      "source": "_r7_lib.py:150-153 (_window_count_1d(mvt_ap, ...))",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "dep_cnt_m_15": {
+      "source": "_r7_lib.py:150-153",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "dep_cnt_m_30": {
+      "source": "_r7_lib.py:150-153",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "aobt_cnt_m_5": {
+      "source": "_r7_lib.py:154-159 (查询点 mvt_ap, 事件 AOBT)",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "aobt_cnt_m_15": {
+      "source": "_r7_lib.py:154-159",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "aobt_cnt_m_30": {
+      "source": "_r7_lib.py:154-159",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "eobt_ahead_cnt_5": {
+      "source": "_r7_lib.py:160-165 (查询点 mvt_ap, 事件 EOBT)",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "eobt_ahead_cnt_15": {
+      "source": "_r7_lib.py:160-165",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "eobt_ahead_cnt_30": {
+      "source": "_r7_lib.py:160-165",
+      "ref_time_col": "MVT_TIME_UTC_mvt (自身, 查询点)",
+      "verdict": "泄漏"
+    },
+    "dep_mvt_cnt_airport_5m": {
+      "source": "features_queue.py:38-47 add_ref_time + :173",
+      "ref_time_col": "AOBT_3_flt (回退 EOBT_1_flt) → 合法",
+      "verdict": "合法"
+    },
+    "dep_mvt_cnt_airport_10m": {
+      "source": "features_queue.py:38-47 + :173",
+      "ref_time_col": "AOBT_3_flt (回退 EOBT_1_flt) → 合法",
+      "verdict": "合法"
+    },
+    "dep_mvt_cnt_airport_15m": {
+      "source": "features_queue.py:38-47 + :173",
+      "ref_time_col": "AOBT_3_flt (回退 EOBT_1_flt) → 合法",
+      "verdict": "合法"
+    },
+    "dep_mvt_cnt_runway_5m": {
+      "source": "features_queue.py:38-47 + :195-201",
+      "ref_time_col": "AOBT_3_flt (回退 EOBT_1_flt) → 合法",
+      "verdict": "合法"
+    },
+    "dep_mvt_cnt_runway_10m": {
+      "source": "features_queue.py:38-47 + :195-201",
+      "ref_time_col": "AOBT_3_flt (回退 EOBT_1_flt) → 合法",
+      "verdict": "合法"
+    },
+    "dep_mvt_cnt_runway_15m": {
+      "source": "features_queue.py:38-47 + :195-201",
+      "ref_time_col": "AOBT_3_flt (回退 EOBT_1_flt) → 合法",
+      "verdict": "合法"
+    },
+    "dly_aobt_eobt": {
+      "source": "_r7_lib.py:125 (AOBT − EOBT)",
+      "ref_time_col": "AOBT_3_flt / EOBT_1_flt 两列之差, 不含 MVT",
+      "verdict": "合法"
+    },
+    "dly_aobt_iobt": {
+      "source": "_r7_lib.py:126 (AOBT − IOBT)",
+      "ref_time_col": "AOBT_3_flt / IOBT_flt 两列之差, 不含 MVT",
+      "verdict": "合法"
+    },
+    "dly_aobt_sched": {
+      "source": "_r7_lib.py:127 (AOBT − SCHED)",
+      "ref_time_col": "AOBT_3_flt / SCHED_TIME 两列之差, 不含 MVT",
+      "verdict": "合法"
+    },
+    "dly_lobt_aobt": {
+      "source": "_r7_lib.py:128 (LOBT − AOBT)",
+      "ref_time_col": "LOBT_flt / AOBT_3_flt 两列之差, 不含 MVT",
+      "verdict": "合法"
+    },
+    "rwy_month_share": {
+      "source": "_r8_drift_lib.py:42-56",
+      "ref_time_col": "无自身时刻窗口(仅 (ADEP,RUNWAY,MONTH) 频率)",
+      "verdict": "合法"
+    },
+    "ap_month_hourly_density": {
+      "source": "_r8_drift_lib.py:58-68",
+      "ref_time_col": "无自身时刻窗口(仅 (ADEP,MONTH,HOUR) 频率)",
+      "verdict": "合法"
+    }
+  },
+  "empirical": {
+    "aobt_cnt_m_15": {
+      "n_valid": 190713,
+      "n_changed": 175629,
+      "changed_frac": 0.920907,
+      "verdict": "泄漏"
+    },
+    "aobt_cnt_m_30": {
+      "n_valid": 190713,
+      "n_changed": 180789,
+      "changed_frac": 0.947964,
+      "verdict": "泄漏"
+    },
+    "aobt_cnt_m_5": {
+      "n_valid": 190713,
+      "n_changed": 159606,
+      "changed_frac": 0.836891,
+      "verdict": "泄漏"
+    },
+    "dep_cnt_m_15": {
+      "n_valid": 190713,
+      "n_changed": 174903,
+      "changed_frac": 0.917101,
+      "verdict": "泄漏"
+    },
+    "dep_cnt_m_30": {
+      "n_valid": 190713,
+      "n_changed": 181399,
+      "changed_frac": 0.951162,
+      "verdict": "泄漏"
+    },
+    "dep_cnt_m_5": {
+      "n_valid": 190713,
+      "n_changed": 156224,
+      "changed_frac": 0.819158,
+      "verdict": "泄漏"
+    },
+    "dly_aobt_eobt": {
+      "n_valid": 186775,
+      "n_changed": 0,
+      "changed_frac": 0.0,
+      "verdict": "合法"
+    },
+    "dly_aobt_iobt": {
+      "n_valid": 186775,
+      "n_changed": 0,
+      "changed_frac": 0.0,
+      "verdict": "合法"
+    },
+    "dly_aobt_sched": {
+      "n_valid": 186775,
+      "n_changed": 0,
+      "changed_frac": 0.0,
+      "verdict": "合法"
+    },
+    "dly_lobt_aobt": {
+      "n_valid": 186775,
+      "n_changed": 0,
+      "changed_frac": 0.0,
+      "verdict": "合法"
+    },
+    "eobt_ahead_cnt_15": {
+      "n_valid": 190713,
+      "n_changed": 175289,
+      "changed_frac": 0.919125,
+      "verdict": "泄漏"
+    },
+    "eobt_ahead_cnt_30": {
+      "n_valid": 190713,
+      "n_changed": 180172,
+      "changed_frac": 0.944728,
+      "verdict": "泄漏"
+    },
+    "eobt_ahead_cnt_5": {
+      "n_valid": 190713,
+      "n_changed": 159739,
+      "changed_frac": 0.837588,
+      "verdict": "泄漏"
+    },
+    "mvt_mu_rwy_15": {
+      "n_valid": 190712,
+      "n_changed": 171707,
+      "changed_frac": 0.900347,
+      "verdict": "泄漏"
+    },
+    "mvt_mu_rwy_30": {
+      "n_valid": 190712,
+      "n_changed": 179510,
+      "changed_frac": 0.941262,
+      "verdict": "泄漏"
+    },
+    "mvt_mu_rwy_5": {
+      "n_valid": 190712,
+      "n_changed": 148297,
+      "changed_frac": 0.777597,
+      "verdict": "泄漏"
+    },
+    "mvt_n_ahead": {
+      "n_valid": 190712,
+      "n_changed": 182914,
+      "changed_frac": 0.959111,
+      "verdict": "泄漏"
+    },
+    "mvt_na_H": {
+      "n_valid": 190712,
+      "n_changed": 154347,
+      "changed_frac": 0.80932,
+      "verdict": "泄漏"
+    },
+    "mvt_na_J": {
+      "n_valid": 190712,
+      "n_changed": 30769,
+      "changed_frac": 0.161338,
+      "verdict": "泄漏"
+    },
+    "mvt_na_L": {
+      "n_valid": 190712,
+      "n_changed": 16916,
+      "changed_frac": 0.088699,
+      "verdict": "泄漏"
+    },
+    "mvt_na_M": {
+      "n_valid": 190712,
+      "n_changed": 180534,
+      "changed_frac": 0.946632,
+      "verdict": "泄漏"
+    },
+    "mvt_na_heavy_frac": {
+      "n_valid": 190712,
+      "n_changed": 156651,
+      "changed_frac": 0.821401,
+      "verdict": "泄漏"
+    },
+    "mvt_na_heavy_x_pos": {
+      "n_valid": 190712,
+      "n_changed": 157179,
+      "changed_frac": 0.824169,
+      "verdict": "泄漏"
+    },
+    "mvt_pos_rw": {
+      "n_valid": 190712,
+      "n_changed": 182914,
+      "changed_frac": 0.959111,
+      "verdict": "泄漏"
+    },
+    "mvt_q_mean": {
+      "n_valid": 97383,
+      "n_changed": 97245,
+      "changed_frac": 0.998583,
+      "verdict": "泄漏"
+    },
+    "mvt_q_peak": {
+      "n_valid": 97383,
+      "n_changed": 95906,
+      "changed_frac": 0.984833,
+      "verdict": "泄漏"
+    },
+    "mvt_w_actual_15": {
+      "n_valid": 190712,
+      "n_changed": 183984,
+      "changed_frac": 0.964722,
+      "verdict": "泄漏"
+    },
+    "mvt_w_actual_30": {
+      "n_valid": 190712,
+      "n_changed": 184036,
+      "changed_frac": 0.964994,
+      "verdict": "泄漏"
+    },
+    "mvt_w_actual_5": {
+      "n_valid": 190712,
+      "n_changed": 183674,
+      "changed_frac": 0.963096,
+      "verdict": "泄漏"
+    }
+  },
+  "consistency": {
+    "mismatches": [],
+    "consistent": true
+  },
+  "n_feats71": 71,
+  "n_leak": 25,
+  "leak_features": [
+    "mvt_n_ahead",
+    "mvt_mu_rwy_15",
+    "mvt_mu_rwy_30",
+    "mvt_w_actual_15",
+    "mvt_w_actual_30",
+    "mvt_q_peak",
+    "mvt_q_mean",
+    "mvt_na_J",
+    "mvt_na_H",
+    "mvt_na_M",
+    "mvt_na_L",
+    "mvt_na_heavy_frac",
+    "mvt_pos_rw",
+    "mvt_na_heavy_x_pos",
+    "mvt_mu_rwy_5",
+    "mvt_w_actual_5",
+    "dep_cnt_m_5",
+    "dep_cnt_m_15",
+    "dep_cnt_m_30",
+    "aobt_cnt_m_5",
+    "aobt_cnt_m_15",
+    "aobt_cnt_m_30",
+    "eobt_ahead_cnt_5",
+    "eobt_ahead_cnt_15",
+    "eobt_ahead_cnt_30"
+  ],
+  "n_after_removal": 46,
+  "legal_features": [
+    "ADEP_mvt",
+    "ADES_mvt",
+    "AIRCRAFT_OPERATOR_flt",
+    "AIRCRAFT_TYPE_mvt",
+    "FLIGHT_RULE_flt",
+    "FLIGHT_TYPE_flt",
+    "MARKET_SEGMENT_flt",
+    "RUNWAY_mvt",
+    "STAND_mvt",
+    "WK_TBL_CAT_flt",
+    "airport_hour",
+    "ap_month_hourly_density",
+    "dep_mvt_cnt_airport_10m",
+    "dep_mvt_cnt_airport_15m",
+    "dep_mvt_cnt_airport_5m",
+    "dep_mvt_cnt_runway_10m",
+    "dep_mvt_cnt_runway_15m",
+    "dep_mvt_cnt_runway_5m",
+    "dep_queue_n_airport",
+    "dep_queue_n_runway",
+    "dly_aobt_eobt",
+    "dly_aobt_iobt",
+    "dly_aobt_sched",
+    "dly_lobt_aobt",
+    "dow_cos",
+    "dow_sin",
+    "eobt_to_sched_sec",
+    "hour_cos",
+    "hour_sin",
+    "iobt_eobt_diff_sec",
+    "iobt_to_sched_sec",
+    "is_diverted",
+    "is_domestic_estimate",
+    "is_evening_peak",
+    "is_morning_peak",
+    "is_weekend",
+    "month_cos",
+    "month_sin",
+    "ref_was_estimated",
+    "rwy_month_share",
+    "sched_day",
+    "sched_dow",
+    "sched_hour",
+    "sched_minute",
+    "sched_month",
+    "t_unimp_r7"
+  ]
+}

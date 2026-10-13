@@ -1,0 +1,47 @@
+{
+  "task": "R7slim XGB 3 seed holdout retrain (\u4fee\u590d\u540e\u7ba1\u7ebf)",
+  "params": {
+    "objective": "reg:squarederror",
+    "eval_metric": "rmse",
+    "learning_rate": 0.0147555939449363,
+    "max_depth": 11,
+    "min_child_weight": 5,
+    "subsample": 0.9813515130184908,
+    "colsample_bytree": 0.6720708449966734,
+    "reg_alpha": 2.4624169162161342,
+    "reg_lambda": 1.9936339729896335,
+    "tree_method": "hist",
+    "nthread": -1,
+    "verbosity": 0,
+    "seeds": [
+      42,
+      123,
+      2024
+    ]
+  },
+  "seeds_results": {
+    "42": {
+      "rmse": 538.9530639648438,
+      "mae": 175.7976837158203,
+      "bias": -3.754911422729492,
+      "best_iter": 1848
+    },
+    "123": {
+      "rmse": 539.7066040039062,
+      "mae": 175.16793823242188,
+      "bias": -3.4506003856658936,
+      "best_iter": 2419
+    },
+    "2024": {
+      "rmse": 539.60400390625,
+      "mae": 175.05067443847656,
+      "bias": -3.682466983795166,
+      "best_iter": 2500
+    }
+  },
+  "ensemble_rmse": 539.0575845536987,
+  "anchor_r7slim": 283.55,
+  "n_train_dep": 1740628,
+  "n_holdout_dep": 344419,
+  "verdict": "\u274c \u660e\u663e\u504f\u9ad8, \u505c\u4e0b"
+}

@@ -1,0 +1,138 @@
+{
+  "feats71_queue_like": [
+    "mvt_n_ahead",
+    "mvt_pos_rw",
+    "mvt_mu_rwy_5",
+    "mvt_mu_rwy_15",
+    "mvt_mu_rwy_30",
+    "mvt_w_actual_5",
+    "mvt_w_actual_15",
+    "mvt_w_actual_30",
+    "mvt_na_J",
+    "mvt_na_H",
+    "mvt_na_M",
+    "mvt_na_L",
+    "mvt_na_heavy_frac",
+    "mvt_na_heavy_x_pos",
+    "mvt_q_peak",
+    "mvt_q_mean",
+    "dep_mvt_cnt_runway_5m",
+    "dep_mvt_cnt_runway_10m",
+    "dep_mvt_cnt_runway_15m",
+    "dep_mvt_cnt_airport_5m",
+    "dep_mvt_cnt_airport_10m",
+    "dep_mvt_cnt_airport_15m",
+    "dep_cnt_m_5",
+    "dep_cnt_m_15",
+    "dep_cnt_m_30",
+    "dep_queue_n_runway",
+    "dep_queue_n_airport",
+    "ap_month_hourly_density",
+    "rwy_month_share"
+  ],
+  "new_candidates": [
+    "q_k_burst",
+    "q_k_x_s",
+    "q_svc_gap",
+    "q_svc_p75",
+    "q_svc_ratio",
+    "q_idle_since_dep",
+    "q_burst_len_min",
+    "q_dep_cnt_60m",
+    "q_dep_cnt_120m",
+    "q_arr_cnt_30m",
+    "q_arr_cnt_60m",
+    "q_rwy_share_dep"
+  ],
+  "source_map": {
+    "mvt_n_ahead": "_r7_lib.py:420  enter(AOBT+t_unimp)事件在 MVT 时刻的瞬时队列长度",
+    "mvt_pos_rw": "_r7_lib.py:446  = n_ahead + 1 (队列位置 1-based)",
+    "mvt_mu_rwy_*": "_r7_lib.py:456  [MVT-w, MVT] 内同跑道起飞数 / w  → 架次/分钟",
+    "mvt_w_actual_*": "_r7_lib.py:466  = n_ahead / mu_rwy  (分钟)",
+    "mvt_na_*": "_r7_lib.py:426  队列内 J/H/M/L 尾流类别计数",
+    "mvt_na_heavy_*": "_r7_lib.py:442  (J+H)/n 及 (J+H)*pos_rw",
+    "mvt_q_peak/mean": "_r7_lib.py:469+ 机场级 [AOBT, MVT] 窗口内队列峰值/均值",
+    "dep_mvt_cnt_runway_*": "features_queue.py:38-47  以 AOBT 为中心的前 w 分钟同跑道起飞数",
+    "dep_cnt_m_*": "_r7_lib.py:148  以 MVT 为查询点的起飞计数",
+    "ap_month_hourly_density": "ap×月×小时 起飞密度"
+  },
+  "ap": {
+    "EGLL": {
+      "n_rwy": 5,
+      "fixed300": {
+        "k_med": 81.0,
+        "k_p95": 275.0,
+        "k_max": 400
+      },
+      "adaptive": {
+        "k_med": 35.0,
+        "k_p95": 182.0,
+        "k_max": 357,
+        "s_med": 65.5
+      }
+    },
+    "LTFM": {
+      "n_rwy": 9,
+      "fixed300": {
+        "k_med": 5.0,
+        "k_p95": 49.0,
+        "k_max": 189
+      },
+      "adaptive": {
+        "k_med": 8.0,
+        "k_p95": 60.0,
+        "k_max": 189,
+        "s_med": 119.5
+      }
+    },
+    "LIRF": {
+      "n_rwy": 5,
+      "fixed300": {
+        "k_med": 5.0,
+        "k_p95": 34.0,
+        "k_max": 95
+      },
+      "adaptive": {
+        "k_med": 7.0,
+        "k_p95": 42.0,
+        "k_max": 120,
+        "s_med": 117.5
+      }
+    },
+    "EHAM": {
+      "n_rwy": 9,
+      "fixed300": {
+        "k_med": 9.0,
+        "k_p95": 46.0,
+        "k_max": 124
+      },
+      "adaptive": {
+        "k_med": 8.0,
+        "k_p95": 45.0,
+        "k_max": 124,
+        "s_med": 99.0
+      }
+    },
+    "LFPG": {
+      "n_rwy": 8,
+      "fixed300": {
+        "k_med": 5.0,
+        "k_p95": 42.0,
+        "k_max": 189
+      },
+      "adaptive": {
+        "k_med": 7.0,
+        "k_p95": 58.0,
+        "k_max": 231,
+        "s_med": 121.5
+      }
+    }
+  },
+  "corr_egll": {
+    "k_vs_taxi": 0.030645035820800092,
+    "s_vs_taxi": -0.05734035264031546,
+    "since_dep_vs_taxi": -0.007771858073045883,
+    "cnt60_vs_taxi": 0.06770578227206983,
+    "cnt120_vs_taxi": 0.06025715214354331
+  }
+}
