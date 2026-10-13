@@ -1,0 +1,56 @@
+{
+  "task": "p0_ranking_predict_v20",
+  "n_ranking_dep": 344841,
+  "ensemble_method": "9-model simple mean + clip [30, 10800]",
+  "models": [
+    "lgb42",
+    "lgb123",
+    "lgb2024",
+    "xgb42_v15",
+    "xgb123_v15",
+    "xgb2024_v15",
+    "cat42",
+    "cat123",
+    "cat2024"
+  ],
+  "n_clipped_by_clip": 0,
+  "submission_path": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_v20.parquet",
+  "submission_rows": 344841,
+  "mvt_id_match": "✓ set+order 完全对齐 submitting.parquet",
+  "distribution_rank": {
+    "n": 344841,
+    "min": 238.06494621864982,
+    "p25": 844.8314259685643,
+    "median": 1034.641518994963,
+    "p75": 1278.362912919216,
+    "p95": 1742.2887807213613,
+    "max": 6834.126235702579,
+    "n_pred_gt_1800": 13821,
+    "n_pred_gt_3600": 320,
+    "n_pred_gt_10800": 0
+  },
+  "vs_holdout_ENS": {
+    "median_diff": 53.48816816488488,
+    "p95_diff": 90.51332906120501,
+    "max_diff": -712.6384127349211
+  },
+  "model_files": {
+    "lgb": [
+      "notebooks/diag/d0/p0_models/p0_lgb_seed42.txt",
+      "notebooks/diag/d0/p0_models/p0_lgb_seed123.txt",
+      "notebooks/diag/d0/p0_models/p0_lgb_seed2024.txt"
+    ],
+    "xgb": [
+      "models/v15_clean_retrain/xgb_seed42.json",
+      "models/v15_clean_retrain/xgb_seed123.json",
+      "models/v15_clean_retrain/xgb_seed2024.json"
+    ],
+    "cat": [
+      "notebooks/diag/d0/p0_models/p0_cat_seed42.cbm",
+      "notebooks/diag/d0/p0_models/p0_cat_seed123.cbm",
+      "notebooks/diag/d0/p0_models/p0_cat_seed2024.cbm"
+    ]
+  },
+  "submission_status": "NOT uploaded (等用户确认)",
+  "total_time_sec": 449.4
+}
