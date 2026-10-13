@@ -1,9 +1,19 @@
 # PRC Data Challenge 2026 — Taxi-Out Time Prediction
 
-> **目的**:团队 `jubilant-puzzle` 的参赛工程仓库。**代码 + 小样本数据 + 复现脚本**,全量数据留在本地/从官方 MinIO 拉取。
+> **队伍**:`jubilant-puzzle`
+> **目的**:参赛工程仓库。**代码 + 小样本数据 + 复现脚本**,全量数据留在本地/从官方 MinIO 拉取。
 > **比赛**:[PRC Data Challenge 2026](https://ansperformance.eu/study/data-challenge/dc2026/) — Taxi-Out Time Prediction
-> **截止**:2026-10-11 23:59:59 CET
 > **评分**:RMSE(以秒计)
+
+**最终提交**:`submissions/jubilant-puzzle_final.parquet`(670,790 行)— 官方回执 `Succeeded`
+| 口径 | 数值 | 说明 |
+|---|---:|---|
+| holdout 四月 RMSE | **324.76** | 2025 年1/2/6/7 月内部验证,较基线 493.05 降 **34.1%** |
+| 榜单试错最佳 | **360.86** | v22,truthing.parquet 口径(官方即时出分) |
+| final 官方分 | 待赛后公布 | final 槽位换用final_submitting.parquet,赛后统一评分 |
+
+> holdout 与榜单口径不同,不可直接比较(v22: holdout 342.40 ↔ 真榜 360.86)。
+> 方法与完整实验记录见 `docs/method.md`,战绩台账见 `docs/LEADERBOARD_LEDGER.md`。
 
 ---
 
@@ -52,6 +62,12 @@ prc_data_challenge/
 │   ├── *.json / *.txt / *.cbm  ⚠️ 模型权重 (~1.4 GB, 不入库, 需重训)
 │
 ├── docs/                      设计文档 / 报告
+│   ├── method.md                ★ 最终方法说明(含负面结果)
+│   ├── LEADERBOARD_LEDGER.md    ★ 逐版本真榜战绩台账
+│   └── ...                      历史设计与诊断报告
+│
+├── supplementary/           ★ repo 补充产物 (不进评分)
+│   └── final_uncertainty.parquet   final 四个月的 σ 与共形区间(8 列)
 │
 ├── notebooks/                 一次性诊断脚本 (本地用, 不在云端跑)
 │   ├── diag/                  历史诊断, 多数含本机绝对路径 (仅本地执行)
@@ -178,12 +194,15 @@ git check-ignore data/raw/*.parquet models/*.json submissions/*.parquet
 |---|---|---|
 | 数据接入 | ✅ 已下载全量 | OSN 凭据见 .env(不入库) |
 | 77 特征 baseline | ✅ | XGB+LGB+Cat 融合 |
-| v1 提交 leaderboard | ✅ | RMSE 589.91(单 XGBoost 29 特征, 中位数) |
-| v15 holdout RMSE 281.87 | ✅ | 71 特征 + 9 模型集成 |
-| 距离特征 add-one | ✅ | X-Plane apt.dat 88.26% 覆盖, −0.31s 边际增益 |
-| 数据挑战赛提交 | ⏳ 进行中 | 截止 2026-10-11 |
+| 榜单迭代 | ✅ | v1 589.91 → v22 **360.86** (试错口径最佳) |
+| LIRF 标签损坏取证 | ✅ | 发现 BLOCK 被 SCHED 顶替,修复 1484 → 655 |
+| 最终提交 | ✅ 已上传 | noclip E2,holdout **324.76**,官方回执 Succeeded |
+| 不确定性量化 | ✅ | 物理约束二阶矩混合 + 损坏感知分层共形,见 `supplementary/` |
 
-详见 `docs/PROJECT_OVERVIEW.md`。
+**核心结论**:493.05 → 324.76 的降幅**几乎全部来自发现并修复 LIRF 标签数据损坏**,而非新算法。
+非 LIRF 长尾行(>1800s极端滑行)属真实物理现象(拥堵/除冰/天气),在无外部数据条件下已确认不可压缩。
+
+详见 `docs/method.md`(方法与负面结果)与 `docs/LEADERBOARD_LEDGER.md`(逐版本战绩)。
 
 ---
 
