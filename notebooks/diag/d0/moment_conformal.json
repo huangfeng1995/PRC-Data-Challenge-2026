@@ -1,0 +1,396 @@
+{
+  "sig_c_main": 300.0,
+  "sigma_n_cap": 2000.0,
+  "calib_months": [
+    3,
+    4,
+    5,
+    8,
+    9,
+    10,
+    11
+  ],
+  "h1_months": [
+    1,
+    7
+  ],
+  "h2_months": [
+    2,
+    6
+  ],
+  "sigma_stats": {
+    "h1": {
+      "spearman_raw_vs_mix_resid": 0.4228,
+      "spearman_mix_vs_mix_resid": 0.4066,
+      "spearman_raw_vs_loc_resid": 0.411,
+      "sigma_max_raw": 708319911782952.4,
+      "sigma_max_mix": 43117.51139349629,
+      "n_sigma_gt_1e4_raw": 431,
+      "n_sigma_gt_1e4_mix": 400,
+      "sigma_median_raw": 228.85,
+      "sigma_median_mix": 258.1,
+      "n_truncated": 845,
+      "trunc_rate": 0.002453,
+      "sigma_ratio_gt1800_over_lt600": 8.481,
+      "anchor": {
+        "sigma_max": 708000000000000.0,
+        "n_gt_1e4": 431,
+        "sigma_median": 228.85,
+        "ratio": 2.29
+      }
+    },
+    "h2": {
+      "spearman_raw_vs_mix_resid": 0.3774,
+      "spearman_mix_vs_mix_resid": 0.3347,
+      "spearman_raw_vs_loc_resid": 0.3763,
+      "sigma_max_raw": 1929215407783.5835,
+      "sigma_max_mix": 34563.97989786125,
+      "n_sigma_gt_1e4_raw": 103,
+      "n_sigma_gt_1e4_mix": 9,
+      "sigma_median_raw": 197.87,
+      "sigma_median_mix": 224.5,
+      "n_truncated": 725,
+      "trunc_rate": 0.002218,
+      "sigma_ratio_gt1800_over_lt600": 8.996,
+      "anchor": {
+        "sigma_max": 1930000000000.0,
+        "n_gt_1e4": 103,
+        "sigma_median": 197.87,
+        "ratio": 2.49
+      }
+    }
+  },
+  "conformal": {
+    "q": {
+      "C_0.90": 0.7664595963205263,
+      "C_0.95": 1.0330197715413683,
+      "N_0.90": 1.3063972459197644,
+      "N_0.95": 1.6248158714413201
+    },
+    "coverage": {
+      "h1": {
+        "0.90": {
+          "损坏行": {
+            "n": 4535,
+            "q": 0.7665,
+            "coverage": 0.8712,
+            "dev": -0.0288,
+            "median_width": 385.0
+          },
+          "正常行": {
+            "n": 339884,
+            "q": 1.3064,
+            "coverage": 0.9133,
+            "dev": 0.0133,
+            "median_width": 675.2
+          },
+          "nominal": 0.9
+        },
+        "0.95": {
+          "损坏行": {
+            "n": 4535,
+            "q": 1.033,
+            "coverage": 0.9455,
+            "dev": -0.0045,
+            "median_width": 518.8
+          },
+          "正常行": {
+            "n": 339884,
+            "q": 1.6248,
+            "coverage": 0.9558,
+            "dev": 0.0058,
+            "median_width": 839.7
+          },
+          "nominal": 0.95
+        }
+      },
+      "h2": {
+        "0.90": {
+          "损坏行": {
+            "n": 3430,
+            "q": 0.7665,
+            "coverage": 0.8977,
+            "dev": -0.0023,
+            "median_width": 434.1
+          },
+          "正常行": {
+            "n": 323444,
+            "q": 1.3064,
+            "coverage": 0.9004,
+            "dev": 0.0004,
+            "median_width": 584.9
+          },
+          "nominal": 0.9
+        },
+        "0.95": {
+          "损坏行": {
+            "n": 3430,
+            "q": 1.033,
+            "coverage": 0.9507,
+            "dev": 0.0007,
+            "median_width": 585.0
+          },
+          "正常行": {
+            "n": 323444,
+            "q": 1.6248,
+            "coverage": 0.9493,
+            "dev": -0.0007,
+            "median_width": 727.4
+          },
+          "nominal": 0.95
+        }
+      }
+    }
+  },
+  "sigma_c_sensitivity": {
+    "100": {
+      "calib": {
+        "sigma_median": 201.3,
+        "sigma_p95": 432.99,
+        "sigma_max": 29857.019828816265,
+        "n_gt_1e4": 30,
+        "spearman": 0.3687,
+        "q": {
+          "0.9_C": 1.1341355256039487,
+          "0.9_N": 1.405551574089868,
+          "0.95_C": 1.69552648689314,
+          "0.95_N": 1.743273252654862
+        }
+      },
+      "h1": {
+        "sigma_median": 241.05,
+        "sigma_p95": 590.52,
+        "sigma_max": 43117.06844341675,
+        "n_gt_1e4": 400,
+        "spearman": 0.4354,
+        "q": null,
+        "coverage": {
+          "0.9_C": 0.8606,
+          "0.9_N": 0.9134,
+          "0.95_C": 0.9535,
+          "0.95_N": 0.9558
+        }
+      },
+      "h2": {
+        "sigma_median": 203.86,
+        "sigma_p95": 479.11,
+        "sigma_max": 34562.953925506474,
+        "n_gt_1e4": 9,
+        "spearman": 0.3966,
+        "q": null,
+        "coverage": {
+          "0.9_C": 0.9009,
+          "0.9_N": 0.9004,
+          "0.95_C": 0.9501,
+          "0.95_N": 0.9492
+        }
+      }
+    },
+    "300": {
+      "calib": {
+        "sigma_median": 222.08,
+        "sigma_p95": 437.15,
+        "sigma_max": 29857.84518160941,
+        "n_gt_1e4": 30,
+        "spearman": 0.3033,
+        "q": {
+          "0.9_C": 0.7664595963205263,
+          "0.9_N": 1.3063972459197644,
+          "0.95_C": 1.0330197715413683,
+          "0.95_N": 1.6248158714413201
+        }
+      },
+      "h1": {
+        "sigma_median": 258.1,
+        "sigma_p95": 593.26,
+        "sigma_max": 43117.51139349629,
+        "n_gt_1e4": 400,
+        "spearman": 0.4066,
+        "q": null,
+        "coverage": {
+          "0.9_C": 0.8712,
+          "0.9_N": 0.9133,
+          "0.95_C": 0.9455,
+          "0.95_N": 0.9558
+        }
+      },
+      "h2": {
+        "sigma_median": 224.5,
+        "sigma_p95": 483.19,
+        "sigma_max": 34563.97989786125,
+        "n_gt_1e4": 9,
+        "spearman": 0.3347,
+        "q": null,
+        "coverage": {
+          "0.9_C": 0.8977,
+          "0.9_N": 0.9004,
+          "0.95_C": 0.9507,
+          "0.95_N": 0.9493
+        }
+      }
+    },
+    "600": {
+      "calib": {
+        "sigma_median": 274.65,
+        "sigma_p95": 472.69,
+        "sigma_max": 29860.63057886299,
+        "n_gt_1e4": 30,
+        "spearman": 0.1489,
+        "q": {
+          "0.9_C": 0.5219759547360534,
+          "0.9_N": 1.195416058647493,
+          "0.95_C": 0.6784572221562636,
+          "0.95_N": 1.502127915964751
+        }
+      },
+      "h1": {
+        "sigma_median": 328.46,
+        "sigma_p95": 605.66,
+        "sigma_max": 43119.00631642064,
+        "n_gt_1e4": 400,
+        "spearman": 0.2515,
+        "q": null,
+        "coverage": {
+          "0.9_C": 0.8913,
+          "0.9_N": 0.9121,
+          "0.95_C": 0.9334,
+          "0.95_N": 0.9554
+        }
+      },
+      "h2": {
+        "sigma_median": 280.24,
+        "sigma_p95": 514.32,
+        "sigma_max": 34567.44232974332,
+        "n_gt_1e4": 9,
+        "spearman": 0.184,
+        "q": null,
+        "coverage": {
+          "0.9_C": 0.898,
+          "0.9_N": 0.9005,
+          "0.95_C": 0.9542,
+          "0.95_N": 0.9491
+        }
+      }
+    }
+  },
+  "point_rmse": {
+    "mu_total_混合": {
+      "mo1": 706.03,
+      "mo2": 340.29,
+      "mo6": 334.58,
+      "mo7": 1260.64,
+      "all4": 788.01,
+      "delta_vs_LGB": 0.0
+    },
+    "LGB基线": {
+      "mo1": 493.67,
+      "mo2": 410.16,
+      "mo6": 388.92,
+      "mo7": 622.28,
+      "all4": 493.05,
+      "delta_vs_LGB": -294.96
+    },
+    "v22硬规则": {
+      "mo1": 406.57,
+      "mo2": 226.37,
+      "mo6": 300.63,
+      "mo7": 392.45,
+      "all4": 342.4,
+      "delta_vs_LGB": -445.61
+    }
+  },
+  "per_airport": {
+    "LTFM": {
+      "n": 88349,
+      "LGB": 277.91,
+      "v22": 277.91,
+      "mu_total": 407.82,
+      "delta_vs_LGB": 129.91,
+      "improved": false
+    },
+    "EHAM": {
+      "n": 80058,
+      "LGB": 223.66,
+      "v22": 223.66,
+      "mu_total": 273.71,
+      "delta_vs_LGB": 50.05,
+      "improved": false
+    },
+    "EGLL": {
+      "n": 78229,
+      "LGB": 318.81,
+      "v22": 318.81,
+      "mu_total": 322.57,
+      "delta_vs_LGB": 3.76,
+      "improved": false
+    },
+    "LFPG": {
+      "n": 77305,
+      "LGB": 465.79,
+      "v22": 465.79,
+      "mu_total": 531.7,
+      "delta_vs_LGB": 65.9,
+      "improved": false
+    },
+    "EDDF": {
+      "n": 72635,
+      "LGB": 215.09,
+      "v22": 215.09,
+      "mu_total": 238.97,
+      "delta_vs_LGB": 23.88,
+      "improved": false
+    },
+    "LEMD": {
+      "n": 68710,
+      "LGB": 191.9,
+      "v22": 191.9,
+      "mu_total": 210.71,
+      "delta_vs_LGB": 18.81,
+      "improved": false
+    },
+    "LEBL": {
+      "n": 57470,
+      "LGB": 210.94,
+      "v22": 210.94,
+      "mu_total": 240.05,
+      "delta_vs_LGB": 29.11,
+      "improved": false
+    },
+    "EDDM": {
+      "n": 53133,
+      "LGB": 213.3,
+      "v22": 213.3,
+      "mu_total": 250.76,
+      "delta_vs_LGB": 37.46,
+      "improved": false
+    },
+    "LIRF": {
+      "n": 51927,
+      "LGB": 1483.94,
+      "v22": 758.26,
+      "mu_total": 2564.66,
+      "delta_vs_LGB": 1080.71,
+      "improved": false
+    },
+    "LSZH": {
+      "n": 43477,
+      "LGB": 236.22,
+      "v22": 236.22,
+      "mu_total": 497.51,
+      "delta_vs_LGB": 261.29,
+      "improved": false
+    }
+  },
+  "gate_per_airport": {
+    "n_ok": 0,
+    "n_total": 10
+  },
+  "gate_per_month_all_better": false,
+  "anchors": {
+    "LGB_holdout_all4": 493.05,
+    "v22": 435.08,
+    "D_概率混合": 451.6
+  },
+  "pred_path": "/Users/openclaw/Documents/PRC_data_challenge/notebooks/diag/d0/_moment_conformal_preds.npz",
+  "total_time_min": 4.3
+}
