@@ -1,0 +1,66 @@
+{
+  "scheme": "C_full E2 — LIRF T=14400 完整口径(ADEP_flt缺 & MVT-SCHED>14400)→MVT-SCHED; 其余 LGB 基线; 全部 LOBT 有效行投影 [MVT-LOBT±3606]; clip[30,10800]",
+  "holdout_rmse": {
+    "A_baseline_493.05": null,
+    "C_simple_484.38": null,
+    "C_full_E1_LIRF不投影_463.75": null,
+    "C_full_E2_LIRF也投影_460.87": null,
+    "C_full_E2_noclip_324.76": null,
+    "C_full_E1_noclip_341.73": null,
+    "D_概率混合_451.60": null
+  },
+  "E1_vs_E2": {
+    "E1_lirf_rmse": 1358.42,
+    "E2_lirf_rmse": 1345.66,
+    "winner": "E2",
+    "n_diff_rows": 4,
+    "n_t14400_rows_touched_by_lobt": 0
+  },
+  "clip_sensitivity": {
+    "note": "T14400 命中行真实 y 中位 20576s, 88.9% >10800; clip[30,10800] 使命中行 RMSE 从 7918.50 恶化到 33313.07",
+    "holdout_all4_clip10800": 460.87,
+    "holdout_all4_noclip": 324.76,
+    "holdout_lirf_clip10800": 1345.66,
+    "holdout_lirf_noclip": 654.77
+  },
+  "n_final_dep": 670790,
+  "n_submitting": 670790,
+  "gate_checks": {
+    "列名正确": true,
+    "行数=670790": true,
+    "MVT_ID顺序一致": true,
+    "MVT_ID集合一致": true,
+    "无NaN": true,
+    "int64": true,
+    "范围[30,10800]": true
+  },
+  "T_lobt": 3606.0,
+  "LIRF_T": 14400.0,
+  "clip": [
+    30.0,
+    10800.0
+  ],
+  "n_t14400_hit_final": 63,
+  "n_lirf_rows": 52146,
+  "n_adep_flt_null": 9077,
+  "n_lobt_valid": 661713,
+  "n_lobt_missing_skipped": 9077,
+  "n_lobt_projection_changed": 389,
+  "models": {
+    "baseline_lgb": [
+      "notebooks/diag/d0/p0_models/p0_lgb_seed42.txt",
+      "notebooks/diag/d0/p0_models/p0_lgb_seed123.txt",
+      "notebooks/diag/d0/p0_models/p0_lgb_seed2024.txt"
+    ]
+  },
+  "submission_path": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_final.parquet",
+  "submission_noclip_path": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_final_noclip.parquet",
+  "submission_status": "NOT uploaded (用户手动上传)",
+  "per_month_rows": {
+    "mo1": 152719,
+    "mo2": 144158,
+    "mo6": 181791,
+    "mo7": 192122
+  },
+  "total_time_min": 0.0
+}

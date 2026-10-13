@@ -1,0 +1,151 @@
+{
+  "hit_simple": 229,
+  "hit_full": 63,
+  "n_lirf": 51927,
+  "combos": {
+    "C_simple_简化口径": {
+      "mo1": 481.36,
+      "mo2": 408.37,
+      "mo6": 394.3,
+      "mo7": 603.43,
+      "all4": 484.38,
+      "delta_vs_A": -8.67
+    },
+    "C_full_E1_LIRF不投": {
+      "mo1": 474.17,
+      "mo2": 396.53,
+      "mo6": 369.23,
+      "mo7": 571.3,
+      "all4": 463.75,
+      "delta_vs_A": -29.3
+    },
+    "C_full_E2_LIRF也投": {
+      "mo1": 474.17,
+      "mo2": 395.08,
+      "mo6": 369.23,
+      "mo7": 563.79,
+      "all4": 460.87,
+      "delta_vs_A": -32.18
+    }
+  },
+  "lirf_rmse": {
+    "A": 1483.94,
+    "C_simple_简化口径": 1448.51,
+    "C_full_E1_LIRF不投": 1358.42,
+    "C_full_E2_LIRF也投": 1345.66
+  },
+  "E1_vs_E2": {
+    "lirf_delta_E1_minus_E2": 12.76,
+    "all4_delta": 2.89,
+    "n_diff_rows": 4,
+    "n_t14400_rows_touched_by_lobt": 0,
+    "winner": "E2"
+  },
+  "per_airport": {
+    "LTFM": {
+      "n": 88349,
+      "A": 277.91,
+      "C_simple": 277.86,
+      "E1": 277.86,
+      "E2": 277.86,
+      "E1_minus_A": -0.05,
+      "E2_minus_A": -0.05,
+      "not_worse_than_A": true
+    },
+    "EHAM": {
+      "n": 80058,
+      "A": 223.66,
+      "C_simple": 219.24,
+      "E1": 219.24,
+      "E2": 219.24,
+      "E1_minus_A": -4.42,
+      "E2_minus_A": -4.42,
+      "not_worse_than_A": true
+    },
+    "EGLL": {
+      "n": 78229,
+      "A": 318.81,
+      "C_simple": 317.84,
+      "E1": 317.84,
+      "E2": 317.84,
+      "E1_minus_A": -0.97,
+      "E2_minus_A": -0.97,
+      "not_worse_than_A": true
+    },
+    "LFPG": {
+      "n": 77305,
+      "A": 465.79,
+      "C_simple": 464.85,
+      "E1": 464.85,
+      "E2": 464.85,
+      "E1_minus_A": -0.94,
+      "E2_minus_A": -0.94,
+      "not_worse_than_A": true
+    },
+    "EDDF": {
+      "n": 72635,
+      "A": 215.09,
+      "C_simple": 214.87,
+      "E1": 214.87,
+      "E2": 214.87,
+      "E1_minus_A": -0.21,
+      "E2_minus_A": -0.21,
+      "not_worse_than_A": true
+    },
+    "LEMD": {
+      "n": 68710,
+      "A": 191.9,
+      "C_simple": 191.88,
+      "E1": 191.88,
+      "E2": 191.88,
+      "E1_minus_A": -0.02,
+      "E2_minus_A": -0.02,
+      "not_worse_than_A": true
+    },
+    "LEBL": {
+      "n": 57470,
+      "A": 210.94,
+      "C_simple": 210.93,
+      "E1": 210.93,
+      "E2": 210.93,
+      "E1_minus_A": -0.01,
+      "E2_minus_A": -0.01,
+      "not_worse_than_A": true
+    },
+    "EDDM": {
+      "n": 53133,
+      "A": 213.3,
+      "C_simple": 213.3,
+      "E1": 213.3,
+      "E2": 213.3,
+      "E1_minus_A": -0.0,
+      "E2_minus_A": -0.0,
+      "not_worse_than_A": true
+    },
+    "LIRF": {
+      "n": 51927,
+      "A": 1483.94,
+      "C_simple": 1448.51,
+      "E1": 1358.42,
+      "E2": 1345.66,
+      "E1_minus_A": -125.53,
+      "E2_minus_A": -138.29,
+      "not_worse_than_A": true
+    },
+    "LSZH": {
+      "n": 43477,
+      "A": 236.22,
+      "C_simple": 235.82,
+      "E1": 235.82,
+      "E2": 235.82,
+      "E1_minus_A": -0.4,
+      "E2_minus_A": -0.4,
+      "not_worse_than_A": true
+    }
+  },
+  "gate_E1_not_worse_per_airport": {
+    "pass": true,
+    "n_ok": 10,
+    "n_total": 10
+  }
+}
