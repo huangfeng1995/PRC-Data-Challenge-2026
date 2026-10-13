@@ -1,0 +1,54 @@
+{
+  "scheme": "D (LIRF 概率混合 + 全局 LOBT 窗口 + clip[30,10800])",
+  "stage1_gate": {
+    "D_not_worse_per_airport": "10/10 PASS",
+    "delta_vs_C": 16.52,
+    "note": "C(v22 T14400) 在 LIRF 上优于 D 77.12s; D 按用户指定口径落盘"
+  },
+  "n_final_dep": 670790,
+  "n_submitting": 670790,
+  "T_lobt": 3606.0,
+  "clip": [
+    30.0,
+    10800.0
+  ],
+  "models": {
+    "baseline_lgb": [
+      "notebooks/diag/d0/p0_models/p0_lgb_seed42.txt",
+      "notebooks/diag/d0/p0_models/p0_lgb_seed123.txt",
+      "notebooks/diag/d0/p0_models/p0_lgb_seed2024.txt"
+    ],
+    "copy_classifier": "notebooks/diag/d0/cp_mixture_models/clf.pkl",
+    "normal_regressor": "notebooks/diag/d0/cp_mixture_models/reg.pkl"
+  },
+  "lut_source": "2025 fit months 2-12 only (no 2026 info)",
+  "n_lobt_valid": 661713,
+  "n_lobt_missing_skipped": 9077,
+  "n_lobt_projection_changed": 393,
+  "n_projection_reclip": 1,
+  "n_sched_outside_window_p0": 25716,
+  "n_lirf_rows": 52146,
+  "p_mean": 0.1008,
+  "p_median": 0.0284,
+  "n_p_gt_0p5": 6863,
+  "distribution": {
+    "min": 30.0,
+    "p25": 823.5351273058405,
+    "median": 1017.1179068394604,
+    "p75": 1264.000496379182,
+    "p95": 1750.6825122330708,
+    "max": 10800.0,
+    "n_gt_1800": 28507,
+    "n_gt_3600": 470,
+    "n_gt_10800": 0
+  },
+  "per_month_rows": {
+    "mo1": 152719,
+    "mo2": 144158,
+    "mo6": 181791,
+    "mo7": 192122
+  },
+  "submission_path": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_final.parquet",
+  "submission_status": "NOT uploaded (用户手动上传)",
+  "total_time_min": 0.0
+}

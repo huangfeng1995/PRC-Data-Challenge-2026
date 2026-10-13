@@ -1,0 +1,165 @@
+{
+  "T_lobt": 3606.0,
+  "LIRF_T": 14400.0,
+  "n_holdout": 671293,
+  "combos": {
+    "A_基线": {
+      "mo1": 493.67,
+      "mo2": 410.16,
+      "mo6": 388.92,
+      "mo7": 622.28,
+      "all4": 493.05,
+      "delta_vs_A": 0.0
+    },
+    "B_基线+LOBT": {
+      "mo1": 492.77,
+      "mo2": 408.63,
+      "mo6": 388.91,
+      "mo7": 589.47,
+      "all4": 480.97,
+      "delta_vs_A": -12.08
+    },
+    "C_v22_T14400": {
+      "mo1": 450.96,
+      "mo2": 298.15,
+      "mo6": 407.51,
+      "mo7": 525.3,
+      "all4": 435.08,
+      "delta_vs_A": -57.97
+    },
+    "D_本方案": {
+      "mo1": 473.36,
+      "mo2": 394.79,
+      "mo6": 366.14,
+      "mo7": 539.52,
+      "all4": 451.6,
+      "delta_vs_A": -41.45
+    }
+  },
+  "per_airport": {
+    "LTFM": {
+      "n": 88349,
+      "A": 277.91,
+      "B": 277.86,
+      "C": 277.91,
+      "D": 277.86,
+      "D_minus_B": 0.0,
+      "D_minus_C": -0.05,
+      "not_worse_than_B": true
+    },
+    "EHAM": {
+      "n": 80058,
+      "A": 223.66,
+      "B": 219.24,
+      "C": 223.66,
+      "D": 219.24,
+      "D_minus_B": 0.0,
+      "D_minus_C": -4.42,
+      "not_worse_than_B": true
+    },
+    "EGLL": {
+      "n": 78229,
+      "A": 318.81,
+      "B": 317.84,
+      "C": 318.81,
+      "D": 317.84,
+      "D_minus_B": 0.0,
+      "D_minus_C": -0.97,
+      "not_worse_than_B": true
+    },
+    "LFPG": {
+      "n": 77305,
+      "A": 465.79,
+      "B": 464.64,
+      "C": 465.79,
+      "D": 464.64,
+      "D_minus_B": 0.0,
+      "D_minus_C": -1.15,
+      "not_worse_than_B": true
+    },
+    "EDDF": {
+      "n": 72635,
+      "A": 215.09,
+      "B": 214.87,
+      "C": 215.09,
+      "D": 214.87,
+      "D_minus_B": 0.0,
+      "D_minus_C": -0.21,
+      "not_worse_than_B": true
+    },
+    "LEMD": {
+      "n": 68710,
+      "A": 191.9,
+      "B": 191.88,
+      "C": 191.9,
+      "D": 191.88,
+      "D_minus_B": 0.0,
+      "D_minus_C": -0.02,
+      "not_worse_than_B": true
+    },
+    "LEBL": {
+      "n": 57470,
+      "A": 210.94,
+      "B": 210.93,
+      "C": 210.94,
+      "D": 210.93,
+      "D_minus_B": 0.0,
+      "D_minus_C": -0.01,
+      "not_worse_than_B": true
+    },
+    "EDDM": {
+      "n": 53133,
+      "A": 213.3,
+      "B": 213.3,
+      "C": 213.3,
+      "D": 213.3,
+      "D_minus_B": 0.0,
+      "D_minus_C": -0.0,
+      "not_worse_than_B": true
+    },
+    "LIRF": {
+      "n": 51927,
+      "A": 1483.94,
+      "B": 1433.82,
+      "C": 1227.42,
+      "D": 1304.54,
+      "D_minus_B": -129.29,
+      "D_minus_C": 77.12,
+      "not_worse_than_B": true
+    },
+    "LSZH": {
+      "n": 43477,
+      "A": 236.22,
+      "B": 235.82,
+      "C": 236.22,
+      "D": 235.82,
+      "D_minus_B": 0.0,
+      "D_minus_C": -0.4,
+      "not_worse_than_B": true
+    }
+  },
+  "gate1_D_not_worse_than_B": {
+    "pass": true,
+    "n_ok": 10,
+    "n_total": 10
+  },
+  "gate2_lirf_D_vs_C": {
+    "A": 1483.94,
+    "B": 1433.82,
+    "C": 1227.42,
+    "D": 1304.54,
+    "D_minus_C": 77.12,
+    "D_wins": false,
+    "n_lirf": 51927
+  },
+  "gate3_D_vs_C_overall": {
+    "C": 435.08,
+    "D": 451.6,
+    "delta": 16.52,
+    "jitter": 0.5,
+    "pass": true
+  },
+  "ref_all_airport_mixture": 452.24,
+  "non_lirf_D_equals_B": true,
+  "n_lirf_t14400_hit": 229
+}
