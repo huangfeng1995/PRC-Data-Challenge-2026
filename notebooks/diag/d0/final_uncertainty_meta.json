@@ -1,0 +1,61 @@
+{
+  "output": "/Users/openclaw/Documents/PRC_data_challenge/supplementary/final_uncertainty.parquet",
+  "n_rows": 670790,
+  "sig_c": 100.0,
+  "sigma_n_cap": 2000.0,
+  "calib_q": {
+    "C_90": 1.134136,
+    "C_95": 1.695526,
+    "N_90": 1.405552,
+    "N_95": 1.743273,
+    "_n_calib": 1248077,
+    "_n_corrupt": 11819,
+    "_sig_c": 100.0,
+    "_sig_cap": 2000.0
+  },
+  "n_damaged": 6926,
+  "n_t14400_hit": 63,
+  "n_p_gt_05": 6863,
+  "sigma_total": {
+    "median": 209.1,
+    "p95": 446.65,
+    "max": 26367.20020133996,
+    "n_gt_1e4": 236,
+    "ratio_gt1800_over_lt600": 10.557
+  },
+  "sigma_n_truncated": 1002,
+  "interval_median_width": {
+    "damaged_90": 295.8,
+    "damaged_95": 442.2,
+    "normal_90": 590.0,
+    "normal_95": 731.8
+  },
+  "per_month": {
+    "mo1": {
+      "n": 152719,
+      "sigma_median": 239.4,
+      "sigma_max": 26362.4,
+      "n_damaged": 2351
+    },
+    "mo2": {
+      "n": 144158,
+      "sigma_median": 201.0,
+      "sigma_max": 8674.4,
+      "n_damaged": 1006
+    },
+    "mo6": {
+      "n": 181791,
+      "sigma_median": 189.4,
+      "sigma_max": 9723.9,
+      "n_damaged": 837
+    },
+    "mo7": {
+      "n": 192122,
+      "sigma_median": 216.0,
+      "sigma_max": 26367.2,
+      "n_damaged": 2732
+    }
+  },
+  "note": "repo 补充产物, 不进评分 parquet; point_pred 直接复用 submissions 的点预测, 未改动",
+  "total_time_min": 2.2
+}
