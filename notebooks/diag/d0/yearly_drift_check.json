@@ -1,0 +1,514 @@
+{
+  "task": "yearly_drift_check_2025vs2026",
+  "n_2025_dep": 344419,
+  "n_2026_dep": 344841,
+  "numeric_stats": {
+    "MVT_TIME_UTC_mvt": {
+      "type": "datetime",
+      "missing_pct_2026": 0.0,
+      "missing_pct_2025": 0.0,
+      "n_2026": 344841,
+      "n_2025": 344419,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768571467000000,
+        "7": 1784206370000000
+      },
+      "month_p50_2025": {
+        "1": 1737027537000000,
+        "7": 1752672535000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    },
+    "BLOCK_TIME_UTC_mvt": {
+      "missing_pct_2026": 100.0,
+      "missing_pct_2025": 0.0,
+      "n_2026": 0,
+      "n_2025": 344419,
+      "skip": "insufficient"
+    },
+    "SCHED_TIME_UTC_mvt": {
+      "type": "datetime",
+      "missing_pct_2026": 0.0,
+      "missing_pct_2025": 0.0,
+      "n_2026": 344841,
+      "n_2025": 344419,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768569600000000,
+        "6": 1782861000000000,
+        "7": 1784203800000000,
+        "12": 1767222150000000
+      },
+      "month_p50_2025": {
+        "1": 1737026100000000,
+        "6": 1751322600000000,
+        "7": 1752670200000000,
+        "12": 1735687650000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    },
+    "AOBT_3_flt": {
+      "type": "datetime",
+      "missing_pct_2026": 1.534040325831325,
+      "missing_pct_2025": 1.5600184658802216,
+      "n_2026": 339551,
+      "n_2025": 339046,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768576380000000,
+        "7": 1784205180000000
+      },
+      "month_p50_2025": {
+        "1": 1737028020000000,
+        "6": 1751327760000000,
+        "7": 1752670680000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    },
+    "IOBT_flt": {
+      "type": "datetime",
+      "missing_pct_2026": 1.534040325831325,
+      "missing_pct_2025": 1.5600184658802216,
+      "n_2026": 339551,
+      "n_2025": 339046,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768576200000000,
+        "7": 1784204700000000
+      },
+      "month_p50_2025": {
+        "1": 1737027900000000,
+        "7": 1752670200000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    },
+    "EOBT_1_flt": {
+      "type": "datetime",
+      "missing_pct_2026": 1.534040325831325,
+      "missing_pct_2025": 1.5600184658802216,
+      "n_2026": 339551,
+      "n_2025": 339046,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768575900000000,
+        "6": 1782863880000000,
+        "7": 1784204700000000
+      },
+      "month_p50_2025": {
+        "1": 1737027600000000,
+        "7": 1752670200000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    },
+    "LOBT_flt": {
+      "type": "datetime",
+      "missing_pct_2026": 1.534040325831325,
+      "missing_pct_2025": 1.5600184658802216,
+      "n_2026": 339551,
+      "n_2025": 339046,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768576200000000,
+        "7": 1784204700000000
+      },
+      "month_p50_2025": {
+        "1": 1737027900000000,
+        "7": 1752670200000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    },
+    "ARVT_3_flt": {
+      "type": "datetime",
+      "missing_pct_2026": 1.534040325831325,
+      "missing_pct_2025": 1.5600184658802216,
+      "n_2026": 339551,
+      "n_2025": 339046,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768587403000000,
+        "2": 1769916687000000,
+        "7": 1784216354000000,
+        "8": 1785553926000000
+      },
+      "month_p50_2025": {
+        "1": 1737037500000000,
+        "2": 1738378952000000,
+        "7": 1752681659000000,
+        "8": 1754016101000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    },
+    "ARVT_1_flt": {
+      "type": "datetime",
+      "missing_pct_2026": 1.534040325831325,
+      "missing_pct_2025": 1.5600184658802216,
+      "n_2026": 339551,
+      "n_2025": 339046,
+      "ks_stat": 1.0,
+      "ks_p": 0.0,
+      "month_p50_2026": {
+        "1": 1768587103000000,
+        "2": 1769916438000000,
+        "7": 1784215941000000,
+        "8": 1785553867500000
+      },
+      "month_p50_2025": {
+        "1": 1737037232500000,
+        "2": 1738378778000000,
+        "7": 1752681082000000,
+        "8": 1754017051000000
+      },
+      "datetime_unit": "us",
+      "drift_flag": "DRIFT",
+      "drift_note": "时间戳 KS 受年份漂移影响, 看 month_p50 对比"
+    }
+  },
+  "categorical_stats": {
+    "ADEP_mvt": {
+      "cardinality_2026": 10,
+      "cardinality_2025": 10,
+      "n_new_2026_only": 0,
+      "n_missing_2025_only": 0,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "STABLE"
+    },
+    "ADES_mvt": {
+      "cardinality_2026": 1106,
+      "cardinality_2025": 1114,
+      "n_new_2026_only": 168,
+      "n_missing_2025_only": 176,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "DRIFT"
+    },
+    "RUNWAY_mvt": {
+      "cardinality_2026": 50,
+      "cardinality_2025": 46,
+      "n_new_2026_only": 4,
+      "n_missing_2025_only": 0,
+      "top10_overlap": 7,
+      "top10_new_2026": [
+        "08L",
+        "09R",
+        "28"
+      ],
+      "top10_lost": [
+        "24",
+        "27R",
+        "35L"
+      ],
+      "drift_flag": "WATCH"
+    },
+    "STAND_mvt": {
+      "cardinality_2026": 1698,
+      "cardinality_2025": 1689,
+      "n_new_2026_only": 99,
+      "n_missing_2025_only": 90,
+      "top10_overlap": 7,
+      "top10_new_2026": [
+        "217",
+        "226",
+        "308"
+      ],
+      "top10_lost": [
+        "313",
+        "501",
+        "A11"
+      ],
+      "drift_flag": "WATCH"
+    },
+    "AIRCRAFT_TYPE_mvt": {
+      "cardinality_2026": 200,
+      "cardinality_2025": 207,
+      "n_new_2026_only": 22,
+      "n_missing_2025_only": 29,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "DRIFT"
+    },
+    "MARKET_SEGMENT_flt": {
+      "cardinality_2026": 9,
+      "cardinality_2025": 9,
+      "n_new_2026_only": 0,
+      "n_missing_2025_only": 0,
+      "top10_overlap": 9,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "STABLE"
+    },
+    "FLIGHT_RULE_flt": {
+      "cardinality_2026": 4,
+      "cardinality_2025": 4,
+      "n_new_2026_only": 1,
+      "n_missing_2025_only": 1,
+      "top10_overlap": 3,
+      "top10_new_2026": [
+        "Z"
+      ],
+      "top10_lost": [
+        "V"
+      ],
+      "drift_flag": "DRIFT"
+    },
+    "FLIGHT_TYPE_flt": {
+      "cardinality_2026": 6,
+      "cardinality_2025": 6,
+      "n_new_2026_only": 0,
+      "n_missing_2025_only": 0,
+      "top10_overlap": 6,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "STABLE"
+    },
+    "AIRCRAFT_TYPE_flt": {
+      "cardinality_2026": 181,
+      "cardinality_2025": 189,
+      "n_new_2026_only": 18,
+      "n_missing_2025_only": 26,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "WATCH"
+    },
+    "WK_TBL_CAT_flt": {
+      "cardinality_2026": 5,
+      "cardinality_2025": 5,
+      "n_new_2026_only": 0,
+      "n_missing_2025_only": 0,
+      "top10_overlap": 5,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "STABLE"
+    },
+    "AIRCRAFT_OPERATOR_flt": {
+      "cardinality_2026": 580,
+      "cardinality_2025": 568,
+      "n_new_2026_only": 80,
+      "n_missing_2025_only": 68,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "DRIFT"
+    },
+    "FLIGHT_mvt": {
+      "cardinality_2026": 20330,
+      "cardinality_2025": 19545,
+      "n_new_2026_only": 12169,
+      "n_missing_2025_only": 11384,
+      "top10_overlap": 0,
+      "top10_new_2026": [
+        "AEA1672",
+        "AIC2018",
+        "CES554",
+        "DAH1001",
+        "DAH1013"
+      ],
+      "top10_lost": [
+        "DAL83",
+        "ITY1161",
+        "LH756",
+        "QR068",
+        "SEH9HE"
+      ],
+      "drift_flag": "DRIFT"
+    },
+    "FLIGHT_RULE_mvt": {
+      "cardinality_2026": 3,
+      "cardinality_2025": 3,
+      "n_new_2026_only": 0,
+      "n_missing_2025_only": 0,
+      "top10_overlap": 3,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "STABLE"
+    },
+    "ADEP_flt": {
+      "cardinality_2026": 11,
+      "cardinality_2025": 11,
+      "n_new_2026_only": 0,
+      "n_missing_2025_only": 0,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "STABLE"
+    },
+    "ADES_flt": {
+      "cardinality_2026": 1034,
+      "cardinality_2025": 1053,
+      "n_new_2026_only": 144,
+      "n_missing_2025_only": 163,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "DRIFT"
+    },
+    "ADES_FILED_flt": {
+      "cardinality_2026": 1032,
+      "cardinality_2025": 1048,
+      "n_new_2026_only": 146,
+      "n_missing_2025_only": 162,
+      "top10_overlap": 10,
+      "top10_new_2026": [],
+      "top10_lost": [],
+      "drift_flag": "DRIFT"
+    }
+  },
+  "key_signals": {
+    "aobt_nat_2025_pct": 1.5600184658802216,
+    "aobt_nat_2026_pct": 1.534040325831325,
+    "block_nat_2025_pct": 0.0,
+    "block_nat_2026_pct": 100.0,
+    "time_diff_pairs": {
+      "EOBT-SCHED": {
+        "2025": {
+          "label": "EOBT-SCHED",
+          "year": "2025",
+          "n": 339046,
+          "p1": -720.0,
+          "p50": 0.0,
+          "p99": 8160.0,
+          "mean": 593.0171776101178,
+          "frac_neg": 14.902697569061427
+        },
+        "2026": {
+          "label": "EOBT-SCHED",
+          "year": "2026",
+          "n": 339551,
+          "p1": -720.0,
+          "p50": 0.0,
+          "p99": 8700.0,
+          "mean": 656.8269950611249,
+          "frac_neg": 14.15221866523733
+        }
+      },
+      "IOBT-SCHED": {
+        "2025": {
+          "label": "IOBT-SCHED",
+          "year": "2025",
+          "n": 339046,
+          "p1": -600.0,
+          "p50": 0.0,
+          "p99": 8100.0,
+          "mean": 589.7006895819446,
+          "frac_neg": 3.0520932262878784
+        },
+        "2026": {
+          "label": "IOBT-SCHED",
+          "year": "2026",
+          "n": 339551,
+          "p1": -600.0,
+          "p50": 0.0,
+          "p99": 8700.0,
+          "mean": 638.7580657986576,
+          "frac_neg": 1.6984193832443433
+        }
+      },
+      "EOBT-IOBT": {
+        "2025": {
+          "label": "EOBT-IOBT",
+          "year": "2025",
+          "n": 339046,
+          "p1": -900.0,
+          "p50": 0.0,
+          "p99": 1500.0,
+          "mean": 3.3164880281731683,
+          "frac_neg": 18.12379441137781
+        },
+        "2026": {
+          "label": "EOBT-IOBT",
+          "year": "2026",
+          "n": 339551,
+          "p1": -900.0,
+          "p50": 0.0,
+          "p99": 1500.0,
+          "mean": 18.0689292624672,
+          "frac_neg": 17.386489805655113
+        }
+      },
+      "LOBT-EOBT": {
+        "2025": {
+          "label": "LOBT-EOBT",
+          "year": "2025",
+          "n": 339046,
+          "p1": -1500.0,
+          "p50": 0.0,
+          "p99": 900.0,
+          "mean": -2.1239654796104364,
+          "frac_neg": 13.025666133798955
+        },
+        "2026": {
+          "label": "LOBT-EOBT",
+          "year": "2026",
+          "n": 339551,
+          "p1": -1500.0,
+          "p50": 0.0,
+          "p99": 900.0,
+          "mean": -16.848049335740434,
+          "frac_neg": 13.829439465647281
+        }
+      },
+      "AOBT-EOBT": {
+        "2025": {
+          "label": "AOBT-EOBT",
+          "year": "2025",
+          "n": 339046,
+          "p1": -960.0,
+          "p50": 300.0,
+          "p99": 2820.0,
+          "mean": 414.31220542345284,
+          "frac_neg": 23.735717277301603
+        },
+        "2026": {
+          "label": "AOBT-EOBT",
+          "year": "2026",
+          "n": 339551,
+          "p1": -900.0,
+          "p50": 240.0,
+          "p99": 2640.0,
+          "mean": 360.9263497972322,
+          "frac_neg": 25.18649628479963
+        }
+      }
+    },
+    "cross_day_2025_pct": 0.26827788246293033,
+    "cross_day_2026_pct": 0.28563888864723164
+  },
+  "extreme_candidates": {
+    "n_2025_aobt_nat_with_eobt_iobt": 25048,
+    "n_2026_aobt_nat_with_eobt_iobt": 22100
+  },
+  "verdict": "分布基本一致(病因Y)",
+  "stable_count_datetime": 8,
+  "drift_count_datetime": 0,
+  "skip_count_datetime": 1,
+  "stable_count_categorical": 6,
+  "drift_count_categorical": 7,
+  "watch_count_categorical": 3,
+  "total_time_sec": 5.6
+}
