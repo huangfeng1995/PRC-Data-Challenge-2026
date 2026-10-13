@@ -1,0 +1,174 @@
+{
+  "check1_v22": {
+    "n_ranking_dep": 344841,
+    "n_hit_full": 43,
+    "pred_gt_10800": 43,
+    "pred_eq_10800": 0,
+    "pred_lt_10800": 0,
+    "pred_stats": {
+      "min": 14945.0,
+      "p50": 29455.0,
+      "max": 111654.0
+    },
+    "muC_stats": {
+      "min": 14945.0,
+      "p50": 29455.0,
+      "max": 111654.0
+    },
+    "n_hit_simple": 138,
+    "pred_gt_10800_simple": 43,
+    "verdict": "v22 未 clip 修复行 (预测保留 >10800 原值)"
+  },
+  "check2_monthly": {
+    "ranking_2026_JanJul": {
+      "mo1": {
+        "n_hit": 15,
+        "n_dep": 152719,
+        "muC_med": 31983.0,
+        "muC_max": 56520.0
+      },
+      "mo7": {
+        "n_hit": 28,
+        "n_dep": 192122,
+        "muC_med": 27509.5,
+        "muC_max": 111654.0
+      }
+    },
+    "final_2026": {
+      "mo1": {
+        "n_hit": 15,
+        "n_dep": 152719,
+        "muC_med": 31979.0,
+        "muC_max": 56516.0
+      },
+      "mo2": {
+        "n_hit": 8,
+        "n_dep": 144158,
+        "muC_med": 20910.5,
+        "muC_max": 42724.0
+      },
+      "mo6": {
+        "n_hit": 12,
+        "n_dep": 181791,
+        "muC_med": 20819.5,
+        "muC_max": 66901.0
+      },
+      "mo7": {
+        "n_hit": 28,
+        "n_dep": 192122,
+        "muC_med": 27509.5,
+        "muC_max": 111666.0
+      }
+    },
+    "holdout_2025": {
+      "mo1": {
+        "n_hit": 6,
+        "n_dep": 153706,
+        "muC_med": 40800.5,
+        "muC_max": 60118.0,
+        "y_med": 40801.5
+      },
+      "mo2": {
+        "n_hit": 6,
+        "n_dep": 143732,
+        "muC_med": 21840.0,
+        "muC_max": 131163.0,
+        "y_med": 21840.5
+      },
+      "mo6": {
+        "n_hit": 12,
+        "n_dep": 183142,
+        "muC_med": 22407.5,
+        "muC_max": 67686.0,
+        "y_med": 22405.5
+      },
+      "mo7": {
+        "n_hit": 39,
+        "n_dep": 190713,
+        "muC_med": 19317.0,
+        "muC_max": 93535.0,
+        "y_med": 18905.0
+      }
+    },
+    "n_hit_ranking_JanJul": 43,
+    "n_hit_2025_total": 127,
+    "n_hit_final_total": 63
+  },
+  "check3_evidence": {
+    "ranking_2026": {
+      "n_hit": 43,
+      "missing": {
+        "ADEP_flt": {
+          "n_missing": 43,
+          "rate": 1.0
+        },
+        "BLOCK": {
+          "n_missing": 43,
+          "rate": 1.0
+        },
+        "EOBT_1": {
+          "n_missing": 43,
+          "rate": 1.0
+        },
+        "IOBT": {
+          "n_missing": 43,
+          "rate": 1.0
+        },
+        "AOBT_3": {
+          "n_missing": 43,
+          "rate": 1.0
+        },
+        "LOBT": {
+          "n_missing": 43,
+          "rate": 1.0
+        }
+      },
+      "flt_miss_count_dist": {
+        "4": 43
+      },
+      "n_all_flt_missing": 43,
+      "n_blk_missing": 43
+    },
+    "final_2026": {
+      "n_hit": 63,
+      "missing": {
+        "ADEP_flt": {
+          "n_missing": 63,
+          "rate": 1.0
+        },
+        "BLOCK": {
+          "n_missing": 63,
+          "rate": 1.0
+        },
+        "EOBT_1": {
+          "n_missing": 63,
+          "rate": 1.0
+        },
+        "IOBT": {
+          "n_missing": 63,
+          "rate": 1.0
+        },
+        "AOBT_3": {
+          "n_missing": 63,
+          "rate": 1.0
+        },
+        "LOBT": {
+          "n_missing": 63,
+          "rate": 1.0
+        }
+      },
+      "flt_miss_count_dist": {
+        "4": 63
+      },
+      "n_all_flt_missing": 63,
+      "n_blk_missing": 63
+    },
+    "holdout_2025": {
+      "n_hit": 127,
+      "lobt_missing": 127,
+      "y_med": 20887.0,
+      "y_max": 131167.0,
+      "n_y_gt_10800": 112
+    }
+  }
+}

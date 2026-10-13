@@ -1,0 +1,85 @@
+{
+  "file": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_final.parquet",
+  "size_bytes": 4024530,
+  "backup": "/Users/openclaw/Documents/PRC_data_challenge/submissions/jubilant-puzzle_final_clip_backup.parquet",
+  "backup_size_bytes": 4024222,
+  "all_checks_passed": true,
+  "checks": {
+    "列名正确": true,
+    "行数=670790": true,
+    "int64": true,
+    "无NaN": true,
+    "MVT_ID无重复": true,
+    "MVT_ID顺序一致": true,
+    "MVT_ID集合一致": true,
+    "与模板行数一致": true,
+    "修复行数=63": true,
+    "修复行预测==MVT-SCHED(无clip)": true,
+    "修复行无clip痕迹": true,
+    "非修复行范围[30,10800]": true,
+    "非修复行>10800均来自LOBT窗口": true
+  },
+  "n_fixed_rows": 63,
+  "n_fixed_gt_10800": 63,
+  "n_fixed_eq_10800": 0,
+  "n_nonfix_gt_10800": 1,
+  "nonfix_over_10800_detail": [
+    {
+      "MVT_ID": 213147416,
+      "pred": 83209.0,
+      "lobt_window": [
+        83209.0,
+        90421.0
+      ],
+      "in_window": true
+    }
+  ],
+  "fixed_pred": {
+    "min": 14461.0,
+    "p50": 25323.0,
+    "max": 111666.0
+  },
+  "per_month": {
+    "mo1": {
+      "n": 152719,
+      "median": 1106.0,
+      "max": 56516.0,
+      "n_gt_10800": 15
+    },
+    "mo2": {
+      "n": 144158,
+      "median": 968.0,
+      "max": 42724.0,
+      "n_gt_10800": 8
+    },
+    "mo6": {
+      "n": 181791,
+      "median": 965.0,
+      "max": 66901.0,
+      "n_gt_10800": 12
+    },
+    "mo7": {
+      "n": 192122,
+      "median": 1082.0,
+      "max": 111666.0,
+      "n_gt_10800": 29
+    }
+  },
+  "global": {
+    "min": 150.0,
+    "p25": 829.0,
+    "median": 1030.0,
+    "p75": 1282.0,
+    "p95": 1777.0,
+    "max": 111666.0,
+    "n_gt_1800": 30978,
+    "n_gt_3600": 535,
+    "n_gt_10800": 64
+  },
+  "vs_clip_backup": {
+    "n_diff_rows": 64,
+    "n_nonfix_diff": 1,
+    "clip_max": 10800.0
+  },
+  "upload_status": "NOT uploaded (用户手动上传)"
+}
