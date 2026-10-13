@@ -1,0 +1,35 @@
+{
+  "task": "ngb_probe_h2_generalization",
+  "model_path": "/Users/openclaw/Documents/PRC_data_challenge/notebooks/diag/d0/_ngb_reduced.pkl",
+  "model_reused": true,
+  "best_iter": 499,
+  "n_holdout2": 326874,
+  "loc_RMSE_full": 459.52,
+  "loc_RMSE_core": 341.11,
+  "loc_RMSE_short": 250.23,
+  "loc_RMSE_long": 1221.25,
+  "sigma_vs_absresid_spearman": 0.3763,
+  "sigma_vs_absresid_p": 0.0,
+  "sigma_median_gt1800": 391.53,
+  "sigma_median_lt600": 157.278,
+  "sigma_ratio_gt1800_over_lt600": 2.489,
+  "sigma_max": 1929215407783.6,
+  "n_sigma_gt_1e4": 103,
+  "sigma_median": 197.868,
+  "loc_median": 939.8,
+  "predict_seconds": 47.0,
+  "band_report": {
+    "n_gt1800": 12320,
+    "n_lt600": 43125,
+    "rmse_gt1800": 1998.83,
+    "rmse_lt600": 261.31
+  },
+  "baseline_lgb_full_h2_RMSE": 398.4,
+  "signal_strong": true,
+  "ref_h1": {
+    "sigma_vs_absresid_spearman": 0.411,
+    "sigma_ratio_gt1800_over_lt600": 2.29,
+    "loc_RMSE_full": 603.41,
+    "baseline_lgb_full_h1_RMSE": 568.49
+  }
+}
