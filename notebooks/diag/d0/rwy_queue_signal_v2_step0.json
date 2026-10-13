@@ -1,0 +1,45 @@
+{
+  "task": "rwy_queue_signal_step0_v2",
+  "scope": "holdout 2025-01+07 DEP, AOBT 非空 (剔 AOBT_NaT)",
+  "n_total_holdout_dep": 344336,
+  "n_aobt_nat_excluded": 5321,
+  "n_main": 339015,
+  "n_groups_ap_runway": 58,
+  "global_service_interval_s": 14.893786957938268,
+  "old_version": {
+    "definition": "k_old = #{j: AOBT_j < AOBT_i ∧ MVT_j > AOBT_i, j in same(ADEP,RUNWAY)}",
+    "spearman_kxS": 0.18470930403454114,
+    "k_distribution": {
+      "-4": 17,
+      "6": 10723,
+      "16": 17082,
+      "26": 24128,
+      "36": 29558,
+      "5+": 257507
+    }
+  },
+  "new_version": {
+    "definition": "t_rwy_i = AOBT_i + t_unimp_r7_corrected; k_new = #{j: AOBT_j < AOBT_i ∧ MVT_j > t_rwy_i, j in same(ADEP,RUNWAY)}",
+    "spearman_kxS": 0.13580806879325863,
+    "spearman_k_only": 0.20514793804795362,
+    "k_distribution": {
+      "-4": 35541,
+      "6": 105987,
+      "16": 72093,
+      "26": 46773,
+      "36": 29651,
+      "5+": 48970
+    },
+    "k_bin_mean_true_minus_t": {
+      "k=0": 105.64,
+      "k=1": 125.25,
+      "k=2": 159.8,
+      "k=3": 186.52,
+      "k=4": 217.83,
+      "k≥5": 300.33
+    }
+  },
+  "monotonic": true,
+  "pass_step0": true,
+  "total_time_sec": 15.6
+}
